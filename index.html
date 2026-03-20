@@ -295,13 +295,19 @@ thead th.sort-desc::after{content:' ▼';color:var(--acc);font-size:7px}
 .snap-chart-wrap{height:140px;margin-top:8px}
 /* MOBILE */
 @media(max-width:640px){
-  .sidebar{display:none}
-  .main{width:100%;min-width:0}
-  .content{padding:10px 10px}
+  .sidebar{width:44px;min-width:44px;overflow:hidden}
+  .sidebar .sb-lbl,.sidebar .sb-cnt,.sidebar .sb-name span:not(.sb-dot),.sidebar .sb-add-row,.sidebar .sb-sec:not(:first-child){display:none}
+  .sidebar .sb-item{justify-content:center;padding:6px}
+  .sidebar .sb-name{font-size:14px}
+  .content{padding:10px 8px}
   .page-hdr{padding:10px 10px 6px}
   td{padding:5px 7px;font-size:10px}
   thead th{padding:5px 7px;font-size:8px}
   .topbar{padding:0 8px}
+  .charts-row{grid-template-columns:1fr}
+  .hero{flex-direction:column;gap:8px}
+  .hero-stats{flex-wrap:wrap;gap:8px}
+  .auth-card{width:90vw;padding:24px 18px}
 }
 </style>
 </head>
