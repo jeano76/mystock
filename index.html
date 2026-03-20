@@ -1522,12 +1522,25 @@ function App(props){
   }
 
   function exportCSV(){
-    var rows=['ticker,name,account,shares,buyPrice,divYield'];
+    var rows=[
+      '# Portfolio Manager CSV Export - '+new Date().toISOString().slice(0,10),
+      '# ticker: 종목코드 (예: AAPL, 005930.KS)',
+      '# name: 종목명',
+      '# account: 계좌명',
+      '# shares: 보유수량',
+      '# buyPrice: 평균매수가 (USD 또는 KRW)',
+      '# divYield: 배당수익률 % (없으면 0)',
+      '#',
+      '# [SAMPLE] ticker,name,account,shares,buyPrice,divYield',
+      '# [SAMPLE] AAPL,"Apple Inc","Brokerage",10,175.50,0.55',
+      '# [SAMPLE] 005930.KS,"삼성전자","증권계좌",5,72000,2.3',
+      'ticker,name,account,shares,buyPrice,divYield'
+    ];
     positions.forEach(function(p){
       rows.push([p.ticker,'"'+(p.name||p.ticker)+'"','"'+p.account+'"',p.shares,p.buyPrice,p.divYield||0].join(','));
     });
     var a=document.createElement('a');
-    a.href=URL.createObjectURL(new Blob([rows.join('\n')],{type:'text/csv'}));
+    a.href=URL.createObjectURL(new Blob([rows.join('\n')],{type:'text/csv;charset=utf-8;'}));
     a.download='portfolio.csv';a.click();
   }
   function exportJSON(){
@@ -1539,7 +1552,7 @@ function App(props){
   function importCSV(file){
     var reader=new FileReader();
     reader.onload=function(e){
-      var lines=e.target.result.split('\n').filter(Boolean).slice(1);
+      var lines=e.target.result.split('\n').filter(function(l){return l.trim()&&!l.trim().startsWith('#')}).slice(1);
       var newPos=lines.map(function(line,idx){
         var vals=line.split(',');
         return {id:Date.now()+idx,ticker:(vals[0]||'').trim().toUpperCase(),
