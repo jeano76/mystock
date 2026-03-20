@@ -867,7 +867,7 @@ async function hashPassword(pw,salt){
   return Array.from(new Uint8Array(bits)).map(function(b){return b.toString(16).padStart(2,'0')}).join('')}
 function getAuth(){try{return JSON.parse(localStorage.getItem('pfm_auth')||'null')}catch{return null}}
 function saveAuth(v){localStorage.setItem('pfm_auth',JSON.stringify(v))}
-function clearAllData(){Object.keys(localStorage).filter(function(k){return k.startsWith('pfm3_')||k.startsWith('pfm_rl')}).forEach(function(k){localStorage.removeItem(k)})}
+function clearAllData(){Object.keys(localStorage).filter(function(k){return k.startsWith('pfm3_')||k.startsWith('pfm_rl')}).forEach(function(k){localStorage.removeItem(k)});localStorage.removeItem('pfm3_session')}
 
 // ── 포트폴리오 계산 ──
 function calcPort(pos,prices,usdRate){
@@ -2220,14 +2220,14 @@ function SiteFooter(props){
 
 // ── Main ──
 function Main(){
-  var ls=useState(false);var isLoggedIn=ls[0];var setIsLoggedIn=ls[1];
+  var ls=useState(function(){return !!localStorage.getItem('pfm3_session')&&!!getAuth()});var isLoggedIn=ls[0];var setIsLoggedIn=ls[1];
   var hs=useState(function(){return !!getAuth()});var hasAccount=hs[0];var setHasAccount=hs[1];
   var cs=useState(function(){return localStorage.getItem('pfm_cookie')||null});var cookieConsent=cs[0];var setCookieConsent=cs[1];
   var lms=useState(null);var legalModal=lms[0];var setLegalModal=lms[1];
   var lgs=useState(function(){return localStorage.getItem('pfm3_lang')||'ko'});var lang=lgs[0];var setLang=lgs[1];
 
-  function handleLogin(){setIsLoggedIn(true)}
-  function handleLogout(){setIsLoggedIn(false)}
+  function handleLogin(){localStorage.setItem('pfm3_session','1');setIsLoggedIn(true)}
+  function handleLogout(){localStorage.removeItem('pfm3_session');setIsLoggedIn(false)}
   function acceptCookie(){localStorage.setItem('pfm_cookie','accepted');setCookieConsent('accepted')}
   function rejectCookie(){localStorage.setItem('pfm_cookie','rejected');setCookieConsent('rejected')}
   function toggleLang(){var nl=lang==='ko'?'en':'ko';localStorage.setItem('pfm3_lang',nl);setLang(nl)}
