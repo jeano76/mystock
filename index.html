@@ -193,7 +193,9 @@ td.r{text-align:right}
 .settings-modal{width:520px}
 .api-item{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:11px 13px;display:flex;flex-direction:column;gap:7px}
 .api-item-head{display:flex;align-items:center;justify-content:space-between}
-.api-item-name{font-size:11px;font-weight:600;color:var(--text)}
+.api-item-name{font-size:11px;font-weight:600;color:var(--text);display:flex;align-items:center;gap:5px}
+.api-item-link{font-size:9px;color:var(--accent);text-decoration:none;opacity:0.7;line-height:1}
+.api-item-link:hover{opacity:1}
 .api-item-desc{font-size:9px;color:var(--text3);margin-top:2px}
 .api-item-status{font-size:9px;font-family:var(--mono);padding:2px 6px;border-radius:4px;flex-shrink:0}
 .api-ok{background:var(--green3);color:var(--green)}
@@ -702,9 +704,9 @@ function SettingsModal(props){
   var rate=rateState[0],setRate=rateState[1];
   var rl=getRLS();
   var apis=[
-    {id:'finnhub',name:'Finnhub',desc:'분당 60회 무료 · 미국 주식 실시간(15분 지연) · finnhub.io'},
-    {id:'twelve',name:'Twelve Data',desc:'일 800회 무료 · 배치 조회 지원 · twelvedata.com'},
-    {id:'alpha',name:'Alpha Vantage',desc:'일 25회 무료 · 미국 주식 · alphavantage.co'},
+    {id:'finnhub',name:'Finnhub',desc:'분당 60회 무료 · 미국 주식 실시간(15분 지연)',url:'https://finnhub.io'},
+    {id:'twelve',name:'Twelve Data',desc:'일 800회 무료 · 배치 조회 지원',url:'https://twelvedata.com'},
+    {id:'alpha',name:'Alpha Vantage',desc:'일 25회 무료 · 미국 주식',url:'https://www.alphavantage.co'},
   ];
   return React.createElement('div',{className:'overlay',onClick:function(e){if(e.target===e.currentTarget)onClose()}},
     React.createElement('div',{className:'modal settings-modal'},
@@ -731,7 +733,10 @@ function SettingsModal(props){
           return React.createElement('div',{key:api.id,className:'api-item'},
             React.createElement('div',{className:'api-item-head'},
               React.createElement('div',null,
-                React.createElement('div',{className:'api-item-name'},api.name),
+                React.createElement('div',{className:'api-item-name'},
+                  api.name,
+                  React.createElement('a',{href:api.url,target:'_blank',rel:'noopener noreferrer',className:'api-item-link',title:api.url},'↗')
+                ),
                 React.createElement('div',{className:'api-item-desc'},api.desc)
               ),
               React.createElement('span',{className:statusCls},statusTxt)
@@ -1304,7 +1309,14 @@ function RegisterScreen(props){
     React.createElement('div',{className:'auth-card'},
       React.createElement('div',{className:'auth-logo'},React.createElement('em',null,'▸'),'PORTFOLIO'),
       React.createElement('div',{className:'auth-title'},'계정 만들기'),
-      React.createElement('div',{className:'auth-sub'},'처음 사용하시는군요! 아이디와 비밀번호를 설정해주세요.',React.createElement('br'),'비밀번호는 암호화되어 로컬에 저장됩니다.'),
+      React.createElement('div',{className:'auth-sub'},
+        '처음 사용하시는군요! 아이디와 비밀번호를 설정해주세요.',React.createElement('br'),
+        React.createElement('span',{style:{color:'var(--text3)',fontSize:10}},
+          '🔒 비밀번호는 ',React.createElement('strong',null,'PBKDF2-SHA256'),
+          ' (10만 회 반복 + 랜덤 Salt) 으로 해시되어 저장됩니다.',React.createElement('br'),
+          '원본 비밀번호는 어디에도 저장되지 않으며, 이 기기 밖으로 전송되지 않습니다.'
+        )
+      ),
       err&&React.createElement('div',{className:'auth-err'},err),
       React.createElement('div',{className:'field'},React.createElement('label',null,'아이디'),React.createElement('input',{type:'text',placeholder:'3자 이상 입력',value:id,onChange:function(e){setId(e.target.value)},onKeyDown:function(e){if(e.key==='Enter')submit()},autoFocus:true})),
       React.createElement('div',{className:'field'},React.createElement('label',null,'비밀번호'),React.createElement('input',{type:'password',placeholder:'6자 이상 입력',value:pw,onChange:function(e){setPw(e.target.value)},onKeyDown:function(e){if(e.key==='Enter')submit()}})),
@@ -1401,7 +1413,7 @@ var LEGAL={
       {h:'3. 제3자 API',p:'가격 조회 시 Yahoo Finance, Finnhub, Twelve Data, Alpha Vantage 등 외부 API에 종목 코드(티커)가 전송될 수 있습니다. 해당 서비스의 개인정보처리방침을 확인하세요. API 키는 사용자 브라우저에만 저장됩니다.'},
       {h:'4. 데이터 보안',p:'로그인 비밀번호는 PBKDF2-SHA256 알고리즘(10만 반복)으로 해시 처리되어 저장됩니다. 원본 비밀번호는 어디에도 저장되지 않습니다.'},
       {h:'5. 데이터 삭제',p:"비밀번호 초기화 기능을 사용하면 모든 로컬 데이터를 삭제할 수 있습니다. 브라우저의 '사이트 데이터 삭제' 기능을 통해서도 모든 데이터를 삭제할 수 있습니다."},
-      {h:'6. 문의',p:'개인정보 관련 문의사항은 하단 문의하기를 이용해주세요.'},
+      {h:'6. 문의',p:'개인정보 관련 문의사항은 admin@usefulinfoapp.com 또는 하단 문의하기를 이용해주세요.'},
     ]
   },
   terms:{
