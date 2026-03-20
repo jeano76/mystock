@@ -43,10 +43,10 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--s
 .sb-toggle:hover{background:var(--bg4);color:var(--text)}
 .sb-logo-row{display:flex;align-items:center;justify-content:space-between}
 .main{flex:1;overflow-y:auto;display:flex;flex-direction:column}
-.topbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 20px;height:50px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;position:sticky;top:0;z-index:50}
+.topbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 14px;min-height:50px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;position:sticky;top:0;z-index:50;flex-wrap:wrap;gap:6px}
 .logo{font-family:var(--mono);font-size:13px;font-weight:500;letter-spacing:.06em}
 .logo em{color:var(--acc);font-style:normal}
-.topbar-right{display:flex;gap:8px;align-items:center}
+.topbar-right{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
 .btn{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:6px;border:1px solid var(--border2);background:var(--bg4);color:var(--text);cursor:pointer;font-family:var(--sans);font-size:11px;font-weight:500;transition:all .15s;white-space:nowrap}
 .btn:hover{background:var(--bg5);border-color:var(--acc)}
 .btn:disabled{opacity:.5;cursor:not-allowed}
@@ -114,8 +114,8 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--s
 .sec-legend{display:flex;flex-wrap:wrap;gap:7px}
 .sec-leg-item{display:flex;align-items:center;gap:4px;font-size:9px;color:var(--text2)}
 .sec-dot{width:7px;height:7px;border-radius:2px;flex-shrink:0}
-.filter-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
-.pills{display:flex;gap:4px}
+.filter-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:6px}
+.pills{display:flex;gap:4px;flex-wrap:wrap}
 .pill{padding:4px 9px;border-radius:20px;font-size:10px;font-weight:500;cursor:pointer;border:1px solid var(--border2);color:var(--text3);background:transparent;transition:all .15s}
 .pill.active{background:var(--acc);border-color:var(--acc);color:#fff}
 .pill:hover:not(.active){background:var(--bg4);color:var(--text)}
@@ -250,6 +250,42 @@ td.r{text-align:right}
 .filter-add-row select:focus{border-color:var(--acc)}
 /* ACCOUNT RENAME */
 .acc-rename-input{background:var(--bg4);border:1px solid var(--acc);color:var(--text);padding:2px 6px;border-radius:4px;font-size:11px;font-family:var(--sans);outline:none;width:90px}
+/* SORT */
+thead th.sortable{cursor:pointer;user-select:none;transition:color .1s}
+thead th.sortable:hover{color:var(--text)}
+thead th.sort-asc::after{content:' ▲';color:var(--acc);font-size:7px}
+thead th.sort-desc::after{content:' ▼';color:var(--acc);font-size:7px}
+/* SEARCH */
+.search-row{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.search-input{flex:1;max-width:220px;background:var(--bg3);border:1px solid var(--border2);color:var(--text);padding:5px 10px;border-radius:6px;font-size:11px;font-family:var(--sans);outline:none;transition:border-color .15s}
+.search-input:focus{border-color:var(--acc)}
+.search-input::placeholder{color:var(--text3)}
+/* UNDO BAR */
+.undo-bar{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--bg4);border:1px solid var(--border2);border-radius:8px;padding:9px 18px;display:flex;align-items:center;gap:14px;z-index:300;font-size:11px;box-shadow:0 4px 24px rgba(0,0,0,.5);animation:fadeInUp .2s ease}
+.undo-btn{color:var(--acc);cursor:pointer;font-weight:600;font-size:11px;background:none;border:none;padding:0;font-family:var(--sans)}
+.undo-btn:hover{text-decoration:underline}
+@keyframes fadeInUp{from{opacity:0;transform:translateX(-50%) translateY(10px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+/* IO MODAL */
+.io-section{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:12px;display:flex;flex-direction:column;gap:6px}
+.io-section h4{font-size:11px;font-weight:600;color:var(--text2);margin-bottom:2px}
+.io-section p{font-size:10px;color:var(--text3)}
+.io-btns{display:flex;gap:7px;flex-wrap:wrap}
+/* HEATMAP */
+.heat-cell{border-radius:3px;padding:1px 3px}
+/* REBALANCE */
+.rebal-row{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--border)}
+.rebal-row:last-child{border-bottom:none}
+.rebal-name{font-size:10px;color:var(--text2);width:90px;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rebal-bars{flex:1;display:flex;flex-direction:column;gap:3px}
+.rebal-bar-wrap{position:relative;background:var(--bg4);border-radius:3px;height:6px;overflow:visible}
+.rebal-bar-actual{height:100%;border-radius:3px;transition:width .5s}
+.rebal-target-line{position:absolute;top:-2px;bottom:-2px;width:2px;background:var(--yellow);border-radius:1px;z-index:2}
+.rebal-nums{font-family:var(--mono);font-size:9px;display:flex;gap:6px}
+.rebal-input{background:var(--bg4);border:1px solid var(--border2);color:var(--text);padding:2px 4px;border-radius:4px;font-size:9px;font-family:var(--mono);width:38px;outline:none;text-align:center}
+.rebal-input:focus{border-color:var(--acc)}
+/* SNAPSHOT */
+.snapshot-card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:12px}
+.snap-chart-wrap{height:140px;margin-top:8px}
 </style>
 </head>
 <body>
@@ -485,6 +521,19 @@ const T={
     filterTypeAll:'전체',filterTypeUS:'미국주식',filterTypeKR:'한국주식',filterTypeETF:'ETF',filterTypeSector:'섹터',
     addFilter:'+ 추가',filterSector:'섹터 선택',filterManageTitle:'필터 관리',
     renameAccPh:'새 계좌명',
+    searchPh:'종목 검색…',noResult:'검색 결과 없음',
+    deleted:'삭제됨',undo:'되돌리기',
+    exportTitle:'내보내기 / 가져오기',
+    exportCSV:'CSV 내보내기',exportCSVDesc:'포지션을 엑셀 호환 CSV로 저장',
+    exportJSON:'전체 백업 (JSON)',exportJSONDesc:'계좌·포지션·설정 전체를 JSON으로 저장',
+    importCSV:'CSV 가져오기',importCSVDesc:'CSV 파일에서 포지션을 일괄 추가',
+    importJSON:'백업 복원 (JSON)',importJSONDesc:'JSON 백업 파일로 전체 데이터 복원',
+    importConfirm:'복원하면 기존 데이터가 덮어씌워집니다. 계속하시겠습니까?',
+    failedTickersTitle:'가격 조회 실패 종목',
+    targetAlloc:'목표 비중',saveTarget:'저장',
+    snapshotBtn:'📸 스냅샷',snapshotSaved:'스냅샷 저장됨',
+    portfolioHistory:'포트폴리오 가치 추이',snapCount:function(n){return n+'개 스냅샷 저장됨'},
+    accountCtx:function(a){return a+' 계좌'},
   },
   en:{
     shortly:'Shortly',justNow:'Now',
@@ -573,6 +622,19 @@ const T={
     filterTypeAll:'All',filterTypeUS:'US Stocks',filterTypeKR:'Korean Stocks',filterTypeETF:'ETF',filterTypeSector:'Sector',
     addFilter:'+ Add',filterSector:'Select sector',filterManageTitle:'Manage Filters',
     renameAccPh:'New account name',
+    searchPh:'Search positions…',noResult:'No results found',
+    deleted:'Deleted',undo:'Undo',
+    exportTitle:'Export / Import',
+    exportCSV:'Export CSV',exportCSVDesc:'Save positions as Excel-compatible CSV',
+    exportJSON:'Full Backup (JSON)',exportJSONDesc:'Export all accounts, positions & settings as JSON',
+    importCSV:'Import CSV',importCSVDesc:'Bulk-add positions from a CSV file',
+    importJSON:'Restore Backup (JSON)',importJSONDesc:'Restore all data from a JSON backup file',
+    importConfirm:'Restoring will overwrite existing data. Continue?',
+    failedTickersTitle:'Failed to fetch prices',
+    targetAlloc:'Target Allocation',saveTarget:'Save',
+    snapshotBtn:'📸 Snapshot',snapshotSaved:'Snapshot saved',
+    portfolioHistory:'Portfolio Value History',snapCount:function(n){return n+' snapshots saved'},
+    accountCtx:function(a){return a+' account'},
   }
 };
 
@@ -979,7 +1041,7 @@ function SettingsModal(props){
 
 // ── 포지션 행 ──
 function PRow(props){
-  var p=props.p,prices=props.prices,portVal=props.portVal,usdRate=props.usdRate,onEdit=props.onEdit,onDel=props.onDel;
+  var p=props.p,prices=props.prices,portVal=props.portVal,usdRate=props.usdRate,onEdit=props.onEdit,onDel=props.onDel,failedTickers=props.failedTickers||[];
   var st=STOCKS.find(function(s){return s.t===p.ticker});
   var isKRW=st&&st.cur==='KRW';
   var rate=isKRW?(usdRate||1370):1;
@@ -996,6 +1058,12 @@ function PRow(props){
   var f2=function(v){return '$'+Math.abs(v).toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2})};
   var fP=function(v){return isKRW?'₩'+Math.round(v).toLocaleString('ko'):f2(v)};
   var dispT=dispTicker(p.ticker);
+  var isFailed=failedTickers.indexOf(p.ticker)>=0;
+  function heatBg(v){
+    var c=Math.max(-25,Math.min(25,v));
+    var t=Math.abs(c)/25*0.22;
+    return c>=0?'rgba(23,232,161,'+t+')':'rgba(255,77,114,'+t+')';
+  }
   return React.createElement('tr',null,
     React.createElement('td',null,
       React.createElement('div',{className:'ticker-cell'},
@@ -1009,10 +1077,13 @@ function PRow(props){
     React.createElement('td',null,React.createElement('span',{className:'acc-badge'},p.account)),
     React.createElement('td',{className:'r num'},p.shares.toLocaleString('en',{maximumFractionDigits:4})),
     React.createElement('td',{className:'r num dim'},fP(p.buyPrice)),
-    React.createElement('td',{className:'r num'},fP(rawPrice)),
+    React.createElement('td',{className:'r num'},
+      React.createElement('span',null,fP(rawPrice)),
+      isFailed&&React.createElement('span',{title:'Price not updated',style:{marginLeft:3,color:'var(--yellow)',fontSize:9}},'⚠')
+    ),
     React.createElement('td',{className:'r num'},f2(val)),
-    React.createElement('td',{className:'r num '+(gain>=0?'g':'r2')},(gain>=0?'+':'-')+f2(gain)),
-    React.createElement('td',{className:'r num '+(pct>=0?'g':'r2')},(pct>=0?'+':'')+pct.toFixed(2)+'%'),
+    React.createElement('td',{className:'r num '+(gain>=0?'g':'r2'),style:{background:heatBg(pct)}},(gain>=0?'+':'-')+f2(gain)),
+    React.createElement('td',{className:'r num '+(pct>=0?'g':'r2'),style:{background:heatBg(pct)}},(pct>=0?'+':'')+pct.toFixed(2)+'%'),
     React.createElement('td',{className:'r num '+(dy>0?'g':'dim')},dy>0?dy.toFixed(2)+'%':'—'),
     React.createElement('td',{className:'r num '+(aDiv>0?'g':'dim')},aDiv>0?'$'+aDiv.toFixed(2):'—'),
     React.createElement('td',{className:'r num dim'},wt.toFixed(1)+'%'),
@@ -1200,6 +1271,77 @@ function FilterModal(props){
   );
 }
 
+// ── Snapshot Line Chart ──
+function SnapChart(props){
+  var snapshots=props.snapshots;
+  var ref=React.useRef();
+  var chart=React.useRef();
+  useEffect(function(){
+    if(!ref.current||snapshots.length<2) return;
+    if(chart.current) chart.current.destroy();
+    var sorted=snapshots.slice().sort(function(a,b){return a.date<b.date?-1:1});
+    chart.current=new Chart(ref.current,{
+      type:'line',
+      data:{
+        labels:sorted.map(function(s){return s.date.slice(5)}),
+        datasets:[{
+          data:sorted.map(function(s){return s.val}),
+          borderColor:'#3d8ef8',backgroundColor:'rgba(61,142,248,.08)',
+          borderWidth:2,pointRadius:3,pointHoverRadius:5,tension:.3,fill:true
+        }]
+      },
+      options:{
+        responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{display:false},tooltip:{callbacks:{label:function(ctx){return '$'+ctx.parsed.y.toLocaleString('en',{maximumFractionDigits:0})}}}},
+        scales:{
+          x:{grid:{color:'rgba(30,37,53,.8)'},ticks:{color:'#4a5470',font:{size:9}}},
+          y:{grid:{color:'rgba(30,37,53,.8)'},ticks:{color:'#4a5470',font:{size:9},callback:function(v){return '$'+(v>=1000?(v/1000).toFixed(0)+'K':v)}}}
+        }
+      }
+    });
+    return function(){if(chart.current)chart.current.destroy()};
+  },[snapshots]);
+  return React.createElement('div',{className:'snap-chart-wrap'},React.createElement('canvas',{ref:ref}));
+}
+
+// ── IO Modal (Export / Import) ──
+function IOModal(props){
+  var onClose=props.onClose,lang=props.lang||'ko';
+  var l=T[lang];
+  var csvRef=React.useRef();var jsonRef=React.useRef();
+  return React.createElement('div',{className:'overlay',onClick:function(e){if(e.target===e.currentTarget)onClose()}},
+    React.createElement('div',{className:'modal',style:{maxWidth:420}},
+      React.createElement('div',{className:'modal-hd'},
+        React.createElement('div',{className:'modal-title'},l.exportTitle),
+        React.createElement('button',{className:'close-x',onClick:onClose},'×')
+      ),
+      React.createElement('div',{style:{padding:'14px 16px',display:'flex',flexDirection:'column',gap:10}},
+        React.createElement('div',{className:'io-section'},
+          React.createElement('h4',null,'⬆ '+l.exportTitle.split('/')[0].trim()),
+          React.createElement('div',{className:'io-btns'},
+            React.createElement('button',{className:'btn btn-sm',onClick:props.onExportCSV},l.exportCSV),
+            React.createElement('button',{className:'btn btn-sm',onClick:props.onExportJSON},l.exportJSON)
+          ),
+          React.createElement('p',null,l.exportCSVDesc+' / '+l.exportJSONDesc)
+        ),
+        React.createElement('div',{className:'io-section'},
+          React.createElement('h4',null,'⬇ '+l.exportTitle.split('/')[1].trim()),
+          React.createElement('div',{className:'io-btns'},
+            React.createElement('button',{className:'btn btn-sm',onClick:function(){csvRef.current.click()}},l.importCSV),
+            React.createElement('button',{className:'btn btn-sm',onClick:function(){jsonRef.current.click()}},l.importJSON)
+          ),
+          React.createElement('p',null,l.importCSVDesc+' / '+l.importJSONDesc),
+          React.createElement('input',{type:'file',accept:'.csv',ref:csvRef,style:{display:'none'},onChange:function(e){if(e.target.files[0]){props.onImportCSV(e.target.files[0]);onClose()}}}),
+          React.createElement('input',{type:'file',accept:'.json',ref:jsonRef,style:{display:'none'},onChange:function(e){if(e.target.files[0]){props.onImportJSON(e.target.files[0]);onClose()}}})
+        )
+      ),
+      React.createElement('div',{className:'modal-ft'},
+        React.createElement('button',{className:'btn',onClick:onClose},l.cancel)
+      )
+    )
+  );
+}
+
 // ── App ──
 function App(props){
   var onLogout=props.onLogout||function(){};
@@ -1233,7 +1375,18 @@ function App(props){
   var rss=useState('');var refreshStatus=rss[0];var setRefreshStatus=rss[1];
   var tss=useState([]);var toasts=tss[0];var setToasts=tss[1];
   var css=useState(function(){return ld('sidebarCollapsed',false)});var sidebarCollapsed=css[0];var setSidebarCollapsed=css[1];
+  var scs=useState('');var sortCol=scs[0];var setSortCol=scs[1];
+  var sds=useState('desc');var sortDir=sds[0];var setSortDir=sds[1];
+  var sqs=useState('');var searchQ=sqs[0];var setSearchQ=sqs[1];
+  var uds=useState(null);var undoData=uds[0];var setUndoData=uds[1];
+  var sios=useState(false);var showIO=sios[0];var setShowIO=sios[1];
+  var fts=useState([]);var failedTickers=fts[0];var setFailedTickers=fts[1];
+  var ftp=useState(false);var showFailedPopup=ftp[0];var setShowFailedPopup=ftp[1];
+  var tas=useState(function(){return ld('targetAlloc',{})});var targetAlloc=tas[0];var setTargetAlloc=tas[1];
+  var snaps=useState(function(){return ld('snapshots',[])});var snapshots=snaps[0];var setSnapshots=snaps[1];
   useEffect(function(){sv('sidebarCollapsed',sidebarCollapsed)},[sidebarCollapsed]);
+  useEffect(function(){sv('targetAlloc',targetAlloc)},[targetAlloc]);
+  useEffect(function(){sv('snapshots',snapshots)},[snapshots]);
   useEffect(function(){sv('accounts',accounts)},[accounts]);
   useEffect(function(){sv('positions',positions)},[positions]);
   useEffect(function(){sv('apiKeys',apiKeys)},[apiKeys]);
@@ -1274,6 +1427,44 @@ function App(props){
   var dTotal=donutData.reduce(function(a,b){return a+b.v},0);
   var maxDiv=Math.max.apply(null,port.dbm.concat([1]));
 
+  var displayPositions=useMemo(function(){
+    var list=filtered.slice();
+    if(searchQ.trim()){
+      var q=searchQ.trim().toLowerCase();
+      list=list.filter(function(p){return p.ticker.toLowerCase().includes(q)||(p.name||'').toLowerCase().includes(q)});
+    }
+    if(sortCol){
+      var getKey=function(p){
+        var st=STOCKS.find(function(s){return s.t===p.ticker});
+        var rate=st&&st.cur==='KRW'?(usdRate||1370):1;
+        var cur=(prices[p.ticker]||p.buyPrice)/rate;
+        var cost=p.shares*(p.buyPrice/rate);
+        var val=p.shares*cur;
+        var gain=val-cost;
+        switch(sortCol){
+          case 'ticker': return p.ticker;
+          case 'account': return p.account;
+          case 'shares': return p.shares;
+          case 'buy': return p.buyPrice/rate;
+          case 'cur': return cur;
+          case 'val': return val;
+          case 'gain': return gain;
+          case 'pct': return cost?(gain/cost*100):0;
+          case 'dy': return p.divYield||0;
+          case 'adiv': return val*((p.divYield||0)/100);
+          case 'wt': return port.val>0?val/port.val*100:0;
+          default: return 0;
+        }
+      };
+      list.sort(function(a,b){
+        var va=getKey(a),vb=getKey(b);
+        var d=typeof va==='string'?va.localeCompare(vb):va-vb;
+        return sortDir==='asc'?d:-d;
+      });
+    }
+    return list;
+  },[filtered,sortCol,sortDir,searchQ,prices,usdRate,port.val]);
+
   var grouped={};
   filtered.forEach(function(p){if(!grouped[p.account])grouped[p.account]=[];grouped[p.account].push(p)});
 
@@ -1288,6 +1479,8 @@ function App(props){
       var result=await fetchAllPrices(positions,apiKeys,function(msg){setRefreshStatus(msg)},lang);
       var newP=result.prices,msgs=result.msgs;
       if(Object.keys(newP).length>0) setPrices(function(prev){return Object.assign({},prev,newP)});
+      var failed=positions.filter(function(p){return !newP[p.ticker]}).map(function(p){return p.ticker});
+      setFailedTickers(failed);
       msgs.forEach(function(m){addToast(m)});
       var allLimited=msgs.length>0&&msgs.every(function(m){return m.type==='limit'});
       if(allLimited) addToast({type:'warn',text:l.allLimitWarn,sub:l.allLimitSub});
@@ -1307,8 +1500,80 @@ function App(props){
     else setPositions(positions.concat([Object.assign({},pos,{id:Date.now()})]));
     setShowModal(false);setEditPos(null);
   }
-  function delPos(id){setPositions(positions.filter(function(p){return p.id!==id}))}
+  function delPos(id){
+    var deleted=positions.find(function(p){return p.id===id});
+    if(!deleted) return;
+    if(undoData&&undoData.timer) clearTimeout(undoData.timer);
+    var timer=setTimeout(function(){setUndoData(null)},5000);
+    setUndoData({type:'pos',data:deleted,timer:timer});
+    setPositions(positions.filter(function(p){return p.id!==id}));
+  }
+  function undoDelete(){
+    if(!undoData) return;
+    clearTimeout(undoData.timer);
+    if(undoData.type==='pos') setPositions(function(prev){return prev.concat([undoData.data])});
+    setUndoData(null);
+  }
   function saveSettings(keys,rate){setApiKeys(keys);setUsdRate(rate);addToast({type:'success',text:l.settingsSaved,sub:null})}
+
+  function doSort(col){
+    if(sortCol===col) setSortDir(function(d){return d==='asc'?'desc':'asc'});
+    else{setSortCol(col);setSortDir('desc')}
+  }
+
+  function exportCSV(){
+    var rows=['ticker,name,account,shares,buyPrice,divYield'];
+    positions.forEach(function(p){
+      rows.push([p.ticker,'"'+(p.name||p.ticker)+'"','"'+p.account+'"',p.shares,p.buyPrice,p.divYield||0].join(','));
+    });
+    var a=document.createElement('a');
+    a.href=URL.createObjectURL(new Blob([rows.join('\n')],{type:'text/csv'}));
+    a.download='portfolio.csv';a.click();
+  }
+  function exportJSON(){
+    var data={accounts:accounts,positions:positions,apiKeys:apiKeys,usdRate:usdRate,filters:filters};
+    var a=document.createElement('a');
+    a.href=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));
+    a.download='portfolio-backup.json';a.click();
+  }
+  function importCSV(file){
+    var reader=new FileReader();
+    reader.onload=function(e){
+      var lines=e.target.result.split('\n').filter(Boolean).slice(1);
+      var newPos=lines.map(function(line,idx){
+        var vals=line.split(',');
+        return {id:Date.now()+idx,ticker:(vals[0]||'').trim().toUpperCase(),
+          name:(vals[1]||'').replace(/"/g,'').trim(),
+          account:(vals[2]||accounts[0]||'').replace(/"/g,'').trim(),
+          shares:parseFloat(vals[3])||0,buyPrice:parseFloat(vals[4])||0,divYield:parseFloat(vals[5])||0};
+      }).filter(function(p){return p.ticker&&p.shares>0});
+      setPositions(function(prev){return prev.concat(newPos)});
+    };
+    reader.readAsText(file);
+  }
+  function importJSON(file){
+    if(!window.confirm(l.importConfirm)) return;
+    var reader=new FileReader();
+    reader.onload=function(e){
+      try{
+        var data=JSON.parse(e.target.result);
+        if(data.accounts) setAccounts(data.accounts);
+        if(data.positions) setPositions(data.positions);
+        if(data.apiKeys) setApiKeys(data.apiKeys);
+        if(data.usdRate) setUsdRate(data.usdRate);
+        if(data.filters) setFilters(data.filters);
+      }catch(err){addToast({type:'error',text:'JSON parse error',sub:null})}
+    };
+    reader.readAsText(file);
+  }
+  function saveSnapshot(){
+    var snap={date:new Date().toISOString().slice(0,10),val:port.val,gain:port.gain,pct:port.gainPct};
+    setSnapshots(function(prev){
+      var updated=prev.filter(function(s){return s.date!==snap.date});
+      return updated.concat([snap]).slice(-365);
+    });
+    addToast({type:'success',text:l.snapshotSaved,sub:null});
+  }
 
   var hasKR=positions.some(function(p){return isKR(p.ticker)});
 
@@ -1391,6 +1656,9 @@ function App(props){
           React.createElement(ApiStatus,{apiKeys:apiKeys,lang:lang}),
           refreshStatus&&React.createElement('span',{className:'refresh-status'},refreshStatus),
           React.createElement('button',{className:'btn btn-sm',onClick:function(){setShowSettings(true)}},l.apiBtn),
+          failedTickers.length>0&&React.createElement('span',{style:{fontSize:9,color:'var(--yellow)',cursor:'pointer',fontFamily:'var(--mono)'},onClick:function(){setShowFailedPopup(true)},title:l.failedTickersTitle},'⚠ '+failedTickers.length),
+          React.createElement('button',{className:'btn btn-sm btn-ghost',onClick:function(){setShowIO(true)},title:l.exportTitle},'⇅'),
+          React.createElement('button',{className:'btn btn-sm btn-ghost',onClick:saveSnapshot,title:l.snapshotBtn},'📸'),
           React.createElement('button',{className:'btn btn-sm',onClick:refresh,disabled:refreshing},
             React.createElement('span',{className:refreshing?'spinning':''},'↻'),' ',refreshing?l.refreshing:l.refresh
           ),
@@ -1398,6 +1666,9 @@ function App(props){
         )
       ),
       React.createElement('div',{className:'content'},
+        selAcc!=='All'&&React.createElement('div',{style:{fontSize:10,color:'var(--acc)',fontFamily:'var(--mono)',marginBottom:6,letterSpacing:'.04em'}},
+          '● '+l.accountCtx(selAcc)
+        ),
         React.createElement('div',{className:'hero'},
           React.createElement('div',{className:'hero-top'},
             React.createElement('div',null,
@@ -1515,6 +1786,44 @@ function App(props){
                 );
               })
             )
+          ),
+
+          secs.length>0&&React.createElement('div',{className:'chart-card'},
+            React.createElement('div',{className:'chart-title'},
+              l.targetAlloc,
+              React.createElement('span',{className:'chart-sub'},l.saveTarget+' 클릭 시 저장')
+            ),
+            secs.map(function(sec,i){
+              var tgt=targetAlloc[sec.s]!==undefined?targetAlloc[sec.s]:0;
+              var diff=sec.pct-tgt;
+              return React.createElement('div',{key:sec.s,className:'rebal-row'},
+                React.createElement('div',{className:'rebal-name',title:sec.s},sec.s),
+                React.createElement('div',{className:'rebal-bars'},
+                  React.createElement('div',{className:'rebal-bar-wrap'},
+                    React.createElement('div',{className:'rebal-bar-actual',
+                      style:{width:Math.min(sec.pct,100)+'%',background:COLORS[i%COLORS.length]}}),
+                    tgt>0&&React.createElement('div',{className:'rebal-target-line',style:{left:Math.min(tgt,100)+'%'}})
+                  ),
+                  React.createElement('div',{className:'rebal-nums'},
+                    React.createElement('span',{style:{color:'var(--text3)'}},sec.pct.toFixed(1)+'%'),
+                    React.createElement('span',{style:{color:'var(--text4)'}},'/'),
+                    React.createElement('input',{className:'rebal-input',type:'number',min:0,max:100,step:0.5,
+                      placeholder:'0',defaultValue:tgt||'',
+                      onChange:function(e){var v=parseFloat(e.target.value)||0;setTargetAlloc(function(prev){var n=Object.assign({},prev);n[sec.s]=v;return n})}}),
+                    React.createElement('span',{style:{color:diff>2?'var(--red)':diff<-2?'var(--green)':'var(--text3)',fontWeight:Math.abs(diff)>2?600:400}},
+                      (diff>0?'↑':diff<0?'↓':'')+Math.abs(diff).toFixed(1)+'%')
+                  )
+                )
+              );
+            })
+          ),
+
+          snapshots.length>=2&&React.createElement('div',{className:'snapshot-card'},
+            React.createElement('div',{className:'chart-title'},
+              l.portfolioHistory,
+              React.createElement('span',{className:'chart-sub'},l.snapCount(snapshots.length))
+            ),
+            React.createElement(SnapChart,{snapshots:snapshots})
           )
         ),
 
@@ -1527,66 +1836,77 @@ function App(props){
               React.createElement('button',{className:'btn btn-sm btn-ghost',style:{padding:'2px 7px',fontSize:10},
                 onClick:function(){setShowFilterModal(true)},title:l.manageFilters},'⚙')
             ),
-            React.createElement('div',{style:{fontSize:9,color:'var(--text3)',fontFamily:'var(--mono)'}},l.posCount(filtered.length)+fmtK(port.val))
+            React.createElement('div',{style:{fontSize:9,color:'var(--text3)',fontFamily:'var(--mono)'}},l.posCount(displayPositions.length)+fmtK(port.val))
           ),
-          filtered.length===0
+          React.createElement('div',{className:'search-row'},
+            React.createElement('input',{className:'search-input',type:'text',placeholder:l.searchPh,
+              value:searchQ,onChange:function(e){setSearchQ(e.target.value)}})
+          ),
+          (filtered.length===0&&!searchQ)
             ?React.createElement('div',{className:'tbl-wrap'},
                 React.createElement('div',{className:'empty'},
                   React.createElement('div',{className:'empty-icon'},'📊'),
                   l.noPositions
                 )
               )
-            :React.createElement('div',{className:'tbl-wrap'},
-                React.createElement('table',null,
-                  React.createElement('thead',null,
-                    React.createElement('tr',null,
-                      React.createElement('th',null,l.thStock),
-                      React.createElement('th',null,l.thAccount),
-                      React.createElement('th',{className:'r'},l.thShares),
-                      React.createElement('th',{className:'r'},l.thBuy),
-                      React.createElement('th',{className:'r'},l.thCurrent),
-                      React.createElement('th',{className:'r'},l.thValue),
-                      React.createElement('th',{className:'r'},l.thGain),
-                      React.createElement('th',{className:'r'},l.thReturn),
-                      React.createElement('th',{className:'r'},l.thDiv),
-                      React.createElement('th',{className:'r'},l.thAnnDiv),
-                      React.createElement('th',{className:'r'},l.thWeight),
-                      React.createElement('th',null,'')
-                    )
-                  ),
-                  React.createElement('tbody',null,
-                    selAcc==='All'
-                      ?Object.entries(grouped).reduce(function(acc,entry){
-                          var accName=entry[0],rows=entry[1];
-                          var grpVal=rows.reduce(function(s,p){
-                            var st=STOCKS.find(function(x){return x.t===p.ticker});
-                            var rate=st&&st.cur==='KRW'?(usdRate||1370):1;
-                            return s+p.shares*(prices[p.ticker]||p.buyPrice)/rate;
-                          },0);
-                          return acc.concat([
-                            React.createElement('tr',{key:'gh'+accName,className:'grp-row'},
-                              React.createElement('td',{colSpan:12},
-                                React.createElement('span',{style:{display:'inline-flex',alignItems:'center',gap:6}},
-                                  React.createElement('span',{style:{width:7,height:7,borderRadius:'50%',background:DOT_C[accounts.indexOf(accName)%6],display:'inline-block'}}),
-                                  accName,
-                                  React.createElement('span',{className:'grp-info'},rows.length+' positions · '+fmtK(grpVal))
-                                )
-                              )
-                            )
-                          ].concat(rows.map(function(p){
-                            return React.createElement(PRow,{key:p.id,p:p,prices:prices,portVal:port.val,usdRate:usdRate,
-                              onEdit:function(){setEditPos(p);setShowModal(true)},
-                              onDel:function(){delPos(p.id)}});
-                          })));
-                        },[])
-                      :filtered.map(function(p){
-                          return React.createElement(PRow,{key:p.id,p:p,prices:prices,portVal:port.val,usdRate:usdRate,
-                            onEdit:function(){setEditPos(p);setShowModal(true)},
-                            onDel:function(){delPos(p.id)}});
-                        })
+            :displayPositions.length===0
+              ?React.createElement('div',{className:'tbl-wrap'},
+                  React.createElement('div',{className:'empty'},
+                    React.createElement('div',{className:'empty-icon'},'🔍'),
+                    l.noResult
                   )
                 )
-              )
+              :React.createElement('div',{className:'tbl-wrap'},
+                  React.createElement('table',null,
+                    React.createElement('thead',null,
+                      React.createElement('tr',null,
+                        React.createElement('th',{className:'sortable'+(sortCol==='ticker'?' sort-'+sortDir:''),onClick:function(){doSort('ticker')}},l.thStock),
+                        React.createElement('th',{className:'sortable'+(sortCol==='account'?' sort-'+sortDir:''),onClick:function(){doSort('account')}},l.thAccount),
+                        React.createElement('th',{className:'r sortable'+(sortCol==='shares'?' sort-'+sortDir:''),onClick:function(){doSort('shares')}},l.thShares),
+                        React.createElement('th',{className:'r sortable'+(sortCol==='buy'?' sort-'+sortDir:''),onClick:function(){doSort('buy')}},l.thBuy),
+                        React.createElement('th',{className:'r sortable'+(sortCol==='cur'?' sort-'+sortDir:''),onClick:function(){doSort('cur')}},l.thCurrent),
+                        React.createElement('th',{className:'r sortable'+(sortCol==='val'?' sort-'+sortDir:''),onClick:function(){doSort('val')}},l.thValue),
+                        React.createElement('th',{className:'r sortable'+(sortCol==='gain'?' sort-'+sortDir:''),onClick:function(){doSort('gain')}},l.thGain),
+                        React.createElement('th',{className:'r sortable'+(sortCol==='pct'?' sort-'+sortDir:''),onClick:function(){doSort('pct')}},l.thReturn),
+                        React.createElement('th',{className:'r sortable'+(sortCol==='dy'?' sort-'+sortDir:''),onClick:function(){doSort('dy')}},l.thDiv),
+                        React.createElement('th',{className:'r sortable'+(sortCol==='adiv'?' sort-'+sortDir:''),onClick:function(){doSort('adiv')}},l.thAnnDiv),
+                        React.createElement('th',{className:'r sortable'+(sortCol==='wt'?' sort-'+sortDir:''),onClick:function(){doSort('wt')}},l.thWeight),
+                        React.createElement('th',null,'')
+                      )
+                    ),
+                    React.createElement('tbody',null,
+                      (selAcc==='All'&&!searchQ&&!sortCol)
+                        ?Object.entries(grouped).reduce(function(acc,entry){
+                            var accName=entry[0],rows=entry[1];
+                            var grpVal=rows.reduce(function(s,p){
+                              var st=STOCKS.find(function(x){return x.t===p.ticker});
+                              var rate=st&&st.cur==='KRW'?(usdRate||1370):1;
+                              return s+p.shares*(prices[p.ticker]||p.buyPrice)/rate;
+                            },0);
+                            return acc.concat([
+                              React.createElement('tr',{key:'gh'+accName,className:'grp-row'},
+                                React.createElement('td',{colSpan:12},
+                                  React.createElement('span',{style:{display:'inline-flex',alignItems:'center',gap:6}},
+                                    React.createElement('span',{style:{width:7,height:7,borderRadius:'50%',background:DOT_C[accounts.indexOf(accName)%6],display:'inline-block'}}),
+                                    accName,
+                                    React.createElement('span',{className:'grp-info'},rows.length+' positions · '+fmtK(grpVal))
+                                  )
+                                )
+                              )
+                            ].concat(rows.map(function(p){
+                              return React.createElement(PRow,{key:p.id,p:p,prices:prices,portVal:port.val,usdRate:usdRate,failedTickers:failedTickers,
+                                onEdit:function(){setEditPos(p);setShowModal(true)},
+                                onDel:function(){delPos(p.id)}});
+                            })));
+                          },[])
+                        :displayPositions.map(function(p){
+                            return React.createElement(PRow,{key:p.id,p:p,prices:prices,portVal:port.val,usdRate:usdRate,failedTickers:failedTickers,
+                              onEdit:function(){setEditPos(p);setShowModal(true)},
+                              onDel:function(){delPos(p.id)}});
+                          })
+                    )
+                  )
+                )
         )
       )
     ),
@@ -1602,6 +1922,29 @@ function App(props){
           setFilterId(newF[0]?newF[0].id:'f_all');
       },
       onClose:function(){setShowFilterModal(false)}}),
+    showIO&&React.createElement(IOModal,{lang:lang,onClose:function(){setShowIO(false)},
+      onExportCSV:exportCSV,onExportJSON:exportJSON,
+      onImportCSV:importCSV,onImportJSON:importJSON}),
+    showFailedPopup&&failedTickers.length>0&&React.createElement('div',{className:'overlay',onClick:function(){setShowFailedPopup(false)}},
+      React.createElement('div',{className:'modal',style:{maxWidth:340}},
+        React.createElement('div',{className:'modal-hd'},
+          React.createElement('div',{className:'modal-title'},T[lang].failedTickersTitle),
+          React.createElement('button',{className:'close-x',onClick:function(){setShowFailedPopup(false)}},'×')
+        ),
+        React.createElement('div',{style:{padding:'12px 16px',display:'flex',flexWrap:'wrap',gap:6}},
+          failedTickers.map(function(t){
+            return React.createElement('span',{key:t,className:'t-badge',style:{fontSize:10}},t);
+          })
+        ),
+        React.createElement('div',{className:'modal-ft'},
+          React.createElement('button',{className:'btn btn-primary',onClick:function(){setShowFailedPopup(false)}},T[lang].ok)
+        )
+      )
+    ),
+    undoData&&React.createElement('div',{className:'undo-bar'},
+      T[lang].deleted,
+      React.createElement('button',{className:'undo-btn',onClick:undoDelete},T[lang].undo)
+    ),
     React.createElement(ToastCtr,{toasts:toasts,onRemove:removeToast})
   );
 }
