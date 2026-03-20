@@ -31,7 +31,7 @@
   --mono:'DM Mono',monospace; --sans:'Sora',sans-serif;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13px}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13px;overflow-x:hidden;max-width:100%}
 ::-webkit-scrollbar{width:4px;height:4px}::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
 .app{display:flex;height:100vh;overflow:hidden}
 .sidebar{width:196px;min-width:196px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow-y:auto;transition:width .22s ease,min-width .22s ease}
@@ -293,12 +293,14 @@ thead th.sort-desc::after{content:' ▼';color:var(--acc);font-size:7px}
 /* SNAPSHOT */
 .snapshot-card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:12px}
 .snap-chart-wrap{height:140px;margin-top:8px}
-/* MOBILE */
+/* SIDEBAR BACKDROP */
+.sidebar-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:99;cursor:pointer}
+/* MOBILE ≤640px */
 @media(max-width:640px){
-  .sidebar{width:44px;min-width:44px;overflow:hidden}
-  .sidebar .sb-lbl,.sidebar .sb-cnt,.sidebar .sb-name span:not(.sb-dot),.sidebar .sb-add-row,.sidebar .sb-sec:not(:first-child){display:none}
-  .sidebar .sb-item{justify-content:center;padding:6px}
-  .sidebar .sb-name{font-size:14px}
+  .sidebar{position:fixed;left:0;top:0;height:100vh;z-index:100;box-shadow:2px 0 16px rgba(0,0,0,.35)}
+  .sidebar:not(.collapsed){width:220px;min-width:220px;overflow-y:auto;overflow-x:hidden}
+  .main{margin-left:44px}
+  .sidebar-backdrop{display:block}
   .content{padding:10px 8px}
   .page-hdr{padding:10px 10px 6px}
   td{padding:5px 7px;font-size:10px}
@@ -308,6 +310,11 @@ thead th.sort-desc::after{content:' ▼';color:var(--acc);font-size:7px}
   .hero{flex-direction:column;gap:8px}
   .hero-stats{flex-wrap:wrap;gap:8px}
   .auth-card{width:90vw;padding:24px 18px}
+}
+/* TABLET 641-1024px */
+@media(min-width:641px) and (max-width:1024px){
+  .hero-stats{flex-wrap:wrap}
+  .content{padding:12px 14px}
 }
 </style>
 </head>
@@ -1397,7 +1404,7 @@ function App(props){
   var rfs=useState(false);var refreshing=rfs[0];var setRefreshing=rfs[1];
   var rss=useState('');var refreshStatus=rss[0];var setRefreshStatus=rss[1];
   var tss=useState([]);var toasts=tss[0];var setToasts=tss[1];
-  var css=useState(function(){return ld('sidebarCollapsed',false)});var sidebarCollapsed=css[0];var setSidebarCollapsed=css[1];
+  var css=useState(function(){var saved=localStorage.getItem('pfm3_sidebarCollapsed');if(saved!==null)return JSON.parse(saved);return window.innerWidth<=640;});var sidebarCollapsed=css[0];var setSidebarCollapsed=css[1];
   var scs=useState('');var sortCol=scs[0];var setSortCol=scs[1];
   var sds=useState('desc');var sortDir=sds[0];var setSortDir=sds[1];
   var sqs=useState('');var searchQ=sqs[0];var setSearchQ=sqs[1];
@@ -1613,12 +1620,19 @@ function App(props){
 
   var hasKR=positions.some(function(p){return isKR(p.ticker)});
 
+  function toggleSidebar(){
+    setSidebarCollapsed(function(v){
+      if(v){var m=document.querySelector('.main');if(m)m.scrollTop=0;}
+      return !v;
+    });
+  }
+
   return React.createElement('div',{className:'app'},
     React.createElement('aside',{className:'sidebar'+(sidebarCollapsed?' collapsed':'')},
       React.createElement('div',{className:'sb-sec',style:{padding:'10px 14px'}},
         React.createElement('div',{className:'sb-logo-row'},
           !sidebarCollapsed&&React.createElement('div',{className:'logo'},React.createElement('em',null,'▸'),'PORTFOLIO'),
-          React.createElement('span',{className:'sb-toggle',onClick:function(){setSidebarCollapsed(function(v){return !v})},title:sidebarCollapsed?l.expand:l.collapse},
+          React.createElement('span',{className:'sb-toggle',onClick:toggleSidebar,title:sidebarCollapsed?l.expand:l.collapse},
             sidebarCollapsed?'▶':'◀'
           )
         )
@@ -1680,6 +1694,8 @@ function App(props){
         )
       )
     ),
+
+    !sidebarCollapsed&&React.createElement('div',{className:'sidebar-backdrop',onClick:toggleSidebar}),
 
     React.createElement('div',{className:'main'},
       React.createElement('div',{className:'topbar'},

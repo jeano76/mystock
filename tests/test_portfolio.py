@@ -40,7 +40,7 @@ _server = start_server()
 time.sleep(0.3)
 
 # ── Chrome 옵션 ─────────────────────────────────────────────────
-def make_driver(width=1280, height=900):
+def make_driver(width=1280, height=900, mobile=False):
     opts = Options()
     opts.add_argument("--headless=new")
     opts.add_argument("--no-sandbox")
@@ -48,6 +48,16 @@ def make_driver(width=1280, height=900):
     opts.add_argument("--disable-gpu")
     opts.add_argument(f"--window-size={width},{height}")
     opts.add_argument("--lang=ko")
+    if mobile:
+        # Chrome 헤드리스 최소 뷰포트 우회: DevTools mobile emulation 사용
+        mobile_emulation = {
+            "deviceMetrics": {"width": width, "height": height, "pixelRatio": 2.0},
+            "userAgent": (
+                "Mozilla/5.0 (iPhone; CPU iPhone OS 16_0 like Mac OS X) "
+                "AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.0 Mobile Safari/604.1"
+            )
+        }
+        opts.add_experimental_option("mobileEmulation", mobile_emulation)
     svc = Service("/usr/local/bin/chromedriver")
     return webdriver.Chrome(service=svc, options=opts)
 
@@ -734,7 +744,7 @@ class TC15_MobileLayout(unittest.TestCase):
     """TC15 모바일 뷰포트 레이아웃 (375px)"""
 
     def setUp(self):
-        self.driver = make_driver(width=375, height=812)
+        self.driver = make_driver(width=375, height=812, mobile=True)
         register_and_login(self.driver)
 
     def tearDown(self):
@@ -770,6 +780,231 @@ class TC15_MobileLayout(unittest.TestCase):
             f"수평 오버플로우: scrollWidth={scroll_w}, viewport={viewport_w}")
 
 
+class TC16_MobileSidebarDrawer(unittest.TestCase):
+    """TC16 모바일 사이드바 드로어 동작 (375px)"""
+
+    def setUp(self):
+        self.driver = make_driver(width=375, height=812, mobile=True)
+        register_and_login(self.driver)
+        self.w = wait(self.driver)
+
+    def tearDown(self):
+        self.driver.quit()
+
+    def test_01_sidebar_initially_collapsed(self):
+        """모바일 초기 상태: 사이드바가 collapsed 클래스 보유"""
+        sb = self.driver.find_element(By.CSS_SELECTOR, ".sidebar")
+        classes = sb.get_attribute("class")
+        self.assertIn("collapsed", classes)
+        print(f"  sidebar classes: {classes}")
+
+    def test_02_sidebar_width_collapsed(self):
+        """사이드바 너비가 44px (접힌 상태)"""
+        sb = self.driver.find_element(By.CSS_SELECTOR, ".sidebar")
+        w = sb.size["width"]
+        self.assertLessEqual(w, 50, f"collapsed sidebar width={w}")
+        print(f"  collapsed sidebar width: {w}px")
+
+    def test_03_main_has_margin_for_sidebar(self):
+        """main 영역 x좌표가 0이 아님 (사이드바 공간 확보)"""
+        main = self.driver.find_element(By.CSS_SELECTOR, ".main")
+        x = main.location["x"]
+        self.assertGreater(x, 0, f"main.x={x} should be offset by sidebar")
+        print(f"  main x offset: {x}px")
+
+    def test_04_toggle_expands_sidebar(self):
+        """토글 클릭 시 사이드바 확장 (collapsed 클래스 제거)"""
+        toggle = self.driver.find_element(By.CSS_SELECTOR, ".sb-toggle")
+        toggle.click()
+        time.sleep(0.4)
+        sb = self.driver.find_element(By.CSS_SELECTOR, ".sidebar")
+        classes = sb.get_attribute("class")
+        self.assertNotIn("collapsed", classes)
+        print(f"  expanded sidebar classes: {classes}")
+
+    def test_05_expanded_sidebar_width(self):
+        """확장된 사이드바 너비 ≥ 180px"""
+        toggle = self.driver.find_element(By.CSS_SELECTOR, ".sb-toggle")
+        toggle.click()
+        time.sleep(0.4)
+        sb = self.driver.find_element(By.CSS_SELECTOR, ".sidebar")
+        w = sb.size["width"]
+        self.assertGreaterEqual(w, 180, f"expanded sidebar width={w}")
+        print(f"  expanded sidebar width: {w}px")
+
+    def test_06_backdrop_visible_when_expanded(self):
+        """사이드바 확장 시 backdrop 표시"""
+        toggle = self.driver.find_element(By.CSS_SELECTOR, ".sb-toggle")
+        toggle.click()
+        time.sleep(0.4)
+        backdrop = self.w.until(EC.presence_of_element_located((By.CSS_SELECTOR, ".sidebar-backdrop")))
+        self.assertTrue(backdrop.is_displayed())
+        print("  backdrop visible: True")
+
+    def test_07_backdrop_click_closes_sidebar(self):
+        """backdrop 클릭 시 사이드바 닫힘"""
+        toggle = self.driver.find_element(By.CSS_SELECTOR, ".sb-toggle")
+        toggle.click()
+        time.sleep(0.4)
+        backdrop = self.driver.find_element(By.CSS_SELECTOR, ".sidebar-backdrop")
+        # 사이드바(220px)가 중앙을 가리므로 JS로 클릭
+        self.driver.execute_script("arguments[0].click()", backdrop)
+        time.sleep(0.4)
+        sb = self.driver.find_element(By.CSS_SELECTOR, ".sidebar")
+        classes = sb.get_attribute("class")
+        self.assertIn("collapsed", classes)
+        print("  sidebar closed after backdrop click")
+
+    def test_08_main_not_clipped_when_sidebar_closed(self):
+        """사이드바 닫힌 상태에서 main 콘텐츠 top이 잘리지 않음 (y≥0)"""
+        main = self.driver.find_element(By.CSS_SELECTOR, ".main")
+        y = main.location["y"]
+        self.assertGreaterEqual(y, 0, f"main top clipped at y={y}")
+        print(f"  main top y: {y}px")
+
+    def test_09_no_horizontal_overflow_expanded(self):
+        """사이드바 확장 상태에서도 수평 오버플로우 없음"""
+        toggle = self.driver.find_element(By.CSS_SELECTOR, ".sb-toggle")
+        toggle.click()
+        time.sleep(0.4)
+        scroll_w = self.driver.execute_script("return document.documentElement.scrollWidth")
+        viewport_w = self.driver.execute_script("return window.innerWidth")
+        self.assertLessEqual(scroll_w, viewport_w * 1.1,
+            f"overflow: scrollWidth={scroll_w}, viewport={viewport_w}")
+
+    def test_10_scroll_to_top_on_expand(self):
+        """사이드바 열릴 때 main 스크롤이 상단으로 이동"""
+        # main을 먼저 스크롤 아래로
+        self.driver.execute_script("document.querySelector('.main').scrollTop = 300;")
+        time.sleep(0.2)
+        toggle = self.driver.find_element(By.CSS_SELECTOR, ".sb-toggle")
+        toggle.click()
+        time.sleep(0.4)
+        scroll_top = self.driver.execute_script("return document.querySelector('.main').scrollTop")
+        self.assertLessEqual(scroll_top, 50, f"scrollTop after expand: {scroll_top}")
+        print(f"  scrollTop after expand: {scroll_top}")
+
+
+class TC17_MultiViewportLayout(unittest.TestCase):
+    """TC17 다해상도 레이아웃 검증 (모바일/태블릿/데스크탑)"""
+
+    VIEWPORTS = [
+        ("mobile_s",   375,  667),   # iPhone SE
+        ("mobile_l",   390,  844),   # iPhone 14
+        ("mobile_xl",  430,  932),   # iPhone 14 Pro Max
+        ("tablet_p",   768, 1024),   # iPad portrait
+        ("tablet_l",  1024,  768),   # iPad landscape
+        ("desktop_hd",1280,  900),   # HD desktop
+        ("desktop_fhd",1920,1080),   # Full HD desktop
+    ]
+
+    def _check_viewport(self, name, w, h):
+        is_mobile = w <= 640
+        driver = make_driver(width=w, height=h, mobile=is_mobile)
+        try:
+            register_and_login(driver)
+
+            # 실제 뷰포트 크기 (Chrome 헤드리스는 최소값 있음)
+            actual_w = driver.execute_script("return window.innerWidth")
+            actual_h = driver.execute_script("return window.innerHeight")
+
+            # 1) .app 렌더링 확인
+            app = driver.find_element(By.CSS_SELECTOR, ".app")
+            self.assertTrue(app.is_displayed(), f"[{name}] .app not displayed")
+
+            # 2) topbar가 뷰포트 높이 내에 위치
+            tb = driver.find_element(By.CSS_SELECTOR, ".topbar")
+            tb_bot = tb.location["y"] + tb.size["height"]
+            self.assertLessEqual(tb_bot, actual_h * 1.1,
+                f"[{name}] topbar bottom={tb_bot} > viewport {actual_h}")
+
+            # 3) 수평 오버플로우 없음 (실제 뷰포트 기준)
+            scroll_w = driver.execute_script("return document.documentElement.scrollWidth")
+            self.assertLessEqual(scroll_w, actual_w * 1.05,
+                f"[{name}] horizontal overflow: scrollWidth={scroll_w}, viewport={actual_w}")
+
+            # 4) 모바일(≤640) - 사이드바 44px
+            if is_mobile:
+                sb = driver.find_element(By.CSS_SELECTOR, ".sidebar")
+                sb_w = sb.size["width"]
+                self.assertLessEqual(sb_w, 50, f"[{name}] mobile sidebar too wide: {sb_w}px")
+                # main이 사이드바와 겹치지 않음
+                main_x = driver.find_element(By.CSS_SELECTOR, ".main").location["x"]
+                self.assertGreater(main_x, 0, f"[{name}] main not offset from sidebar")
+
+            # 5) 태블릿/데스크탑(>640) - 사이드바 정상 너비
+            if w > 640:
+                sb = driver.find_element(By.CSS_SELECTOR, ".sidebar")
+                sb_w = sb.size["width"]
+                self.assertGreaterEqual(sb_w, 40, f"[{name}] sidebar too narrow: {sb_w}px")
+
+            # 6) hero 섹션 표시
+            hero = driver.find_element(By.CSS_SELECTOR, ".hero")
+            self.assertTrue(hero.is_displayed(), f"[{name}] hero not displayed")
+
+            print(f"  [{name}] {w}x{h} ✓  scrollW={scroll_w}  sidebarW={driver.find_element(By.CSS_SELECTOR,'.sidebar').size['width']}")
+        finally:
+            driver.quit()
+
+    def test_01_mobile_se(self):
+        """iPhone SE (375×667) 레이아웃"""
+        self._check_viewport(*self.VIEWPORTS[0])
+
+    def test_02_mobile_14(self):
+        """iPhone 14 (390×844) 레이아웃"""
+        self._check_viewport(*self.VIEWPORTS[1])
+
+    def test_03_mobile_14_pro_max(self):
+        """iPhone 14 Pro Max (430×932) 레이아웃"""
+        self._check_viewport(*self.VIEWPORTS[2])
+
+    def test_04_tablet_portrait(self):
+        """iPad portrait (768×1024) 레이아웃"""
+        self._check_viewport(*self.VIEWPORTS[3])
+
+    def test_05_tablet_landscape(self):
+        """iPad landscape (1024×768) 레이아웃"""
+        self._check_viewport(*self.VIEWPORTS[4])
+
+    def test_06_desktop_hd(self):
+        """HD 데스크탑 (1280×900) 레이아웃"""
+        self._check_viewport(*self.VIEWPORTS[5])
+
+    def test_07_desktop_fhd(self):
+        """Full HD 데스크탑 (1920×1080) 레이아웃"""
+        self._check_viewport(*self.VIEWPORTS[6])
+
+    def test_08_charts_row_single_col_on_mobile(self):
+        """모바일에서 charts-row가 단일 컬럼 (섹터분석 아래 배치)"""
+        driver = make_driver(width=375, height=812, mobile=True)
+        try:
+            register_and_login(driver)
+            charts = driver.find_elements(By.CSS_SELECTOR, ".charts-row .chart-card")
+            if len(charts) >= 2:
+                y0 = charts[0].location["y"]
+                y1 = charts[1].location["y"]
+                self.assertGreater(y1, y0 + 50,
+                    f"섹터분석 카드가 옆이 아닌 아래에 위치해야 함: y0={y0}, y1={y1}")
+                print(f"  chart-card[0].y={y0}, chart-card[1].y={y1} (stacked ✓)")
+        finally:
+            driver.quit()
+
+    def test_09_charts_row_two_col_on_desktop(self):
+        """데스크탑에서 charts-row가 2컬럼 (도넛·섹터 나란히)"""
+        driver = make_driver(width=1280, height=900)
+        try:
+            register_and_login(driver)
+            charts = driver.find_elements(By.CSS_SELECTOR, ".charts-row .chart-card")
+            if len(charts) >= 2:
+                y0 = charts[0].location["y"]
+                y1 = charts[1].location["y"]
+                self.assertAlmostEqual(y0, y1, delta=20,
+                    msg=f"데스크탑에서 두 카드가 같은 행에 있어야 함: y0={y0}, y1={y1}")
+                print(f"  chart-card[0].y={y0}, chart-card[1].y={y1} (side-by-side ✓)")
+        finally:
+            driver.quit()
+
+
 # ── 실행 ─────────────────────────────────────────────────────────
 
 if __name__ == "__main__":
@@ -797,6 +1032,8 @@ if __name__ == "__main__":
         TC13_SettingsModal,
         TC14_IOModal,
         TC15_MobileLayout,
+        TC16_MobileSidebarDrawer,
+        TC17_MultiViewportLayout,
     ]
     for cls in test_classes:
         suite.addTests(loader.loadTestsFromTestCase(cls))
