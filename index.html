@@ -43,10 +43,17 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--s
 .sb-toggle:hover{background:var(--bg4);color:var(--text)}
 .sb-logo-row{display:flex;align-items:center;justify-content:space-between}
 .main{flex:1;overflow-y:auto;display:flex;flex-direction:column}
-.topbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 14px;min-height:50px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;position:sticky;top:0;z-index:50;flex-wrap:wrap;gap:6px}
+.topbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 14px;height:50px;display:flex;align-items:center;justify-content:flex-end;flex-shrink:0;position:sticky;top:0;z-index:50;gap:5px}
 .logo{font-family:var(--mono);font-size:13px;font-weight:500;letter-spacing:.06em}
 .logo em{color:var(--acc);font-style:normal}
-.topbar-right{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.topbar-right{display:flex;gap:5px;align-items:center;overflow-x:auto;overflow-y:hidden;scrollbar-width:none}
+.topbar-right::-webkit-scrollbar{display:none}
+/* PAGE HEADER */
+.page-hdr{display:flex;align-items:flex-end;justify-content:space-between;padding:16px 18px 10px;flex-shrink:0;border-bottom:1px solid var(--border)}
+.page-hdr-left{display:flex;flex-direction:column;gap:3px}
+.page-hdr-title{font-size:15px;font-weight:600;color:var(--text);letter-spacing:-.01em}
+.page-hdr-sub{font-size:10px;color:var(--text3);font-family:var(--mono)}
+.page-hdr-acc{display:inline-flex;align-items:center;gap:5px;font-size:10px;color:var(--acc);font-family:var(--mono);background:rgba(61,142,248,.08);border:1px solid rgba(61,142,248,.2);border-radius:4px;padding:2px 7px;margin-top:2px;width:fit-content}
 .btn{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:6px;border:1px solid var(--border2);background:var(--bg4);color:var(--text);cursor:pointer;font-family:var(--sans);font-size:11px;font-weight:500;transition:all .15s;white-space:nowrap}
 .btn:hover{background:var(--bg5);border-color:var(--acc)}
 .btn:disabled{opacity:.5;cursor:not-allowed}
@@ -66,7 +73,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--s
 .sb-add-row{padding:8px 14px;display:flex;gap:6px}
 .sb-add-row input{flex:1;background:var(--bg3);border:1px solid var(--border2);color:var(--text);padding:5px 8px;border-radius:5px;font-size:11px;font-family:var(--sans);outline:none}
 .sb-add-row input:focus{border-color:var(--acc)}
-.content{padding:16px 18px;flex:1}
+.content{padding:14px 18px;flex:1}
 .hero{background:linear-gradient(135deg,var(--bg3),var(--bg4));border:1px solid var(--border2);border-radius:10px;padding:16px 18px;margin-bottom:12px;position:relative;overflow:hidden}
 .hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 85% 0%,rgba(61,142,248,.06),transparent 60%);pointer-events:none}
 .hero-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px}
@@ -1660,16 +1667,13 @@ function App(props){
 
     React.createElement('div',{className:'main'},
       React.createElement('div',{className:'topbar'},
-        React.createElement('div',{style:{fontSize:11,color:'var(--text2)',fontWeight:500}},
-          selAcc==='All'?l.allAccPos(positions.length):l.accPos(selAcc,positions.filter(function(p){return p.account===selAcc}).length)
-        ),
         React.createElement('div',{className:'topbar-right'},
           React.createElement('button',{className:'btn btn-sm btn-ghost lang-btn',onClick:onLangToggle},l.langSwitch),
           React.createElement('button',{className:'btn btn-sm btn-ghost',onClick:onLogout,style:{color:'var(--text3)'}},l.logout),
           React.createElement(ApiStatus,{apiKeys:apiKeys,lang:lang}),
           refreshStatus&&React.createElement('span',{className:'refresh-status'},refreshStatus),
-          React.createElement('button',{className:'btn btn-sm',onClick:function(){setShowSettings(true)}},l.apiBtn),
           failedTickers.length>0&&React.createElement('span',{style:{fontSize:9,color:'var(--yellow)',cursor:'pointer',fontFamily:'var(--mono)'},onClick:function(){setShowFailedPopup(true)},title:l.failedTickersTitle},'⚠ '+failedTickers.length),
+          React.createElement('button',{className:'btn btn-sm',onClick:function(){setShowSettings(true)}},l.apiBtn),
           React.createElement('button',{className:'btn btn-sm btn-ghost',onClick:function(){setShowIO(true)},title:l.exportTitle},'⇅'),
           React.createElement('button',{className:'btn btn-sm btn-ghost',onClick:saveSnapshot,title:l.snapshotBtn},'📸'),
           React.createElement('button',{className:'btn btn-sm',onClick:refresh,disabled:refreshing},
@@ -1678,10 +1682,21 @@ function App(props){
           React.createElement('button',{className:'btn btn-primary btn-sm',onClick:function(){setEditPos(null);setShowModal(true)}},l.addPosBtn)
         )
       ),
-      React.createElement('div',{className:'content'},
-        selAcc!=='All'&&React.createElement('div',{style:{fontSize:10,color:'var(--acc)',fontFamily:'var(--mono)',marginBottom:6,letterSpacing:'.04em'}},
-          '● '+l.accountCtx(selAcc)
+      React.createElement('div',{className:'page-hdr'},
+        React.createElement('div',{className:'page-hdr-left'},
+          React.createElement('div',{className:'page-hdr-title'},
+            selAcc==='All'?l.allAccounts:selAcc
+          ),
+          React.createElement('div',{className:'page-hdr-sub'},
+            selAcc==='All'
+              ?(positions.length+' positions · '+accounts.length+' accounts')
+              :(positions.filter(function(p){return p.account===selAcc}).length+' positions')
+          ),
+          selAcc!=='All'&&React.createElement('div',{className:'page-hdr-acc'},'● '+selAcc)
         ),
+        hasKR&&React.createElement('div',{style:{fontSize:9,color:'var(--text3)',fontFamily:'var(--mono)'}},'🇰🇷 '+l.krIncluded)
+      ),
+      React.createElement('div',{className:'content'},
         React.createElement('div',{className:'hero'},
           React.createElement('div',{className:'hero-top'},
             React.createElement('div',null,
