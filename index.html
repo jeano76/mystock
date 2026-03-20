@@ -194,7 +194,7 @@ td.r{text-align:right}
 .api-item{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:11px 13px;display:flex;flex-direction:column;gap:7px}
 .api-item-head{display:flex;align-items:center;justify-content:space-between}
 .api-item-name{font-size:11px;font-weight:600;color:var(--text);display:flex;align-items:center;gap:5px}
-.api-item-link{font-size:9px;color:var(--accent);text-decoration:none;opacity:0.7;line-height:1}
+.api-item-link{font-size:9px;color:var(--acc);text-decoration:none;opacity:0.7;line-height:1}
 .api-item-link:hover{opacity:1}
 .api-item-desc{font-size:9px;color:var(--text3);margin-top:2px}
 .api-item-status{font-size:9px;font-family:var(--mono);padding:2px 6px;border-radius:4px;flex-shrink:0}
@@ -233,6 +233,23 @@ td.r{text-align:right}
 .legal-body p{margin-bottom:8px}
 .legal-body ul{padding-left:18px;margin-bottom:8px}
 .legal-body ul li{margin-bottom:4px}
+/* LANG */
+.lang-btn{font-size:9px;color:var(--text3);cursor:pointer;padding:2px 8px;border:1px solid var(--border2);border-radius:4px;background:transparent;font-family:var(--mono);letter-spacing:.04em;line-height:1.6}
+.lang-btn:hover{color:var(--text);border-color:var(--acc);background:var(--bg4)}
+.auth-lang{text-align:center;margin-top:-8px}
+/* FILTER MODAL */
+.filter-modal-body{padding:14px 16px;display:flex;flex-direction:column;gap:8px;max-height:360px;overflow-y:auto}
+.filter-item{display:flex;align-items:center;gap:7px;background:var(--bg3);border:1px solid var(--border);border-radius:7px;padding:7px 10px}
+.filter-item-name{flex:1;background:var(--bg4);border:1px solid var(--border2);color:var(--text);padding:4px 7px;border-radius:5px;font-size:11px;font-family:var(--sans);outline:none}
+.filter-item-name:focus{border-color:var(--acc)}
+.filter-type-badge{font-size:9px;padding:2px 6px;border-radius:3px;background:var(--bg4);color:var(--text3);font-family:var(--mono);flex-shrink:0}
+.filter-add-row{display:flex;gap:7px;align-items:center;padding:10px 0 0;border-top:1px solid var(--border);flex-wrap:wrap}
+.filter-add-row input{flex:1;min-width:90px;background:var(--bg3);border:1px solid var(--border2);color:var(--text);padding:6px 8px;border-radius:5px;font-size:11px;font-family:var(--sans);outline:none}
+.filter-add-row input:focus{border-color:var(--acc)}
+.filter-add-row select{background:var(--bg3);border:1px solid var(--border2);color:var(--text);padding:5px 7px;border-radius:5px;font-size:11px;font-family:var(--sans);outline:none}
+.filter-add-row select:focus{border-color:var(--acc)}
+/* ACCOUNT RENAME */
+.acc-rename-input{background:var(--bg4);border:1px solid var(--acc);color:var(--text);padding:2px 6px;border-radius:4px;font-size:11px;font-family:var(--sans);outline:none;width:90px}
 </style>
 </head>
 <body>
@@ -379,6 +396,203 @@ const DOT_C=['#3d8ef8','#17e8a1','#ffb800','#ff4d72','#a78bfa','#4dd9ff'];
 const MONTHS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 const CUR_MONTH=new Date().getMonth();
 
+// ── Translations ──
+const T={
+  ko:{
+    shortly:'잠시 후',justNow:'지금 바로',
+    sec:function(s){return s+'초 후'},min:function(m){return m+'분 후'},hr:function(h){return h+'시간 후'},
+    fetchYahoo:'Yahoo Finance 조회 중...',
+    yahooOk:function(n){return 'Yahoo Finance: '+n+'개 종목 업데이트'},
+    yahooFail:'Yahoo Finance 연결 실패',yahooLimitTxt:'Yahoo Finance 일시 제한 중',
+    retryAt:function(t){return t+' 후 재시도 가능'},
+    autoRetry:function(t){return '📅 '+t+' 후 자동 재시도됩니다'},
+    fetchFinnhub:'Finnhub 조회 중...',finnhubOk:function(n){return 'Finnhub: '+n+'개 업데이트'},
+    finnhubLimitTxt:'Finnhub 분당 60회 한도 초과 ⚠️',finnhubWait:'Finnhub 한도 초과 (대기 중)',
+    fetchTwelve:'Twelve Data 조회 중...',twelveOk:function(n){return 'Twelve Data: '+n+'개 업데이트'},
+    twelveLimitTxt:'Twelve Data 일 800회 한도 초과 ⚠️',twelveWait:'Twelve Data 한도 초과',
+    twelveLimitSub:function(t){return '📅 '+t+' 후 재시도 가능 (내일 자정 리셋)'},
+    fetchAlpha:'Alpha Vantage 조회 중...',alphaOk:function(n){return 'Alpha Vantage: '+n+'개 업데이트'},
+    alphaLimitTxt:'Alpha Vantage 일 25회 한도 초과 ⚠️',alphaWait:'Alpha Vantage 한도 초과',
+    alphaLimitSub:function(t){return '📅 '+t+' 후 재시도 가능 (내일 자정 리셋)'},
+    missedTxt:function(n){return n+'개 종목 가격 미업데이트'},
+    missedSub:'⚙️ API 설정에서 키를 등록하면 더 많은 데이터를 받을 수 있습니다',
+    apiLimited:function(lb,t){return lb+': 한도 초과 · '+t},
+    apiOk:function(lb){return lb+': 정상'},apiNoKey:function(lb){return lb+': 키 없음'},
+    settingsTitle:'⚙️ API 설정',
+    yahooNote:'📡 Yahoo Finance는 키 없이 자동 사용됩니다 (미국 + 한국 주식 지원)',
+    apiKeyNote:'🔒 API 키는 이 브라우저에만 저장되며 외부 서버로 전송되지 않습니다',
+    krNote:'🇰🇷 한국 주식은 Yahoo Finance 경유, 아래 환율로 USD 환산됩니다',
+    usdKrw:'USD/KRW 환율',resetAt:function(t){return '⏱ '+t+' 리셋'},
+    connected:'● 연결됨',noKey:'○ 키 없음',keyPh:'API 키 입력',
+    cancel:'취소',save:'저장',ok:'확인',
+    finnhubDesc:'분당 60회 무료 · 미국 주식 실시간(15분 지연)',
+    twelveDesc:'일 800회 무료 · 배치 조회 지원',
+    alphaDesc:'일 25회 무료 · 미국 주식',
+    editPos:'포지션 수정',addPos:'포지션 추가',
+    tickerLbl:'티커 / 종목명',sharesLbl:'수량 (주)',
+    buyPriceLbl:function(c){return '평균 매수가 ('+c+')'},
+    divYieldLbl:'배당수익률 (%)',accountLbl:'계좌',
+    divChip:function(d){return '배당 '+d+'%'},add:'추가',
+    expand:'펼치기',collapse:'접기',
+    views:'Views',accounts:'Accounts',newAccount:'New Account',
+    allAccounts:'All Accounts',accPh:'계좌명…',krIncluded:'🇰🇷 한국 주식 포함',
+    allAccPos:function(n){return 'All Accounts · '+n+' positions'},
+    accPos:function(a,n){return a+' · '+n+' positions'},
+    logout:'⎋ 로그아웃',apiBtn:'⚙️ API',refreshing:'조회 중…',refresh:'새로고침',
+    addPosBtn:'+ 포지션 추가',
+    totalValue:'Total Market Value',totalValueKR:'Total Market Value (USD 환산)',
+    totalCost:'Total Cost Basis',annualDiv:'Annual Dividends',
+    investDiv:'Invest. Div Yield',onCost:'on cost',
+    marketDiv:'Market Div Yield',onMarket:'on market val',
+    tabOverview:'📊 Overview',tabPositions:function(n){return '📋 Positions ('+n+')'},
+    assetComp:'자산 구성',divDist:'배당 분배',noData:'데이터 없음',
+    sectorAnalysis:'섹터 분석',monthlyDiv:'월별 예상 배당금',
+    annualAvg:function(a,m){return '연간: '+a+' · 월평균: '+m},
+    noPositions:'포지션이 없습니다. "+ 포지션 추가" 버튼을 클릭하세요.',
+    thStock:'종목',thAccount:'계좌',thShares:'수량',thBuy:'매수가',thCurrent:'현재가',
+    thValue:'평가액(USD)',thGain:'손익',thReturn:'수익률',thDiv:'배당%',thAnnDiv:'연배당',thWeight:'비중',
+    posCount:function(n){return n+' positions · '},
+    noPosWarn:'포지션을 먼저 추가해주세요',
+    allLimitWarn:'모든 API 한도 초과 또는 오류',
+    allLimitSub:'⚙️ API 설정에서 키를 등록하거나 잠시 후 재시도해 주세요',
+    fetchErr:'가격 조회 오류',netErr:'네트워크 연결을 확인해주세요',
+    settingsSaved:'설정이 저장되었습니다',movePos:'해당 계좌의 포지션을 먼저 이동해주세요',
+    createAccount:'계정 만들기',firstTime:'처음 사용하시는군요! 아이디와 비밀번호를 설정해주세요.',
+    encMsg1:'🔒 비밀번호는 ',encMsg2:' (10만 회 반복 + 랜덤 Salt) 으로 해시되어 저장됩니다.',
+    encMsg3:'원본 비밀번호는 어디에도 저장되지 않으며, 이 기기 밖으로 전송되지 않습니다.',
+    idLbl:'아이디',pwLbl:'비밀번호',pw2Lbl:'비밀번호 확인',
+    idPh:'3자 이상 입력',pwPh:'6자 이상 입력',pw2Ph:'비밀번호 재입력',
+    processing:'처리 중…',createBtn:'계정 만들기 →',
+    errFillAll:'모든 항목을 입력해주세요',errIdLen:'아이디는 3자 이상이어야 합니다',
+    errPwLen:'비밀번호는 6자 이상이어야 합니다',errPwMatch:'비밀번호가 일치하지 않습니다',
+    errGeneral:'오류가 발생했습니다. 다시 시도해주세요',
+    loginTitle:'로그인',loginIdPh:'아이디 입력',loginPwPh:'비밀번호 입력',
+    errFillBoth:'아이디와 비밀번호를 입력해주세요',errNoAcc:'등록된 계정이 없습니다',
+    errWrongCreds:'아이디 또는 비밀번호가 올바르지 않습니다',errOccurred:'오류가 발생했습니다',
+    verifying:'확인 중…',loginBtn:'로그인 →',
+    resetLink:'⚠️ 비밀번호 초기화 (모든 데이터 삭제)',
+    resetTitle:'비밀번호 초기화',
+    resetWarn:'⚠️ 초기화하면 모든 포지션, 계좌, API 키 등 저장된 데이터가 영구 삭제됩니다. 이 작업은 되돌릴 수 없습니다.',
+    curIdLbl:'현재 아이디 확인',curIdPh:'아이디를 입력하여 확인',errFillId:'아이디를 입력해주세요',
+    resetBtn:'초기화 및 전체 삭제',
+    cookieTxt1:'🍪 본 사이트는 서비스 개선 및 광고 제공을 위해 쿠키를 사용합니다. ',
+    cookiePrivacy:'개인정보처리방침',cookieTxt2:'을 읽고 동의 여부를 선택해주세요.',
+    reject:'거부',accept:'동의',
+    aboutService:'서비스 소개',privacyPolicy:'개인정보처리방침',
+    termsOfService:'이용약관',contact:'문의하기',disclaimer:'투자는 본인 책임입니다.',
+    langSwitch:'EN',
+    manageFilters:'필터 관리',filterName:'필터명',filterTypeLbl:'유형',
+    filterTypeAll:'전체',filterTypeUS:'미국주식',filterTypeKR:'한국주식',filterTypeETF:'ETF',filterTypeSector:'섹터',
+    addFilter:'+ 추가',filterSector:'섹터 선택',filterManageTitle:'필터 관리',
+    renameAccPh:'새 계좌명',
+  },
+  en:{
+    shortly:'Shortly',justNow:'Now',
+    sec:function(s){return 'in '+s+'s'},min:function(m){return 'in '+m+'m'},hr:function(h){return 'in '+h+'h'},
+    fetchYahoo:'Fetching Yahoo Finance...',
+    yahooOk:function(n){return 'Yahoo Finance: '+n+' tickers updated'},
+    yahooFail:'Yahoo Finance connection failed',yahooLimitTxt:'Yahoo Finance temporarily limited',
+    retryAt:function(t){return 'Retry available '+t},
+    autoRetry:function(t){return '📅 Auto-retry '+t},
+    fetchFinnhub:'Fetching Finnhub...',finnhubOk:function(n){return 'Finnhub: '+n+' updated'},
+    finnhubLimitTxt:'Finnhub rate limit exceeded ⚠️',finnhubWait:'Finnhub rate limited (waiting)',
+    fetchTwelve:'Fetching Twelve Data...',twelveOk:function(n){return 'Twelve Data: '+n+' updated'},
+    twelveLimitTxt:'Twelve Data daily limit exceeded ⚠️',twelveWait:'Twelve Data rate limited',
+    twelveLimitSub:function(t){return '📅 Retry '+t+' (resets midnight)'},
+    fetchAlpha:'Fetching Alpha Vantage...',alphaOk:function(n){return 'Alpha Vantage: '+n+' updated'},
+    alphaLimitTxt:'Alpha Vantage daily limit exceeded ⚠️',alphaWait:'Alpha Vantage rate limited',
+    alphaLimitSub:function(t){return '📅 Retry '+t+' (resets midnight)'},
+    missedTxt:function(n){return n+' tickers not updated'},
+    missedSub:'⚙️ Add API keys in settings to get more data',
+    apiLimited:function(lb,t){return lb+': rate limited · '+t},
+    apiOk:function(lb){return lb+': connected'},apiNoKey:function(lb){return lb+': no key'},
+    settingsTitle:'⚙️ API Settings',
+    yahooNote:'📡 Yahoo Finance is used automatically without a key (US + Korean stocks)',
+    apiKeyNote:'🔒 API keys are stored in this browser only and never sent to external servers',
+    krNote:'🇰🇷 Korean stocks use Yahoo Finance, converted to USD using the rate below',
+    usdKrw:'USD/KRW Rate',resetAt:function(t){return '⏱ Reset '+t},
+    connected:'● Connected',noKey:'○ No Key',keyPh:'Enter API key',
+    cancel:'Cancel',save:'Save',ok:'OK',
+    finnhubDesc:'60 req/min free · US stocks (15min delay)',
+    twelveDesc:'800 req/day free · batch support',
+    alphaDesc:'25 req/day free · US stocks',
+    editPos:'Edit Position',addPos:'Add Position',
+    tickerLbl:'Ticker / Name',sharesLbl:'Shares',
+    buyPriceLbl:function(c){return 'Avg Buy Price ('+c+')'},
+    divYieldLbl:'Dividend Yield (%)',accountLbl:'Account',
+    divChip:function(d){return 'Div '+d+'%'},add:'Add',
+    expand:'Expand',collapse:'Collapse',
+    views:'Views',accounts:'Accounts',newAccount:'New Account',
+    allAccounts:'All Accounts',accPh:'Account name…',krIncluded:'🇰🇷 Korean stocks included',
+    allAccPos:function(n){return 'All Accounts · '+n+' positions'},
+    accPos:function(a,n){return a+' · '+n+' positions'},
+    logout:'⎋ Logout',apiBtn:'⚙️ API',refreshing:'Loading…',refresh:'Refresh',
+    addPosBtn:'+ Add Position',
+    totalValue:'Total Market Value',totalValueKR:'Total Market Value (USD converted)',
+    totalCost:'Total Cost Basis',annualDiv:'Annual Dividends',
+    investDiv:'Invest. Div Yield',onCost:'on cost',
+    marketDiv:'Market Div Yield',onMarket:'on market val',
+    tabOverview:'📊 Overview',tabPositions:function(n){return '📋 Positions ('+n+')'},
+    assetComp:'Asset Allocation',divDist:'Dividend Distribution',noData:'No data',
+    sectorAnalysis:'Sector Analysis',monthlyDiv:'Monthly Estimated Dividends',
+    annualAvg:function(a,m){return 'Annual: '+a+' · Monthly avg: '+m},
+    noPositions:'No positions yet. Click "+ Add Position" to get started.',
+    thStock:'Stock',thAccount:'Account',thShares:'Shares',thBuy:'Buy Price',thCurrent:'Current',
+    thValue:'Value (USD)',thGain:'Gain/Loss',thReturn:'Return',thDiv:'Div %',thAnnDiv:'Ann. Div',thWeight:'Weight',
+    posCount:function(n){return n+' positions · '},
+    noPosWarn:'Add a position first',
+    allLimitWarn:'All API limits reached or errors',
+    allLimitSub:'⚙️ Add API keys in settings or retry later',
+    fetchErr:'Price fetch error',netErr:'Check your network connection',
+    settingsSaved:'Settings saved',movePos:'Please move positions from this account first',
+    createAccount:'Create Account',firstTime:'Welcome! Please set your username and password.',
+    encMsg1:'🔒 Your password is hashed with ',encMsg2:' (100k iterations + random Salt) before storage.',
+    encMsg3:'The original password is never stored and never leaves this device.',
+    idLbl:'Username',pwLbl:'Password',pw2Lbl:'Confirm Password',
+    idPh:'At least 3 characters',pwPh:'At least 6 characters',pw2Ph:'Re-enter password',
+    processing:'Processing…',createBtn:'Create Account →',
+    errFillAll:'Please fill in all fields',errIdLen:'Username must be at least 3 characters',
+    errPwLen:'Password must be at least 6 characters',errPwMatch:'Passwords do not match',
+    errGeneral:'An error occurred. Please try again.',
+    loginTitle:'Login',loginIdPh:'Enter username',loginPwPh:'Enter password',
+    errFillBoth:'Please enter username and password',errNoAcc:'No account registered',
+    errWrongCreds:'Incorrect username or password',errOccurred:'An error occurred',
+    verifying:'Verifying…',loginBtn:'Login →',
+    resetLink:'⚠️ Reset Password (deletes all data)',
+    resetTitle:'Reset Password',
+    resetWarn:'⚠️ Resetting will permanently delete all positions, accounts, API keys and saved data. This cannot be undone.',
+    curIdLbl:'Confirm Username',curIdPh:'Enter username to confirm',errFillId:'Please enter your username',
+    resetBtn:'Reset & Delete All',
+    cookieTxt1:'🍪 This site uses cookies to improve services and deliver ads. ',
+    cookiePrivacy:'Privacy Policy',cookieTxt2:' — please review and choose your preference.',
+    reject:'Decline',accept:'Accept',
+    aboutService:'About',privacyPolicy:'Privacy Policy',
+    termsOfService:'Terms of Service',contact:'Contact',disclaimer:'Invest at your own risk.',
+    langSwitch:'KO',
+    manageFilters:'Manage Filters',filterName:'Name',filterTypeLbl:'Type',
+    filterTypeAll:'All',filterTypeUS:'US Stocks',filterTypeKR:'Korean Stocks',filterTypeETF:'ETF',filterTypeSector:'Sector',
+    addFilter:'+ Add',filterSector:'Select sector',filterManageTitle:'Manage Filters',
+    renameAccPh:'New account name',
+  }
+};
+
+// ── Filters ──
+const DEFAULT_FILTERS=[
+  {id:'f_all',name:'All',type:'all'},
+  {id:'f_us',name:'US',type:'us'},
+  {id:'f_kr',name:'Korea',type:'kr'},
+  {id:'f_etf',name:'ETF',type:'etf'},
+];
+const SECTORS=['Technology','Healthcare','Consumer','Financials','Energy','Industrials','Utilities','Real Estate','Telecom','Entertainment','ETF'];
+function applyFilter(positions,f){
+  if(!f||f.type==='all') return positions;
+  if(f.type==='us') return positions.filter(function(p){var s=STOCKS.find(function(st){return st.t===p.ticker});return !s||s.r==='US'});
+  if(f.type==='kr') return positions.filter(function(p){var s=STOCKS.find(function(st){return st.t===p.ticker});return s&&s.r==='KR'});
+  if(f.type==='etf') return positions.filter(function(p){var s=STOCKS.find(function(st){return st.t===p.ticker});return s&&s.s==='ETF'});
+  if(f.type==='sector') return positions.filter(function(p){var s=STOCKS.find(function(st){return st.t===p.ticker});return s&&s.s===f.value});
+  return positions;
+}
+
 function isKR(t){return /\.(KS|KQ)$/.test(t)}
 function dispTicker(t){return t.replace(/\.(KS|KQ)$/,'')}
 function mockPrice(t){let h=0;for(let c of t)h=(h*31+c.charCodeAt(0))%100000;return +((h%900)+20).toFixed(2)}
@@ -401,16 +615,17 @@ function markRL(api){
   rl[api]={resetAt:Date.now()+cfg.ms,limitedAt:Date.now()};
   setRLS(rl);return rl[api];
 }
-function fmtReset(ts){
-  if(!ts) return '잠시 후';
+function fmtReset(ts,lang){
+  var l=T[lang||'ko'];
+  if(!ts) return l.shortly;
   const d=ts-Date.now();
-  if(d<=0) return '지금 바로';
+  if(d<=0) return l.justNow;
   const s=Math.ceil(d/1000),m=Math.ceil(s/60),h=Math.ceil(m/60);
-  if(s<60) return s+'초 후';
-  if(m<60) return m+'분 후';
-  if(h<24) return h+'시간 후';
+  if(s<60) return l.sec(s);
+  if(m<60) return l.min(m);
+  if(h<24) return l.hr(h);
   const dt=new Date(ts);
-  return `${dt.getMonth()+1}/${dt.getDate()} ${String(dt.getHours()).padStart(2,'0')}:${String(dt.getMinutes()).padStart(2,'0')} 이후`;
+  return (dt.getMonth()+1)+'/'+dt.getDate()+' '+String(dt.getHours()).padStart(2,'0')+':'+String(dt.getMinutes()).padStart(2,'0');
 }
 
 // ── API 호출 ──
@@ -490,91 +705,92 @@ async function fetchAlpha(tickers,key){
   return out;
 }
 
-async function fetchAllPrices(positions,apiKeys,onStatus){
+async function fetchAllPrices(positions,apiKeys,onStatus,lang){
+  var l=T[lang||'ko'];
   const tickers=[...new Set(positions.map(function(p){return p.ticker}))];
   const usTickers=tickers.filter(function(t){return !isKR(t)});
   const prices={},msgs=[];
 
-  // 1. Yahoo Finance (US + 한국)
+  // 1. Yahoo Finance
   const yrl=checkRL('yahoo');
   if(!yrl&&tickers.length>0){
-    onStatus('Yahoo Finance 조회 중...');
+    onStatus(l.fetchYahoo);
     try{
       const p=await fetchYahoo(tickers);
       Object.assign(prices,p);
       const n=Object.keys(p).length;
-      msgs.push({type:'success',text:'Yahoo Finance: '+n+'개 종목 업데이트',sub:null});
+      msgs.push({type:'success',text:l.yahooOk(n),sub:null});
     }catch(e){
       const info=markRL('yahoo');
-      msgs.push({type:'limit',text:'Yahoo Finance 연결 실패',sub:fmtReset(info.resetAt)+' 후 재시도 가능'});
+      msgs.push({type:'limit',text:l.yahooFail,sub:l.retryAt(fmtReset(info.resetAt,lang))});
     }
   }else if(yrl){
-    msgs.push({type:'limit',text:'Yahoo Finance 일시 제한 중',sub:fmtReset(yrl.resetAt)+' 후 재시도 가능'});
+    msgs.push({type:'limit',text:l.yahooLimitTxt,sub:l.retryAt(fmtReset(yrl.resetAt,lang))});
   }
 
   // 2. Finnhub
   const miss1=usTickers.filter(function(t){return !prices[t]});
   const frl=checkRL('finnhub');
   if(miss1.length>0&&apiKeys.finnhub&&!frl){
-    onStatus('Finnhub 조회 중...');
+    onStatus(l.fetchFinnhub);
     try{
       const p=await fetchFinnhub(miss1,apiKeys.finnhub);
       Object.assign(prices,p);
       const n=Object.keys(p).length;
-      if(n>0) msgs.push({type:'success',text:'Finnhub: '+n+'개 업데이트',sub:null});
+      if(n>0) msgs.push({type:'success',text:l.finnhubOk(n),sub:null});
     }catch(e){
       if(e instanceof RLError){
         const info=markRL('finnhub');
-        msgs.push({type:'limit',text:'Finnhub 분당 60회 한도 초과 ⚠️',sub:'📅 '+fmtReset(info.resetAt)+' 후 자동 재시도됩니다'});
+        msgs.push({type:'limit',text:l.finnhubLimitTxt,sub:l.autoRetry(fmtReset(info.resetAt,lang))});
       }
     }
   }else if(frl&&apiKeys.finnhub&&miss1.length>0){
-    msgs.push({type:'limit',text:'Finnhub 한도 초과 (대기 중)',sub:'📅 '+fmtReset(frl.resetAt)+' 후 재시도 가능'});
+    msgs.push({type:'limit',text:l.finnhubWait,sub:'📅 '+fmtReset(frl.resetAt,lang)});
   }
 
   // 3. Twelve Data
   const miss2=usTickers.filter(function(t){return !prices[t]});
   const trl=checkRL('twelve');
   if(miss2.length>0&&apiKeys.twelve&&!trl){
-    onStatus('Twelve Data 조회 중...');
+    onStatus(l.fetchTwelve);
     try{
       const p=await fetchTwelve(miss2,apiKeys.twelve);
       Object.assign(prices,p);
       const n=Object.keys(p).length;
-      if(n>0) msgs.push({type:'success',text:'Twelve Data: '+n+'개 업데이트',sub:null});
+      if(n>0) msgs.push({type:'success',text:l.twelveOk(n),sub:null});
     }catch(e){
       if(e instanceof RLError){
         const info=markRL('twelve');
-        msgs.push({type:'limit',text:'Twelve Data 일 800회 한도 초과 ⚠️',sub:'📅 '+fmtReset(info.resetAt)+' 후 재시도 가능 (내일 자정 리셋)'});
+        msgs.push({type:'limit',text:l.twelveLimitTxt,sub:l.twelveLimitSub(fmtReset(info.resetAt,lang))});
       }
     }
   }else if(trl&&apiKeys.twelve&&miss2.length>0){
-    msgs.push({type:'limit',text:'Twelve Data 한도 초과',sub:'📅 '+fmtReset(trl.resetAt)+' 후 재시도 가능'});
+    msgs.push({type:'limit',text:l.twelveWait,sub:'📅 '+fmtReset(trl.resetAt,lang)});
   }
 
   // 4. Alpha Vantage
   const miss3=usTickers.filter(function(t){return !prices[t]});
   const arl=checkRL('alpha');
   if(miss3.length>0&&apiKeys.alpha&&!arl){
-    onStatus('Alpha Vantage 조회 중...');
+    onStatus(l.fetchAlpha);
     try{
       const p=await fetchAlpha(miss3,apiKeys.alpha);
       Object.assign(prices,p);
       const n=Object.keys(p).length;
-      if(n>0) msgs.push({type:'success',text:'Alpha Vantage: '+n+'개 업데이트',sub:null});
+      if(n>0) msgs.push({type:'success',text:l.alphaOk(n),sub:null});
     }catch(e){
       if(e instanceof RLError){
         const info=markRL('alpha');
-        msgs.push({type:'limit',text:'Alpha Vantage 일 25회 한도 초과 ⚠️',sub:'📅 '+fmtReset(info.resetAt)+' 후 재시도 가능 (내일 자정 리셋)'});
+        msgs.push({type:'limit',text:l.alphaLimitTxt,sub:l.alphaLimitSub(fmtReset(info.resetAt,lang))});
       }
     }
   }else if(arl&&apiKeys.alpha&&miss3.length>0){
-    msgs.push({type:'limit',text:'Alpha Vantage 한도 초과',sub:'📅 '+fmtReset(arl.resetAt)+' 후 재시도 가능'});
+    msgs.push({type:'limit',text:l.alphaWait,sub:'📅 '+fmtReset(arl.resetAt,lang)});
   }
 
   const stillMissing=tickers.filter(function(t){return !prices[t]});
   if(stillMissing.length>0&&tickers.length>0){
-    msgs.push({type:'warn',text:stillMissing.length+'개 종목 가격 미업데이트',sub:'⚙️ API 설정에서 키를 등록하면 더 많은 데이터를 받을 수 있습니다'});
+    msgs.push({type:'warn',text:l.missedTxt(stillMissing.length),sub:l.missedSub});
   }
 
   return{prices:prices,msgs:msgs};
@@ -678,7 +894,8 @@ function ToastCtr(props){
 
 // ── API 상태 표시 ──
 function ApiStatus(props){
-  var apiKeys=props.apiKeys;
+  var apiKeys=props.apiKeys,lang=props.lang||'ko';
+  var l=T[lang];
   var rl=getRLS();
   var apis=[{id:'yahoo',label:'YF'},{id:'finnhub',label:'FH'},{id:'twelve',label:'12D'},{id:'alpha',label:'AV'}];
   return React.createElement('div',{className:'api-status'},
@@ -686,7 +903,7 @@ function ApiStatus(props){
       var limited=checkRL(a.id);
       var hasKey=a.id==='yahoo'||!!apiKeys[a.id];
       var color=limited?'var(--yellow)':hasKey?'var(--green)':'var(--text4)';
-      var tip=limited?(a.label+': 한도 초과 · '+fmtReset(rl[a.id]&&rl[a.id].resetAt)):hasKey?(a.label+': 정상'):(a.label+': 키 없음');
+      var tip=limited?l.apiLimited(a.label,fmtReset(rl[a.id]&&rl[a.id].resetAt,lang)):hasKey?l.apiOk(a.label):l.apiNoKey(a.label);
       return React.createElement('div',{key:a.id,className:'api-dot-wrap',title:tip},
         React.createElement('div',{className:'api-dot',style:{background:color}}),
         React.createElement('div',{className:'api-dot-lbl'},a.label)
@@ -697,31 +914,32 @@ function ApiStatus(props){
 
 // ── 설정 모달 ──
 function SettingsModal(props){
-  var apiKeys=props.apiKeys,usdRate=props.usdRate,onSave=props.onSave,onClose=props.onClose;
+  var apiKeys=props.apiKeys,usdRate=props.usdRate,onSave=props.onSave,onClose=props.onClose,lang=props.lang||'ko';
+  var l=T[lang];
   var keysState=useState(Object.assign({},apiKeys));
   var keys=keysState[0],setKeys=keysState[1];
   var rateState=useState(usdRate||1370);
   var rate=rateState[0],setRate=rateState[1];
   var rl=getRLS();
   var apis=[
-    {id:'finnhub',name:'Finnhub',desc:'분당 60회 무료 · 미국 주식 실시간(15분 지연)',url:'https://finnhub.io'},
-    {id:'twelve',name:'Twelve Data',desc:'일 800회 무료 · 배치 조회 지원',url:'https://twelvedata.com'},
-    {id:'alpha',name:'Alpha Vantage',desc:'일 25회 무료 · 미국 주식',url:'https://www.alphavantage.co'},
+    {id:'finnhub',name:'Finnhub',desc:l.finnhubDesc,url:'https://finnhub.io'},
+    {id:'twelve',name:'Twelve Data',desc:l.twelveDesc,url:'https://twelvedata.com'},
+    {id:'alpha',name:'Alpha Vantage',desc:l.alphaDesc,url:'https://www.alphavantage.co'},
   ];
   return React.createElement('div',{className:'overlay',onClick:function(e){if(e.target===e.currentTarget)onClose()}},
     React.createElement('div',{className:'modal settings-modal'},
       React.createElement('div',{className:'modal-hd'},
-        React.createElement('div',{className:'modal-title'},'⚙️ API 설정'),
+        React.createElement('div',{className:'modal-title'},l.settingsTitle),
         React.createElement('button',{className:'close-x',onClick:onClose},'×')
       ),
       React.createElement('div',{className:'modal-body'},
         React.createElement('div',{className:'api-note'},
-          '📡 Yahoo Finance는 키 없이 자동 사용됩니다 (미국 + 한국 주식 지원)',React.createElement('br'),
-          '🔒 API 키는 이 브라우저에만 저장되며 외부 서버로 전송되지 않습니다',React.createElement('br'),
-          '🇰🇷 한국 주식은 Yahoo Finance 경유, 아래 환율로 USD 환산됩니다'
+          l.yahooNote,React.createElement('br'),
+          l.apiKeyNote,React.createElement('br'),
+          l.krNote
         ),
         React.createElement('div',{className:'field',style:{maxWidth:200}},
-          React.createElement('label',null,'USD/KRW 환율'),
+          React.createElement('label',null,l.usdKrw),
           React.createElement('input',{type:'number',value:rate,min:'100',max:'9999',
             onChange:function(e){setRate(+e.target.value)},placeholder:'1370'})
         ),
@@ -729,7 +947,7 @@ function SettingsModal(props){
           var lim=rl[api.id];
           var hasKey=!!keys[api.id];
           var statusCls='api-item-status '+(lim?'api-limited':hasKey?'api-ok':'api-nokey');
-          var statusTxt=lim?('⏱ '+fmtReset(lim.resetAt)+' 리셋'):hasKey?'● 연결됨':'○ 키 없음';
+          var statusTxt=lim?l.resetAt(fmtReset(lim.resetAt,lang)):hasKey?l.connected:l.noKey;
           return React.createElement('div',{key:api.id,className:'api-item'},
             React.createElement('div',{className:'api-item-head'},
               React.createElement('div',null,
@@ -743,7 +961,7 @@ function SettingsModal(props){
             ),
             React.createElement('input',{
               type:'text',
-              placeholder:'API 키 입력',
+              placeholder:l.keyPh,
               value:keys[api.id]||'',
               onChange:function(e){var nk=Object.assign({},keys);nk[api.id]=e.target.value;setKeys(nk)},
               style:{background:'var(--bg4)',border:'1px solid var(--border2)',color:'var(--text)',padding:'6px 9px',borderRadius:5,fontSize:11,fontFamily:'var(--mono)',outline:'none',width:'100%',marginTop:4}
@@ -752,8 +970,8 @@ function SettingsModal(props){
         })
       ),
       React.createElement('div',{className:'modal-ft'},
-        React.createElement('button',{className:'btn',onClick:onClose},'취소'),
-        React.createElement('button',{className:'btn btn-primary',onClick:function(){onSave(keys,rate);onClose()}},'저장')
+        React.createElement('button',{className:'btn',onClick:onClose},l.cancel),
+        React.createElement('button',{className:'btn btn-primary',onClick:function(){onSave(keys,rate);onClose()}},l.save)
       )
     )
   );
@@ -811,7 +1029,8 @@ function PRow(props){
 
 // ── 추가/수정 모달 ──
 function AddModal(props){
-  var accounts=props.accounts,editPos=props.editPos,defaultAccount=props.defaultAccount,onSave=props.onSave,onClose=props.onClose;
+  var accounts=props.accounts,editPos=props.editPos,defaultAccount=props.defaultAccount,onSave=props.onSave,onClose=props.onClose,lang=props.lang||'ko';
+  var l=T[lang];
   var ts=useState(editPos?editPos.ticker:'');var ticker=ts[0];var setTicker=ts[1];
   var ss=useState(editPos?STOCKS.find(function(s){return s.t===editPos.ticker}):null);var selS=ss[0];var setSelS=ss[1];
   var shs=useState(editPos?editPos.shares:'');var shares=shs[0];var setShares=shs[1];
@@ -855,12 +1074,12 @@ function AddModal(props){
   return React.createElement('div',{className:'overlay',onClick:function(e){if(e.target===e.currentTarget)onClose()}},
     React.createElement('div',{className:'modal'},
       React.createElement('div',{className:'modal-hd'},
-        React.createElement('div',{className:'modal-title'},editPos?'포지션 수정':'포지션 추가'),
+        React.createElement('div',{className:'modal-title'},editPos?l.editPos:l.addPos),
         React.createElement('button',{className:'close-x',onClick:onClose},'×')
       ),
       React.createElement('div',{className:'modal-body'},
         React.createElement('div',{className:'field'},
-          React.createElement('label',null,'티커 / 종목명'),
+          React.createElement('label',null,l.tickerLbl),
           React.createElement('div',{className:'ac-wrap'},
             React.createElement('input',{value:ticker,placeholder:'AAPL, 005930.KS, SCHD…',autoFocus:true,
               onChange:function(e){onTicker(e.target.value)},onKeyDown:onKey,
@@ -882,25 +1101,25 @@ function AddModal(props){
           selS.n,
           React.createElement('span',{className:'chip-t'},selS.s),
           selS.r==='KR'&&React.createElement('span',{className:'chip-kr'},'🇰🇷 KRW'),
-          selS.d>0&&React.createElement('span',{className:'chip-g'},'배당 '+selS.d+'%')
+          selS.d>0&&React.createElement('span',{className:'chip-g'},l.divChip(selS.d))
         ),
         React.createElement('div',{className:'row2'},
           React.createElement('div',{className:'field'},
-            React.createElement('label',null,'수량 (주)'),
+            React.createElement('label',null,l.sharesLbl),
             React.createElement('input',{type:'number',step:'0.0001',min:'0',value:shares,placeholder:'0',onChange:function(e){setShares(e.target.value)}})
           ),
           React.createElement('div',{className:'field'},
-            React.createElement('label',null,'평균 매수가 ('+(isKRWStock?'₩':'$')+')'),
+            React.createElement('label',null,l.buyPriceLbl(isKRWStock?'₩':'$')),
             React.createElement('input',{type:'number',step:isKRWStock?'1':'0.01',min:'0',value:buyPrice,placeholder:'0',onChange:function(e){setBuyPrice(e.target.value)}})
           )
         ),
         React.createElement('div',{className:'row2'},
           React.createElement('div',{className:'field'},
-            React.createElement('label',null,'배당수익률 (%)'),
+            React.createElement('label',null,l.divYieldLbl),
             React.createElement('input',{type:'number',step:'0.01',min:'0',value:divYield,placeholder:'0.00',onChange:function(e){setDivYield(e.target.value)}})
           ),
           React.createElement('div',{className:'field'},
-            React.createElement('label',null,'계좌'),
+            React.createElement('label',null,l.accountLbl),
             React.createElement('select',{value:account,onChange:function(e){setAccount(e.target.value)}},
               accounts.map(function(a){return React.createElement('option',{key:a,value:a},a)})
             )
@@ -908,8 +1127,74 @@ function AddModal(props){
         )
       ),
       React.createElement('div',{className:'modal-ft'},
-        React.createElement('button',{className:'btn',onClick:onClose},'취소'),
-        React.createElement('button',{className:'btn btn-primary',onClick:save},editPos?'저장':'추가')
+        React.createElement('button',{className:'btn',onClick:onClose},l.cancel),
+        React.createElement('button',{className:'btn btn-primary',onClick:save},editPos?l.save:l.add)
+      )
+    )
+  );
+}
+
+// ── 필터 관리 모달 ──
+function FilterModal(props){
+  var initFilters=props.filters,onSave=props.onSave,onClose=props.onClose,lang=props.lang||'ko';
+  var l=T[lang];
+  var fss=useState(initFilters.map(function(f){return Object.assign({},f)}));
+  var fs=fss[0],setFs=fss[1];
+  var nns=useState('');var nn=nns[0];var setNn=nns[1];
+  var nts=useState('all');var nt=nts[0];var setNt=nts[1];
+  var nvs=useState(SECTORS[0]);var nv=nvs[0];var setNv=nvs[1];
+  function updateName(id,val){setFs(fs.map(function(f){return f.id===id?Object.assign({},f,{name:val}):f}))}
+  function del(id){setFs(fs.filter(function(f){return f.id!==id}))}
+  function addF(){
+    if(!nn.trim()) return;
+    var newF={id:'f_'+Date.now(),name:nn.trim(),type:nt};
+    if(nt==='sector') newF.value=nv;
+    setFs(fs.concat([newF]));setNn('');setNt('all');
+  }
+  var typeLabel=function(f){
+    var map={all:l.filterTypeAll,us:l.filterTypeUS,kr:l.filterTypeKR,etf:l.filterTypeETF};
+    return f.type==='sector'?(f.value||'Sector'):map[f.type]||f.type;
+  };
+  return React.createElement('div',{className:'overlay',onClick:function(e){if(e.target===e.currentTarget)onClose()}},
+    React.createElement('div',{className:'modal',style:{width:420}},
+      React.createElement('div',{className:'modal-hd'},
+        React.createElement('div',{className:'modal-title'},l.filterManageTitle),
+        React.createElement('button',{className:'close-x',onClick:onClose},'×')
+      ),
+      React.createElement('div',{className:'filter-modal-body'},
+        fs.map(function(f){
+          return React.createElement('div',{key:f.id,className:'filter-item'},
+            React.createElement('input',{className:'filter-item-name',value:f.name,
+              onChange:function(e){updateName(f.id,e.target.value)}}),
+            React.createElement('span',{className:'filter-type-badge'},typeLabel(f)),
+            React.createElement('button',{className:'btn btn-sm btn-ghost',
+              style:{color:'var(--text3)',padding:'2px 6px',flexShrink:0},
+              onClick:function(){del(f.id)},
+              onMouseEnter:function(e){e.currentTarget.style.color='var(--red)'},
+              onMouseLeave:function(e){e.currentTarget.style.color='var(--text3)'}},'✕')
+          );
+        }),
+        React.createElement('div',{className:'filter-add-row'},
+          React.createElement('input',{placeholder:l.filterName,value:nn,
+            onChange:function(e){setNn(e.target.value)},
+            onKeyDown:function(e){if(e.key==='Enter')addF()},
+            style:{maxWidth:110}}),
+          React.createElement('select',{value:nt,onChange:function(e){setNt(e.target.value)}},
+            React.createElement('option',{value:'all'},l.filterTypeAll),
+            React.createElement('option',{value:'us'},l.filterTypeUS),
+            React.createElement('option',{value:'kr'},l.filterTypeKR),
+            React.createElement('option',{value:'etf'},l.filterTypeETF),
+            React.createElement('option',{value:'sector'},l.filterTypeSector)
+          ),
+          nt==='sector'&&React.createElement('select',{value:nv,onChange:function(e){setNv(e.target.value)}},
+            SECTORS.map(function(s){return React.createElement('option',{key:s,value:s},s)})
+          ),
+          React.createElement('button',{className:'btn btn-primary btn-sm',onClick:addF},l.addFilter)
+        )
+      ),
+      React.createElement('div',{className:'modal-ft'},
+        React.createElement('button',{className:'btn',onClick:onClose},l.cancel),
+        React.createElement('button',{className:'btn btn-primary',onClick:function(){onSave(fs);onClose()}},l.save)
       )
     )
   );
@@ -918,6 +1203,9 @@ function AddModal(props){
 // ── App ──
 function App(props){
   var onLogout=props.onLogout||function(){};
+  var lang=props.lang||'ko';
+  var onLangToggle=props.onLangToggle||function(){};
+  var l=T[lang];
   var as=useState(function(){return ld('accounts',['Brokerage','Roth IRA','401k'])});
   var accounts=as[0];var setAccounts=as[1];
   var ps=useState(function(){return ld('positions',[])});
@@ -926,25 +1214,31 @@ function App(props){
   var apiKeys=ks[0];var setApiKeys=ks[1];
   var rs=useState(function(){return ld('usdRate',1370)});
   var usdRate=rs[0];var setUsdRate=rs[1];
+  var fls=useState(function(){return ld('filters',DEFAULT_FILTERS)});
+  var filters=fls[0];var setFilters=fls[1];
   var sas=useState('All');var selAcc=sas[0];var setSelAcc=sas[1];
   var mts=useState('overview');var mainTab=mts[0];var setMainTab=mts[1];
   var cts=useState('asset');var compTab=cts[0];var setCompTab=cts[1];
-  var fs=useState('All');var filter=fs[0];var setFilter=fs[1];
+  var fids=useState(function(){var saved=ld('filters',DEFAULT_FILTERS);return saved[0]?saved[0].id:'f_all'});
+  var filterId=fids[0];var setFilterId=fids[1];
   var sms=useState(false);var showModal=sms[0];var setShowModal=sms[1];
   var eps=useState(null);var editPos=eps[0];var setEditPos=eps[1];
   var sts=useState(false);var showSettings=sts[0];var setShowSettings=sts[1];
+  var sfms=useState(false);var showFilterModal=sfms[0];var setShowFilterModal=sfms[1];
   var nas=useState('');var newAcc=nas[0];var setNewAcc=nas[1];
+  var ras=useState(null);var renamingAcc=ras[0];var setRenamingAcc=ras[1];
+  var rvs=useState('');var renameVal=rvs[0];var setRenameVal=rvs[1];
   var prs=useState(PC);var prices=prs[0];var setPrices=prs[1];
   var rfs=useState(false);var refreshing=rfs[0];var setRefreshing=rfs[1];
   var rss=useState('');var refreshStatus=rss[0];var setRefreshStatus=rss[1];
   var tss=useState([]);var toasts=tss[0];var setToasts=tss[1];
   var css=useState(function(){return ld('sidebarCollapsed',false)});var sidebarCollapsed=css[0];var setSidebarCollapsed=css[1];
   useEffect(function(){sv('sidebarCollapsed',sidebarCollapsed)},[sidebarCollapsed]);
-
   useEffect(function(){sv('accounts',accounts)},[accounts]);
   useEffect(function(){sv('positions',positions)},[positions]);
   useEffect(function(){sv('apiKeys',apiKeys)},[apiKeys]);
   useEffect(function(){sv('usdRate',usdRate)},[usdRate]);
+  useEffect(function(){sv('filters',filters)},[filters]);
 
   function addToast(t){
     var id=Date.now()+Math.random();
@@ -953,13 +1247,20 @@ function App(props){
   }
   function removeToast(id){setToasts(function(prev){return prev.filter(function(x){return x.id!==id})})}
 
+  function renameAccount(oldName,newName){
+    var n=newName.trim();
+    if(!n||n===oldName||accounts.includes(n)){setRenamingAcc(null);setRenameVal('');return}
+    setAccounts(accounts.map(function(a){return a===oldName?n:a}));
+    setPositions(positions.map(function(p){return p.account===oldName?Object.assign({},p,{account:n}):p}));
+    if(selAcc===oldName) setSelAcc(n);
+    setRenamingAcc(null);setRenameVal('');
+  }
+
   var filtered=useMemo(function(){
     var p=selAcc==='All'?positions:positions.filter(function(x){return x.account===selAcc});
-    if(filter==='US') p=p.filter(function(x){var s=STOCKS.find(function(st){return st.t===x.ticker});return !s||s.r==='US'});
-    if(filter==='Korea') p=p.filter(function(x){var s=STOCKS.find(function(st){return st.t===x.ticker});return s&&s.r==='KR'});
-    if(filter==='ETF') p=p.filter(function(x){var s=STOCKS.find(function(st){return st.t===x.ticker});return s&&s.s==='ETF'});
-    return p;
-  },[positions,selAcc,filter]);
+    var activeFilter=filters.find(function(f){return f.id===filterId});
+    return applyFilter(p,activeFilter);
+  },[positions,selAcc,filterId,filters]);
 
   var port=useMemo(function(){return calcPort(filtered,prices,usdRate)},[filtered,prices,usdRate]);
   var comp=useMemo(function(){return calcComp(filtered,prices,usdRate)},[filtered,prices,usdRate]);
@@ -981,23 +1282,23 @@ function App(props){
 
   async function refresh(){
     if(refreshing) return;
-    if(positions.length===0){addToast({type:'warn',text:'포지션을 먼저 추가해주세요',sub:null});return}
+    if(positions.length===0){addToast({type:'warn',text:l.noPosWarn,sub:null});return}
     setRefreshing(true);setRefreshStatus('');
     try{
-      var result=await fetchAllPrices(positions,apiKeys,function(msg){setRefreshStatus(msg)});
+      var result=await fetchAllPrices(positions,apiKeys,function(msg){setRefreshStatus(msg)},lang);
       var newP=result.prices,msgs=result.msgs;
       if(Object.keys(newP).length>0) setPrices(function(prev){return Object.assign({},prev,newP)});
       msgs.forEach(function(m){addToast(m)});
       var allLimited=msgs.length>0&&msgs.every(function(m){return m.type==='limit'});
-      if(allLimited) addToast({type:'warn',text:'모든 API 한도 초과 또는 오류',sub:'⚙️ API 설정에서 키를 등록하거나 잠시 후 재시도해 주세요'});
+      if(allLimited) addToast({type:'warn',text:l.allLimitWarn,sub:l.allLimitSub});
     }catch(e){
-      addToast({type:'error',text:'가격 조회 오류',sub:'네트워크 연결을 확인해주세요'});
+      addToast({type:'error',text:l.fetchErr,sub:l.netErr});
     }finally{setRefreshing(false);setRefreshStatus('')}
   }
 
   function addAcc(){var n=newAcc.trim();if(n&&!accounts.includes(n)){setAccounts(accounts.concat([n]));setNewAcc('')}}
   function delAcc(a){
-    if(positions.some(function(p){return p.account===a})){alert('해당 계좌의 포지션을 먼저 이동해주세요');return}
+    if(positions.some(function(p){return p.account===a})){alert(l.movePos);return}
     setAccounts(accounts.filter(function(x){return x!==a}));
     if(selAcc===a) setSelAcc('All');
   }
@@ -1007,7 +1308,7 @@ function App(props){
     setShowModal(false);setEditPos(null);
   }
   function delPos(id){setPositions(positions.filter(function(p){return p.id!==id}))}
-  function saveSettings(keys,rate){setApiKeys(keys);setUsdRate(rate);addToast({type:'success',text:'설정이 저장되었습니다',sub:null})}
+  function saveSettings(keys,rate){setApiKeys(keys);setUsdRate(rate);addToast({type:'success',text:l.settingsSaved,sub:null})}
 
   var hasKR=positions.some(function(p){return isKR(p.ticker)});
 
@@ -1016,13 +1317,13 @@ function App(props){
       React.createElement('div',{className:'sb-sec',style:{padding:'10px 14px'}},
         React.createElement('div',{className:'sb-logo-row'},
           !sidebarCollapsed&&React.createElement('div',{className:'logo'},React.createElement('em',null,'▸'),'PORTFOLIO'),
-          React.createElement('span',{className:'sb-toggle',onClick:function(){setSidebarCollapsed(function(v){return !v})},title:sidebarCollapsed?'펼치기':'접기'},
+          React.createElement('span',{className:'sb-toggle',onClick:function(){setSidebarCollapsed(function(v){return !v})},title:sidebarCollapsed?l.expand:l.collapse},
             sidebarCollapsed?'▶':'◀'
           )
         )
       ),
       React.createElement('div',{className:'sb-sec'},
-        React.createElement('div',{className:'sb-lbl'},'Views'),
+        React.createElement('div',{className:'sb-lbl'},l.views),
         React.createElement('div',{className:'sb-item'+(mainTab==='overview'?' active':''),onClick:function(){setMainTab('overview')}},
           React.createElement('span',{className:'sb-name'},'📊 Overview')
         ),
@@ -1032,17 +1333,29 @@ function App(props){
         )
       ),
       React.createElement('div',{className:'sb-sec'},
-        React.createElement('div',{className:'sb-lbl'},'Accounts'),
+        React.createElement('div',{className:'sb-lbl'},l.accounts),
         React.createElement('div',{className:'sb-item'+(selAcc==='All'?' active':''),onClick:function(){setSelAcc('All')}},
-          React.createElement('span',{className:'sb-name'},'All Accounts'),
+          React.createElement('span',{className:'sb-name'},l.allAccounts),
           React.createElement('span',{className:'sb-cnt'},positions.length)
         ),
         accounts.map(function(a,i){
-          return React.createElement('div',{key:a,className:'sb-item'+(selAcc===a?' active':''),onClick:function(){setSelAcc(a)}},
+          return React.createElement('div',{key:a,className:'sb-item'+(selAcc===a?' active':''),onClick:function(){if(renamingAcc!==a)setSelAcc(a)}},
             React.createElement('span',{className:'sb-name'},
-              React.createElement('span',{className:'sb-dot',style:{background:DOT_C[i%6]}}),a
+              React.createElement('span',{className:'sb-dot',style:{background:DOT_C[i%6]}}),
+              renamingAcc===a
+                ?React.createElement('input',{className:'acc-rename-input',value:renameVal,autoFocus:true,
+                    placeholder:l.renameAccPh,
+                    onChange:function(e){setRenameVal(e.target.value)},
+                    onClick:function(e){e.stopPropagation()},
+                    onKeyDown:function(e){
+                      if(e.key==='Enter'){e.stopPropagation();renameAccount(a,renameVal)}
+                      else if(e.key==='Escape'){e.stopPropagation();setRenamingAcc(null);setRenameVal('')}
+                    }})
+                :a
             ),
-            React.createElement('div',{style:{display:'flex',alignItems:'center',gap:5}},
+            React.createElement('div',{style:{display:'flex',alignItems:'center',gap:3}},
+              !renamingAcc&&React.createElement('span',{style:{fontSize:9,color:'var(--text3)',cursor:'pointer',padding:'1px 3px'},
+                title:'rename',onClick:function(e){e.stopPropagation();setRenamingAcc(a);setRenameVal(a)}},'✎'),
               React.createElement('span',{className:'sb-cnt'},positions.filter(function(p){return p.account===a}).length),
               React.createElement('span',{style:{fontSize:9,color:'var(--text3)',cursor:'pointer',padding:'1px 3px'},
                 onClick:function(e){e.stopPropagation();delAcc(a)}},'✕')
@@ -1051,9 +1364,9 @@ function App(props){
         })
       ),
       React.createElement('div',{className:'sb-sec'},
-        React.createElement('div',{className:'sb-lbl'},'New Account'),
+        React.createElement('div',{className:'sb-lbl'},l.newAccount),
         React.createElement('div',{className:'sb-add-row'},
-          React.createElement('input',{placeholder:'계좌명…',value:newAcc,
+          React.createElement('input',{placeholder:l.accPh,value:newAcc,
             onChange:function(e){setNewAcc(e.target.value)},
             onKeyDown:function(e){if(e.key==='Enter')addAcc()}}),
           React.createElement('button',{className:'btn btn-primary btn-sm',onClick:addAcc},'+')
@@ -1061,7 +1374,7 @@ function App(props){
       ),
       hasKR&&React.createElement('div',{style:{padding:'8px 14px',borderTop:'1px solid var(--border)'}},
         React.createElement('div',{style:{fontSize:9,color:'var(--text3)',lineHeight:1.6}},
-          '🇰🇷 한국 주식 포함',React.createElement('br'),
+          l.krIncluded,React.createElement('br'),
           React.createElement('span',{style:{fontFamily:'var(--mono)',color:'var(--yellow)'}},'1 USD = ₩'+(usdRate||1370).toLocaleString())
         )
       )
@@ -1070,66 +1383,67 @@ function App(props){
     React.createElement('div',{className:'main'},
       React.createElement('div',{className:'topbar'},
         React.createElement('div',{style:{fontSize:11,color:'var(--text2)',fontWeight:500}},
-          selAcc==='All'?'All Accounts · '+positions.length+' positions':selAcc+' · '+positions.filter(function(p){return p.account===selAcc}).length+' positions'
+          selAcc==='All'?l.allAccPos(positions.length):l.accPos(selAcc,positions.filter(function(p){return p.account===selAcc}).length)
         ),
         React.createElement('div',{className:'topbar-right'},
-          React.createElement('button',{className:'btn btn-sm btn-ghost',onClick:onLogout,title:'로그아웃',style:{color:'var(--text3)'}},'⎋ 로그아웃'),
-          React.createElement(ApiStatus,{apiKeys:apiKeys}),
+          React.createElement('button',{className:'btn btn-sm btn-ghost lang-btn',onClick:onLangToggle},l.langSwitch),
+          React.createElement('button',{className:'btn btn-sm btn-ghost',onClick:onLogout,style:{color:'var(--text3)'}},l.logout),
+          React.createElement(ApiStatus,{apiKeys:apiKeys,lang:lang}),
           refreshStatus&&React.createElement('span',{className:'refresh-status'},refreshStatus),
-          React.createElement('button',{className:'btn btn-sm',onClick:function(){setShowSettings(true)}},'⚙️ API'),
+          React.createElement('button',{className:'btn btn-sm',onClick:function(){setShowSettings(true)}},l.apiBtn),
           React.createElement('button',{className:'btn btn-sm',onClick:refresh,disabled:refreshing},
-            React.createElement('span',{className:refreshing?'spinning':''},'↻'),' ',refreshing?'조회 중…':'새로고침'
+            React.createElement('span',{className:refreshing?'spinning':''},'↻'),' ',refreshing?l.refreshing:l.refresh
           ),
-          React.createElement('button',{className:'btn btn-primary btn-sm',onClick:function(){setEditPos(null);setShowModal(true)}},'+ 포지션 추가')
+          React.createElement('button',{className:'btn btn-primary btn-sm',onClick:function(){setEditPos(null);setShowModal(true)}},l.addPosBtn)
         )
       ),
       React.createElement('div',{className:'content'},
         React.createElement('div',{className:'hero'},
           React.createElement('div',{className:'hero-top'},
             React.createElement('div',null,
-              React.createElement('div',{className:'hero-lbl'},'Total Market Value'+(hasKR?' (USD 환산)':'')),
+              React.createElement('div',{className:'hero-lbl'},hasKR?l.totalValueKR:l.totalValue),
               React.createElement('div',{className:'hero-val'},fmtM(port.val)),
               React.createElement('div',{className:'hero-gain',style:{color:port.gain>=0?'var(--green)':'var(--red)'}},
                 (port.gain>=0?'+':'')+fmtM(port.gain)+' ('+(port.gain>=0?'+':'')+port.gainPct.toFixed(2)+'%)'
               )
             ),
             React.createElement('div',{style:{textAlign:'right'}},
-              React.createElement('div',{className:'hero-lbl'},'Total Cost Basis'),
+              React.createElement('div',{className:'hero-lbl'},l.totalCost),
               React.createElement('div',{style:{fontFamily:'var(--mono)',fontSize:15,color:'var(--text2)'}},fmtM(port.cost))
             )
           ),
           React.createElement('div',{className:'hero-stats'},
             React.createElement('div',{className:'hstat'},
-              React.createElement('div',{className:'hstat-lbl'},'Annual Dividends'),
+              React.createElement('div',{className:'hstat-lbl'},l.annualDiv),
               React.createElement('div',{className:'hstat-val',style:{color:'var(--green)'}},fmtK(port.div))
             ),
             React.createElement('div',{className:'hstat'},
-              React.createElement('div',{className:'hstat-lbl'},'Invest. Div Yield'),
+              React.createElement('div',{className:'hstat-lbl'},l.investDiv),
               React.createElement('div',{className:'hstat-val'},port.cost>0?(port.div/port.cost*100).toFixed(2)+'%':'—'),
-              React.createElement('div',{className:'hstat-sub'},'on cost')
+              React.createElement('div',{className:'hstat-sub'},l.onCost)
             ),
             React.createElement('div',{className:'hstat'},
-              React.createElement('div',{className:'hstat-lbl'},'Market Div Yield'),
+              React.createElement('div',{className:'hstat-lbl'},l.marketDiv),
               React.createElement('div',{className:'hstat-val'},port.val>0?(port.div/port.val*100).toFixed(2)+'%':'—'),
-              React.createElement('div',{className:'hstat-sub'},'on market val')
+              React.createElement('div',{className:'hstat-sub'},l.onMarket)
             )
           )
         ),
 
         React.createElement('div',{className:'tabs'},
-          React.createElement('div',{className:'tab'+(mainTab==='overview'?' active':''),onClick:function(){setMainTab('overview')}},'📊 Overview'),
-          React.createElement('div',{className:'tab'+(mainTab==='positions'?' active':''),onClick:function(){setMainTab('positions')}},'📋 Positions ('+filtered.length+')')
+          React.createElement('div',{className:'tab'+(mainTab==='overview'?' active':''),onClick:function(){setMainTab('overview')}},l.tabOverview),
+          React.createElement('div',{className:'tab'+(mainTab==='positions'?' active':''),onClick:function(){setMainTab('positions')}},l.tabPositions(filtered.length))
         ),
 
         mainTab==='overview'&&React.createElement('div',null,
           React.createElement('div',{className:'charts-row'},
             React.createElement('div',{className:'chart-card'},
               React.createElement('div',{className:'comp-stabs'},
-                React.createElement('div',{className:'comp-stab'+(compTab==='asset'?' active':''),onClick:function(){setCompTab('asset')}},'자산 구성'),
-                React.createElement('div',{className:'comp-stab'+(compTab==='dividend'?' active':''),onClick:function(){setCompTab('dividend')}},'배당 분배')
+                React.createElement('div',{className:'comp-stab'+(compTab==='asset'?' active':''),onClick:function(){setCompTab('asset')}},l.assetComp),
+                React.createElement('div',{className:'comp-stab'+(compTab==='dividend'?' active':''),onClick:function(){setCompTab('dividend')}},l.divDist)
               ),
               filtered.length===0
-                ?React.createElement('div',{className:'empty',style:{padding:20}},React.createElement('div',{className:'empty-icon'},'🍩'),'데이터 없음')
+                ?React.createElement('div',{className:'empty',style:{padding:20}},React.createElement('div',{className:'empty-icon'},'🍩'),l.noData)
                 :React.createElement('div',{className:'donut-wrap'},
                     React.createElement('div',{className:'donut-canvas-wrap'},
                       React.createElement(Donut,{data:donutData,size:155}),
@@ -1150,9 +1464,9 @@ function App(props){
                   )
             ),
             React.createElement('div',{className:'chart-card'},
-              React.createElement('div',{className:'chart-title'},'섹터 분석'),
+              React.createElement('div',{className:'chart-title'},l.sectorAnalysis),
               secs.length===0
-                ?React.createElement('div',{className:'empty',style:{padding:20}},React.createElement('div',{className:'empty-icon'},'📁'),'데이터 없음')
+                ?React.createElement('div',{className:'empty',style:{padding:20}},React.createElement('div',{className:'empty-icon'},'📁'),l.noData)
                 :secs.map(function(sec,i){
                     return React.createElement('div',{key:sec.s,style:{marginBottom:7}},
                       React.createElement('div',{style:{display:'flex',justifyContent:'space-between',marginBottom:2}},
@@ -1172,8 +1486,8 @@ function App(props){
 
           React.createElement('div',{className:'bar-card'},
             React.createElement('div',{className:'chart-title'},
-              '월별 예상 배당금',
-              React.createElement('span',{className:'chart-sub'},'연간: '+fmtK(port.div)+' · 월평균: '+fmtK(port.div/12))
+              l.monthlyDiv,
+              React.createElement('span',{className:'chart-sub'},l.annualAvg(fmtK(port.div),fmtK(port.div/12)))
             ),
             React.createElement('div',{className:'bar-months'},
               MONTHS.map(function(m,i){
@@ -1207,34 +1521,36 @@ function App(props){
         mainTab==='positions'&&React.createElement('div',null,
           React.createElement('div',{className:'filter-row'},
             React.createElement('div',{className:'pills'},
-              ['All','US','Korea','ETF'].map(function(f){
-                return React.createElement('div',{key:f,className:'pill'+(filter===f?' active':''),onClick:function(){setFilter(f)}},f);
-              })
+              filters.map(function(f){
+                return React.createElement('div',{key:f.id,className:'pill'+(filterId===f.id?' active':''),onClick:function(){setFilterId(f.id)}},f.name);
+              }),
+              React.createElement('button',{className:'btn btn-sm btn-ghost',style:{padding:'2px 7px',fontSize:10},
+                onClick:function(){setShowFilterModal(true)},title:l.manageFilters},'⚙')
             ),
-            React.createElement('div',{style:{fontSize:9,color:'var(--text3)',fontFamily:'var(--mono)'}},filtered.length+' positions · '+fmtK(port.val))
+            React.createElement('div',{style:{fontSize:9,color:'var(--text3)',fontFamily:'var(--mono)'}},l.posCount(filtered.length)+fmtK(port.val))
           ),
           filtered.length===0
             ?React.createElement('div',{className:'tbl-wrap'},
                 React.createElement('div',{className:'empty'},
                   React.createElement('div',{className:'empty-icon'},'📊'),
-                  '포지션이 없습니다. "+ 포지션 추가" 버튼을 클릭하세요.'
+                  l.noPositions
                 )
               )
             :React.createElement('div',{className:'tbl-wrap'},
                 React.createElement('table',null,
                   React.createElement('thead',null,
                     React.createElement('tr',null,
-                      React.createElement('th',null,'종목'),
-                      React.createElement('th',null,'계좌'),
-                      React.createElement('th',{className:'r'},'수량'),
-                      React.createElement('th',{className:'r'},'매수가'),
-                      React.createElement('th',{className:'r'},'현재가'),
-                      React.createElement('th',{className:'r'},'평가액(USD)'),
-                      React.createElement('th',{className:'r'},'손익'),
-                      React.createElement('th',{className:'r'},'수익률'),
-                      React.createElement('th',{className:'r'},'배당%'),
-                      React.createElement('th',{className:'r'},'연배당'),
-                      React.createElement('th',{className:'r'},'비중'),
+                      React.createElement('th',null,l.thStock),
+                      React.createElement('th',null,l.thAccount),
+                      React.createElement('th',{className:'r'},l.thShares),
+                      React.createElement('th',{className:'r'},l.thBuy),
+                      React.createElement('th',{className:'r'},l.thCurrent),
+                      React.createElement('th',{className:'r'},l.thValue),
+                      React.createElement('th',{className:'r'},l.thGain),
+                      React.createElement('th',{className:'r'},l.thReturn),
+                      React.createElement('th',{className:'r'},l.thDiv),
+                      React.createElement('th',{className:'r'},l.thAnnDiv),
+                      React.createElement('th',{className:'r'},l.thWeight),
                       React.createElement('th',null,'')
                     )
                   ),
@@ -1275,180 +1591,236 @@ function App(props){
       )
     ),
 
-    showSettings&&React.createElement(SettingsModal,{apiKeys:apiKeys,usdRate:usdRate,onSave:saveSettings,onClose:function(){setShowSettings(false)}}),
-    (showModal||editPos)&&React.createElement(AddModal,{accounts:accounts,editPos:editPos,
+    showSettings&&React.createElement(SettingsModal,{apiKeys:apiKeys,usdRate:usdRate,onSave:saveSettings,lang:lang,onClose:function(){setShowSettings(false)}}),
+    (showModal||editPos)&&React.createElement(AddModal,{accounts:accounts,editPos:editPos,lang:lang,
       defaultAccount:selAcc!=='All'?selAcc:(accounts[0]||''),
       onSave:savePos,onClose:function(){setShowModal(false);setEditPos(null)}}),
+    showFilterModal&&React.createElement(FilterModal,{filters:filters,lang:lang,
+      onSave:function(newF){
+        setFilters(newF);
+        if(!newF.find(function(f){return f.id===filterId}))
+          setFilterId(newF[0]?newF[0].id:'f_all');
+      },
+      onClose:function(){setShowFilterModal(false)}}),
     React.createElement(ToastCtr,{toasts:toasts,onRemove:removeToast})
   );
 }
 
 // ── 계정 등록 화면 ──
 function RegisterScreen(props){
-  var onDone=props.onDone;
+  var onDone=props.onDone,lang=props.lang||'ko',onLangToggle=props.onLangToggle||function(){};
+  var l=T[lang];
   var is=useState('');var id=is[0];var setId=is[1];
   var ps=useState('');var pw=ps[0];var setPw=ps[1];
   var p2s=useState('');var pw2=p2s[0];var setPw2=p2s[1];
   var es=useState('');var err=es[0];var setErr=es[1];
   var ls=useState(false);var loading=ls[0];var setLoading=ls[1];
   async function submit(){
-    if(!id.trim()||!pw||!pw2){setErr('모든 항목을 입력해주세요');return}
-    if(id.trim().length<3){setErr('아이디는 3자 이상이어야 합니다');return}
-    if(pw.length<6){setErr('비밀번호는 6자 이상이어야 합니다');return}
-    if(pw!==pw2){setErr('비밀번호가 일치하지 않습니다');return}
+    if(!id.trim()||!pw||!pw2){setErr(l.errFillAll);return}
+    if(id.trim().length<3){setErr(l.errIdLen);return}
+    if(pw.length<6){setErr(l.errPwLen);return}
+    if(pw!==pw2){setErr(l.errPwMatch);return}
     setLoading(true);setErr('');
     try{
       var salt=generateSalt();
       var results=await Promise.all([hashText(id.trim().toLowerCase()),hashPassword(pw,salt)]);
       saveAuth({usernameHash:results[0],passwordHash:results[1],salt:salt});
       onDone();
-    }catch(e){setErr('오류가 발생했습니다. 다시 시도해주세요')}
+    }catch(e){setErr(l.errGeneral)}
     finally{setLoading(false)}
   }
   return React.createElement('div',{className:'auth-overlay'},
     React.createElement('div',{className:'auth-card'},
       React.createElement('div',{className:'auth-logo'},React.createElement('em',null,'▸'),'PORTFOLIO'),
-      React.createElement('div',{className:'auth-title'},'계정 만들기'),
+      React.createElement('div',{className:'auth-title'},l.createAccount),
       React.createElement('div',{className:'auth-sub'},
-        '처음 사용하시는군요! 아이디와 비밀번호를 설정해주세요.',React.createElement('br'),
+        l.firstTime,React.createElement('br'),
         React.createElement('span',{style:{color:'var(--text3)',fontSize:10}},
-          '🔒 비밀번호는 ',React.createElement('strong',null,'PBKDF2-SHA256'),
-          ' (10만 회 반복 + 랜덤 Salt) 으로 해시되어 저장됩니다.',React.createElement('br'),
-          '원본 비밀번호는 어디에도 저장되지 않으며, 이 기기 밖으로 전송되지 않습니다.'
+          l.encMsg1,React.createElement('strong',null,'PBKDF2-SHA256'),
+          l.encMsg2,React.createElement('br'),l.encMsg3
         )
       ),
       err&&React.createElement('div',{className:'auth-err'},err),
-      React.createElement('div',{className:'field'},React.createElement('label',null,'아이디'),React.createElement('input',{type:'text',placeholder:'3자 이상 입력',value:id,onChange:function(e){setId(e.target.value)},onKeyDown:function(e){if(e.key==='Enter')submit()},autoFocus:true})),
-      React.createElement('div',{className:'field'},React.createElement('label',null,'비밀번호'),React.createElement('input',{type:'password',placeholder:'6자 이상 입력',value:pw,onChange:function(e){setPw(e.target.value)},onKeyDown:function(e){if(e.key==='Enter')submit()}})),
-      React.createElement('div',{className:'field'},React.createElement('label',null,'비밀번호 확인'),React.createElement('input',{type:'password',placeholder:'비밀번호 재입력',value:pw2,onChange:function(e){setPw2(e.target.value)},onKeyDown:function(e){if(e.key==='Enter')submit()}})),
-      React.createElement('button',{className:'btn btn-primary',style:{width:'100%',padding:'10px',fontSize:12},onClick:submit,disabled:loading},loading?'처리 중…':'계정 만들기 →')
+      React.createElement('div',{className:'field'},React.createElement('label',null,l.idLbl),React.createElement('input',{type:'text',placeholder:l.idPh,value:id,onChange:function(e){setId(e.target.value)},onKeyDown:function(e){if(e.key==='Enter')submit()},autoFocus:true})),
+      React.createElement('div',{className:'field'},React.createElement('label',null,l.pwLbl),React.createElement('input',{type:'password',placeholder:l.pwPh,value:pw,onChange:function(e){setPw(e.target.value)},onKeyDown:function(e){if(e.key==='Enter')submit()}})),
+      React.createElement('div',{className:'field'},React.createElement('label',null,l.pw2Lbl),React.createElement('input',{type:'password',placeholder:l.pw2Ph,value:pw2,onChange:function(e){setPw2(e.target.value)},onKeyDown:function(e){if(e.key==='Enter')submit()}})),
+      React.createElement('button',{className:'btn btn-primary',style:{width:'100%',padding:'10px',fontSize:12},onClick:submit,disabled:loading},loading?l.processing:l.createBtn),
+      React.createElement('div',{className:'auth-lang'},React.createElement('button',{className:'lang-btn',onClick:onLangToggle},l.langSwitch))
     )
   );
 }
 
 // ── 로그인 화면 ──
 function LoginScreen(props){
-  var onDone=props.onDone;var onReset=props.onReset;
+  var onDone=props.onDone;var onReset=props.onReset;var lang=props.lang||'ko';var onLangToggle=props.onLangToggle||function(){};
   var is=useState('');var id=is[0];var setId=is[1];
   var ps=useState('');var pw=ps[0];var setPw=ps[1];
   var es=useState('');var err=es[0];var setErr=es[1];
   var ls=useState(false);var loading=ls[0];var setLoading=ls[1];
+  var l=T[lang];
   async function submit(){
-    if(!id.trim()||!pw){setErr('아이디와 비밀번호를 입력해주세요');return}
+    if(!id.trim()||!pw){setErr(l.errFillBoth);return}
     setLoading(true);setErr('');
     try{
       var auth=getAuth();
-      if(!auth){setErr('등록된 계정이 없습니다');setLoading(false);return}
+      if(!auth){setErr(l.errNoAcc);setLoading(false);return}
       var results=await Promise.all([hashText(id.trim().toLowerCase()),hashPassword(pw,auth.salt)]);
       if(results[0]===auth.usernameHash&&results[1]===auth.passwordHash) onDone();
-      else setErr('아이디 또는 비밀번호가 올바르지 않습니다');
-    }catch(e){setErr('오류가 발생했습니다')}
+      else setErr(l.errWrongCreds);
+    }catch(e){setErr(l.errOccurred)}
     finally{setLoading(false)}
   }
   return React.createElement('div',{className:'auth-overlay'},
     React.createElement('div',{className:'auth-card'},
       React.createElement('div',{className:'auth-logo'},React.createElement('em',null,'▸'),'PORTFOLIO'),
-      React.createElement('div',{className:'auth-title'},'로그인'),
+      React.createElement('div',{className:'auth-title'},l.loginTitle),
       err&&React.createElement('div',{className:'auth-err'},err),
-      React.createElement('div',{className:'field'},React.createElement('label',null,'아이디'),React.createElement('input',{type:'text',placeholder:'아이디 입력',value:id,onChange:function(e){setId(e.target.value)},onKeyDown:function(e){if(e.key==='Enter')submit()},autoFocus:true})),
-      React.createElement('div',{className:'field'},React.createElement('label',null,'비밀번호'),React.createElement('input',{type:'password',placeholder:'비밀번호 입력',value:pw,onChange:function(e){setPw(e.target.value)},onKeyDown:function(e){if(e.key==='Enter')submit()}})),
-      React.createElement('button',{className:'btn btn-primary',style:{width:'100%',padding:'10px',fontSize:12},onClick:submit,disabled:loading},loading?'확인 중…':'로그인 →'),
-      React.createElement('div',{className:'auth-link',onClick:onReset},'⚠️ 비밀번호 초기화 (모든 데이터 삭제)')
+      React.createElement('div',{className:'field'},React.createElement('label',null,l.idLbl),React.createElement('input',{type:'text',placeholder:l.loginIdPh,value:id,onChange:function(e){setId(e.target.value)},onKeyDown:function(e){if(e.key==='Enter')submit()},autoFocus:true})),
+      React.createElement('div',{className:'field'},React.createElement('label',null,l.pwLbl),React.createElement('input',{type:'password',placeholder:l.loginPwPh,value:pw,onChange:function(e){setPw(e.target.value)},onKeyDown:function(e){if(e.key==='Enter')submit()}})),
+      React.createElement('button',{className:'btn btn-primary',style:{width:'100%',padding:'10px',fontSize:12},onClick:submit,disabled:loading},loading?l.verifying:l.loginBtn),
+      React.createElement('div',{className:'auth-link',onClick:onReset},l.resetLink),
+      React.createElement('div',{className:'auth-lang'},React.createElement('button',{className:'lang-btn',onClick:onLangToggle},l.langSwitch))
     )
   );
 }
 
 // ── 초기화 화면 ──
 function ResetScreen(props){
-  var onDone=props.onDone;var onCancel=props.onCancel;
+  var onDone=props.onDone;var onCancel=props.onCancel;var lang=props.lang||'ko';var onLangToggle=props.onLangToggle||function(){};
   var is=useState('');var id=is[0];var setId=is[1];
   var es=useState('');var err=es[0];var setErr=es[1];
   var ls=useState(false);var loading=ls[0];var setLoading=ls[1];
+  var l=T[lang];
   async function doReset(){
-    if(!id.trim()){setErr('아이디를 입력해주세요');return}
+    if(!id.trim()){setErr(l.errFillId);return}
     setLoading(true);setErr('');
     try{
       var auth=getAuth();
-      if(!auth){setErr('등록된 계정이 없습니다');setLoading(false);return}
+      if(!auth){setErr(l.errNoAcc);setLoading(false);return}
       var uh=await hashText(id.trim().toLowerCase());
-      if(uh!==auth.usernameHash){setErr('아이디가 올바르지 않습니다');setLoading(false);return}
+      if(uh!==auth.usernameHash){setErr(l.errWrongCreds);setLoading(false);return}
       clearAllData();
       localStorage.removeItem('pfm_auth');
       onDone();
-    }catch(e){setErr('오류가 발생했습니다')}
+    }catch(e){setErr(l.errOccurred)}
     finally{setLoading(false)}
   }
   return React.createElement('div',{className:'auth-overlay'},
     React.createElement('div',{className:'auth-card'},
       React.createElement('div',{className:'auth-logo'},React.createElement('em',null,'▸'),'PORTFOLIO'),
-      React.createElement('div',{className:'auth-title'},'비밀번호 초기화'),
-      React.createElement('div',{className:'auth-warn'},'⚠️ 초기화하면 모든 포지션, 계좌, API 키 등 저장된 데이터가 영구 삭제됩니다. 이 작업은 되돌릴 수 없습니다.'),
+      React.createElement('div',{className:'auth-title'},l.resetTitle),
+      React.createElement('div',{className:'auth-warn'},l.resetWarn),
       err&&React.createElement('div',{className:'auth-err'},err),
-      React.createElement('div',{className:'field'},React.createElement('label',null,'현재 아이디 확인'),React.createElement('input',{type:'text',placeholder:'아이디를 입력하여 확인',value:id,onChange:function(e){setId(e.target.value)},onKeyDown:function(e){if(e.key==='Enter')doReset()},autoFocus:true})),
+      React.createElement('div',{className:'field'},React.createElement('label',null,l.curIdLbl),React.createElement('input',{type:'text',placeholder:l.curIdPh,value:id,onChange:function(e){setId(e.target.value)},onKeyDown:function(e){if(e.key==='Enter')doReset()},autoFocus:true})),
       React.createElement('div',{style:{display:'flex',gap:8}},
-        React.createElement('button',{className:'btn',style:{flex:1},onClick:onCancel},'취소'),
-        React.createElement('button',{className:'btn',style:{flex:1,background:'var(--red)',borderColor:'var(--red)',color:'#fff'},onClick:doReset,disabled:loading},loading?'처리 중…':'초기화 및 전체 삭제')
-      )
+        React.createElement('button',{className:'btn',style:{flex:1},onClick:onCancel},l.cancel),
+        React.createElement('button',{className:'btn',style:{flex:1,background:'var(--red)',borderColor:'var(--red)',color:'#fff'},onClick:doReset,disabled:loading},loading?l.processing:l.resetBtn)
+      ),
+      React.createElement('div',{className:'auth-lang'},React.createElement('button',{className:'lang-btn',onClick:onLangToggle},l.langSwitch))
     )
   );
 }
 
 // ── Auth 래퍼 ──
 function AuthScreen(props){
-  var hasAccount=props.hasAccount;var onLogin=props.onLogin;
+  var hasAccount=props.hasAccount;var onLogin=props.onLogin;var lang=props.lang||'ko';var onLangToggle=props.onLangToggle||function(){};
   var ms=useState(hasAccount?'login':'register');var mode=ms[0];var setMode=ms[1];
   var rs=useState(false);var showReset=rs[0];var setShowReset=rs[1];
-  if(showReset) return React.createElement(ResetScreen,{onDone:function(){setShowReset(false);setMode('register')},onCancel:function(){setShowReset(false)}});
-  if(mode==='register') return React.createElement(RegisterScreen,{onDone:onLogin});
-  return React.createElement(LoginScreen,{onDone:onLogin,onReset:function(){setShowReset(true)}});
+  if(showReset) return React.createElement(ResetScreen,{onDone:function(){setShowReset(false);setMode('register')},onCancel:function(){setShowReset(false)},lang:lang,onLangToggle:onLangToggle});
+  if(mode==='register') return React.createElement(RegisterScreen,{onDone:onLogin,lang:lang,onLangToggle:onLangToggle});
+  return React.createElement(LoginScreen,{onDone:onLogin,onReset:function(){setShowReset(true)},lang:lang,onLangToggle:onLangToggle});
 }
 
 // ── 법적 모달 (개인정보처리방침 / 이용약관 / 소개 / 문의) ──
 var LEGAL={
-  privacy:{
-    title:'개인정보처리방침',
-    content:[
-      {h:'1. 수집하는 정보',p:'본 서비스는 서버에 어떠한 개인정보도 전송하거나 저장하지 않습니다. 모든 데이터(포트폴리오 정보, 계좌 정보, API 키, 로그인 자격증명)는 사용자의 브라우저 로컬 스토리지(localStorage)에만 저장됩니다.'},
-      {h:'2. 쿠키 및 추적',p:'본 서비스는 서비스 운영을 위해 브라우저 localStorage를 사용합니다. Google AdSense가 활성화된 경우 Google이 쿠키를 사용하여 관심 기반 광고를 제공할 수 있습니다. Google의 개인정보처리방침은 policies.google.com에서 확인하실 수 있습니다.'},
-      {h:'3. 제3자 API',p:'가격 조회 시 Yahoo Finance, Finnhub, Twelve Data, Alpha Vantage 등 외부 API에 종목 코드(티커)가 전송될 수 있습니다. 해당 서비스의 개인정보처리방침을 확인하세요. API 키는 사용자 브라우저에만 저장됩니다.'},
-      {h:'4. 데이터 보안',p:'로그인 비밀번호는 PBKDF2-SHA256 알고리즘(10만 반복)으로 해시 처리되어 저장됩니다. 원본 비밀번호는 어디에도 저장되지 않습니다.'},
-      {h:'5. 데이터 삭제',p:"비밀번호 초기화 기능을 사용하면 모든 로컬 데이터를 삭제할 수 있습니다. 브라우저의 '사이트 데이터 삭제' 기능을 통해서도 모든 데이터를 삭제할 수 있습니다."},
-      {h:'6. 문의',p:'개인정보 관련 문의사항은 admin@stockinvestonline.com 으로 문의해주세요.'},
-    ]
+  ko:{
+    privacy:{
+      title:'개인정보처리방침',
+      content:[
+        {h:'1. 수집하는 정보',p:'본 서비스는 서버에 어떠한 개인정보도 전송하거나 저장하지 않습니다. 모든 데이터(포트폴리오 정보, 계좌 정보, API 키, 로그인 자격증명)는 사용자의 브라우저 로컬 스토리지(localStorage)에만 저장됩니다.'},
+        {h:'2. 쿠키 및 추적',p:'본 서비스는 서비스 운영을 위해 브라우저 localStorage를 사용합니다. Google AdSense가 활성화된 경우 Google이 쿠키를 사용하여 관심 기반 광고를 제공할 수 있습니다. Google의 개인정보처리방침은 policies.google.com에서 확인하실 수 있습니다.'},
+        {h:'3. 제3자 API',p:'가격 조회 시 Yahoo Finance, Finnhub, Twelve Data, Alpha Vantage 등 외부 API에 종목 코드(티커)가 전송될 수 있습니다. 해당 서비스의 개인정보처리방침을 확인하세요. API 키는 사용자 브라우저에만 저장됩니다.'},
+        {h:'4. 데이터 보안',p:'로그인 비밀번호는 PBKDF2-SHA256 알고리즘(10만 반복)으로 해시 처리되어 저장됩니다. 원본 비밀번호는 어디에도 저장되지 않습니다.'},
+        {h:'5. 데이터 삭제',p:"비밀번호 초기화 기능을 사용하면 모든 로컬 데이터를 삭제할 수 있습니다. 브라우저의 '사이트 데이터 삭제' 기능을 통해서도 모든 데이터를 삭제할 수 있습니다."},
+        {h:'6. 문의',p:'개인정보 관련 문의사항은 admin@stockinvestonline.com 으로 문의해주세요.'},
+      ]
+    },
+    terms:{
+      title:'이용약관',
+      content:[
+        {h:'제1조 (목적)',p:'본 약관은 Portfolio Manager(이하 "서비스")의 이용 조건 및 절차, 이용자와 서비스 제공자 간의 권리·의무 및 책임사항을 규정함을 목적으로 합니다.'},
+        {h:'제2조 (서비스 이용)',p:'본 서비스는 개인 투자 포트폴리오 관리 및 분석을 위한 도구를 제공합니다. 서비스는 투자 조언을 제공하지 않으며, 모든 투자 결정은 사용자 본인의 책임입니다.'},
+        {h:'제3조 (면책조항)',p:'본 서비스에서 제공하는 주가 정보는 실시간이 아닐 수 있으며(최대 15분 지연), 정확성을 보장하지 않습니다. 서비스 이용으로 인한 투자 손실에 대해 서비스 제공자는 책임지지 않습니다.'},
+        {h:'제4조 (데이터)',p:'모든 포트폴리오 데이터는 사용자의 기기에만 저장되며 서버로 전송되지 않습니다. 데이터 손실에 대해 서비스는 책임지지 않으므로 중요한 데이터는 별도로 백업하시기 바랍니다.'},
+        {h:'제5조 (변경)',p:'서비스 내용 및 약관은 사전 예고 없이 변경될 수 있습니다. 변경된 약관은 서비스 내 공지 즉시 효력이 발생합니다.'},
+      ]
+    },
+    about:{
+      title:'서비스 소개',
+      content:[
+        {h:'Portfolio Manager란?',p:'Portfolio Manager는 개인 투자자를 위한 무료 주식 포트폴리오 관리 도구입니다. 미국 주식, 한국 주식(KOSPI/KOSDAQ), ETF 등 다양한 자산을 한 곳에서 관리할 수 있습니다.'},
+        {h:'주요 기능',p:'• 다중 계좌 관리 (브로커리지, IRA, 401k 등)\n• 실시간(15분 지연) 주가 조회 (Yahoo Finance, Finnhub 등)\n• 배당금 추적 및 월별 예상 배당 시각화\n• 섹터별 자산 배분 분석\n• 한국 주식 지원 (USD/KRW 환율 환산)\n• 로컬 암호화 저장 (PBKDF2-SHA256)'},
+        {h:'데이터 보안',p:'모든 데이터는 사용자의 브라우저에만 저장됩니다. 서버로 전송되는 개인 데이터는 없습니다.'},
+        {h:'무료 서비스',p:'본 서비스는 광고 수익으로 운영되는 무료 서비스입니다. 광고 차단기를 해제해주시면 서비스 유지에 큰 도움이 됩니다.'},
+      ]
+    },
+    contact:{
+      title:'문의하기',
+      content:[
+        {h:'서비스 문의',p:'서비스 이용 중 문제가 발생하거나 개선 제안이 있으시면 아래 방법으로 문의해주세요.'},
+        {h:'이메일',p:'문의사항은 admin@stockinvestonline.com 으로 연락해주세요.'},
+        {h:'버그 신고',p:'화면에 표시되는 오류 메시지와 사용 중인 브라우저 정보를 함께 알려주시면 빠른 해결에 도움이 됩니다.'},
+        {h:'기능 제안',p:'새로운 기능이나 개선사항에 대한 의견을 언제든지 보내주세요. 사용자 의견을 적극 반영하여 서비스를 개선하고 있습니다.'},
+      ]
+    }
   },
-  terms:{
-    title:'이용약관',
-    content:[
-      {h:'제1조 (목적)',p:'본 약관은 Portfolio Manager(이하 "서비스")의 이용 조건 및 절차, 이용자와 서비스 제공자 간의 권리·의무 및 책임사항을 규정함을 목적으로 합니다.'},
-      {h:'제2조 (서비스 이용)',p:'본 서비스는 개인 투자 포트폴리오 관리 및 분석을 위한 도구를 제공합니다. 서비스는 투자 조언을 제공하지 않으며, 모든 투자 결정은 사용자 본인의 책임입니다.'},
-      {h:'제3조 (면책조항)',p:'본 서비스에서 제공하는 주가 정보는 실시간이 아닐 수 있으며(최대 15분 지연), 정확성을 보장하지 않습니다. 서비스 이용으로 인한 투자 손실에 대해 서비스 제공자는 책임지지 않습니다.'},
-      {h:'제4조 (데이터)',p:'모든 포트폴리오 데이터는 사용자의 기기에만 저장되며 서버로 전송되지 않습니다. 데이터 손실에 대해 서비스는 책임지지 않으므로 중요한 데이터는 별도로 백업하시기 바랍니다.'},
-      {h:'제5조 (변경)',p:'서비스 내용 및 약관은 사전 예고 없이 변경될 수 있습니다. 변경된 약관은 서비스 내 공지 즉시 효력이 발생합니다.'},
-    ]
-  },
-  about:{
-    title:'서비스 소개',
-    content:[
-      {h:'Portfolio Manager란?',p:'Portfolio Manager는 개인 투자자를 위한 무료 주식 포트폴리오 관리 도구입니다. 미국 주식, 한국 주식(KOSPI/KOSDAQ), ETF 등 다양한 자산을 한 곳에서 관리할 수 있습니다.'},
-      {h:'주요 기능',p:'• 다중 계좌 관리 (브로커리지, IRA, 401k 등)\n• 실시간(15분 지연) 주가 조회 (Yahoo Finance, Finnhub 등)\n• 배당금 추적 및 월별 예상 배당 시각화\n• 섹터별 자산 배분 분석\n• 한국 주식 지원 (USD/KRW 환율 환산)\n• 로컬 암호화 저장 (PBKDF2-SHA256)'},
-      {h:'데이터 보안',p:'모든 데이터는 사용자의 브라우저에만 저장됩니다. 서버로 전송되는 개인 데이터는 없습니다.'},
-      {h:'무료 서비스',p:'본 서비스는 광고 수익으로 운영되는 무료 서비스입니다. 광고 차단기를 해제해주시면 서비스 유지에 큰 도움이 됩니다.'},
-    ]
-  },
-  contact:{
-    title:'문의하기',
-    content:[
-      {h:'서비스 문의',p:'서비스 이용 중 문제가 발생하거나 개선 제안이 있으시면 아래 방법으로 문의해주세요.'},
-      {h:'이메일',p:'문의사항은 admin@stockinvestonline.com 으로 연락해주세요.'},
-      {h:'버그 신고',p:'화면에 표시되는 오류 메시지와 사용 중인 브라우저 정보를 함께 알려주시면 빠른 해결에 도움이 됩니다.'},
-      {h:'기능 제안',p:'새로운 기능이나 개선사항에 대한 의견을 언제든지 보내주세요. 사용자 의견을 적극 반영하여 서비스를 개선하고 있습니다.'},
-    ]
+  en:{
+    privacy:{
+      title:'Privacy Policy',
+      content:[
+        {h:'1. Information Collected',p:'This service does not transmit or store any personal information on servers. All data (portfolio, account info, API keys, login credentials) is stored only in your browser\'s localStorage.'},
+        {h:'2. Cookies & Tracking',p:'This service uses browser localStorage for operation. If Google AdSense is active, Google may use cookies to serve interest-based ads. See Google\'s privacy policy at policies.google.com.'},
+        {h:'3. Third-Party APIs',p:'When fetching prices, ticker symbols may be sent to Yahoo Finance, Finnhub, Twelve Data, Alpha Vantage. Please review their privacy policies. API keys are stored in your browser only.'},
+        {h:'4. Data Security',p:'Login passwords are hashed using PBKDF2-SHA256 (100k iterations) before storage. The original password is never stored anywhere.'},
+        {h:'5. Data Deletion',p:'You can delete all local data via the Reset Password feature, or through your browser\'s "Clear Site Data" option.'},
+        {h:'6. Contact',p:'For privacy-related inquiries, contact admin@stockinvestonline.com.'},
+      ]
+    },
+    terms:{
+      title:'Terms of Service',
+      content:[
+        {h:'Article 1 (Purpose)',p:'These terms govern the conditions and procedures for using Portfolio Manager ("Service") and define the rights and responsibilities between users and the service provider.'},
+        {h:'Article 2 (Service Use)',p:'This service provides tools for personal investment portfolio management. It does not provide investment advice; all investment decisions are the user\'s own responsibility.'},
+        {h:'Article 3 (Disclaimer)',p:'Stock price information may not be real-time (up to 15 min delay) and accuracy is not guaranteed. The service provider is not liable for any investment losses.'},
+        {h:'Article 4 (Data)',p:'All portfolio data is stored on your device only and not transmitted to servers. The service is not liable for data loss; please back up important data separately.'},
+        {h:'Article 5 (Changes)',p:'Service content and terms may change without prior notice. Updated terms take effect immediately upon posting within the service.'},
+      ]
+    },
+    about:{
+      title:'About',
+      content:[
+        {h:'What is Portfolio Manager?',p:'Portfolio Manager is a free stock portfolio management tool for individual investors. Manage US stocks, Korean stocks (KOSPI/KOSDAQ), ETFs and more in one place.'},
+        {h:'Key Features',p:'• Multi-account management (brokerage, IRA, 401k, etc.)\n• Real-time (15min delay) prices via Yahoo Finance, Finnhub, etc.\n• Dividend tracking & monthly estimated dividend charts\n• Sector allocation analysis\n• Korean stock support (USD/KRW conversion)\n• Local encrypted storage (PBKDF2-SHA256)'},
+        {h:'Data Security',p:'All data is stored in your browser only. No personal data is sent to any server.'},
+        {h:'Free Service',p:'This service is free and supported by ads. Disabling your ad blocker helps keep the service running.'},
+      ]
+    },
+    contact:{
+      title:'Contact',
+      content:[
+        {h:'Support',p:'If you encounter issues or have suggestions, please reach out using the method below.'},
+        {h:'Email',p:'Contact us at admin@stockinvestonline.com.'},
+        {h:'Bug Reports',p:'Please include the error message shown and your browser info for faster resolution.'},
+        {h:'Feature Requests',p:'We welcome any feedback on new features or improvements. User input actively shapes the service.'},
+      ]
+    }
   }
 };
 
 function LegalModal(props){
-  var type=props.type;var onClose=props.onClose;
-  var info=LEGAL[type];
+  var type=props.type;var onClose=props.onClose;var lang=props.lang||'ko';
+  var l=T[lang];
+  var info=LEGAL[lang][type];
   if(!info) return null;
   return React.createElement('div',{className:'overlay',onClick:function(e){if(e.target===e.currentTarget)onClose()}},
     React.createElement('div',{className:'modal legal-modal'},
@@ -1465,7 +1837,7 @@ function LegalModal(props){
         })
       ),
       React.createElement('div',{className:'modal-ft'},
-        React.createElement('button',{className:'btn btn-primary',onClick:onClose},'확인')
+        React.createElement('button',{className:'btn btn-primary',onClick:onClose},l.ok)
       )
     )
   );
@@ -1473,31 +1845,33 @@ function LegalModal(props){
 
 // ── 쿠키 동의 배너 ──
 function CookieBanner(props){
-  var onAccept=props.onAccept;var onReject=props.onReject;var onPrivacy=props.onPrivacy;
-  return React.createElement('div',{className:'cookie-banner',role:'dialog','aria-label':'쿠키 동의'},
+  var onAccept=props.onAccept;var onReject=props.onReject;var onPrivacy=props.onPrivacy;var lang=props.lang||'ko';
+  var l=T[lang];
+  return React.createElement('div',{className:'cookie-banner',role:'dialog','aria-label':'cookie consent'},
     React.createElement('div',{className:'cookie-text'},
-      '🍪 본 사이트는 서비스 개선 및 광고 제공을 위해 쿠키를 사용합니다. ',
-      React.createElement('span',{className:'cookie-text a',onClick:onPrivacy,style:{color:'var(--acc)',cursor:'pointer',textDecoration:'underline'}},'개인정보처리방침'),
-      '을 읽고 동의 여부를 선택해주세요.'
+      l.cookieTxt1,
+      React.createElement('span',{className:'cookie-text a',onClick:onPrivacy,style:{color:'var(--acc)',cursor:'pointer',textDecoration:'underline'}},l.cookiePrivacy),
+      l.cookieTxt2
     ),
     React.createElement('div',{className:'cookie-btns'},
-      React.createElement('button',{className:'btn btn-sm',onClick:onReject},'거부'),
-      React.createElement('button',{className:'btn btn-primary btn-sm',onClick:onAccept},'동의')
+      React.createElement('button',{className:'btn btn-sm',onClick:onReject},l.reject),
+      React.createElement('button',{className:'btn btn-primary btn-sm',onClick:onAccept},l.accept)
     )
   );
 }
 
 // ── 푸터 ──
 function SiteFooter(props){
-  var onLegal=props.onLegal;
+  var onLegal=props.onLegal;var lang=props.lang||'ko';
+  var l=T[lang];
   return React.createElement('footer',{className:'site-footer'},
     React.createElement('div',{className:'footer-links'},
-      React.createElement('span',{className:'footer-link',onClick:function(){onLegal('about')}},'서비스 소개'),
-      React.createElement('span',{className:'footer-link',onClick:function(){onLegal('privacy')}},'개인정보처리방침'),
-      React.createElement('span',{className:'footer-link',onClick:function(){onLegal('terms')}},'이용약관'),
-      React.createElement('span',{className:'footer-link',onClick:function(){onLegal('contact')}},'문의하기')
+      React.createElement('span',{className:'footer-link',onClick:function(){onLegal('about')}},l.aboutService),
+      React.createElement('span',{className:'footer-link',onClick:function(){onLegal('privacy')}},l.privacyPolicy),
+      React.createElement('span',{className:'footer-link',onClick:function(){onLegal('terms')}},l.termsOfService),
+      React.createElement('span',{className:'footer-link',onClick:function(){onLegal('contact')}},l.contact)
     ),
-    React.createElement('div',{className:'footer-copy'},'© '+new Date().getFullYear()+' Portfolio Manager. 투자는 본인 책임입니다.')
+    React.createElement('div',{className:'footer-copy'},'© '+new Date().getFullYear()+' Portfolio Manager. '+l.disclaimer)
   );
 }
 
@@ -1507,21 +1881,23 @@ function Main(){
   var hs=useState(function(){return !!getAuth()});var hasAccount=hs[0];var setHasAccount=hs[1];
   var cs=useState(function(){return localStorage.getItem('pfm_cookie')||null});var cookieConsent=cs[0];var setCookieConsent=cs[1];
   var lms=useState(null);var legalModal=lms[0];var setLegalModal=lms[1];
+  var lgs=useState(function(){return localStorage.getItem('pfm3_lang')||'ko'});var lang=lgs[0];var setLang=lgs[1];
 
   function handleLogin(){setIsLoggedIn(true)}
   function handleLogout(){setIsLoggedIn(false)}
   function acceptCookie(){localStorage.setItem('pfm_cookie','accepted');setCookieConsent('accepted')}
   function rejectCookie(){localStorage.setItem('pfm_cookie','rejected');setCookieConsent('rejected')}
+  function toggleLang(){var nl=lang==='ko'?'en':'ko';localStorage.setItem('pfm3_lang',nl);setLang(nl)}
 
   return React.createElement('div',{style:{display:'flex',flexDirection:'column',height:'100vh'}},
     !isLoggedIn
-      ? React.createElement(AuthScreen,{hasAccount:hasAccount,onLogin:handleLogin})
+      ? React.createElement(AuthScreen,{hasAccount:hasAccount,onLogin:handleLogin,lang:lang,onLangToggle:toggleLang})
       : React.createElement('div',{style:{display:'flex',flexDirection:'column',flex:1,overflow:'hidden'}},
-          React.createElement(App,{onLogout:handleLogout}),
-          React.createElement(SiteFooter,{onLegal:setLegalModal})
+          React.createElement(App,{onLogout:handleLogout,lang:lang,onLangToggle:toggleLang}),
+          React.createElement(SiteFooter,{onLegal:setLegalModal,lang:lang})
         ),
-    !cookieConsent&&React.createElement(CookieBanner,{onAccept:acceptCookie,onReject:rejectCookie,onPrivacy:function(){setLegalModal('privacy')}}),
-    legalModal&&React.createElement(LegalModal,{type:legalModal,onClose:function(){setLegalModal(null)}})
+    !cookieConsent&&React.createElement(CookieBanner,{onAccept:acceptCookie,onReject:rejectCookie,onPrivacy:function(){setLegalModal('privacy')},lang:lang}),
+    legalModal&&React.createElement(LegalModal,{type:legalModal,onClose:function(){setLegalModal(null)},lang:lang})
   );
 }
 
