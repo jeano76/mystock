@@ -2006,17 +2006,60 @@ function App(props){
   function importCSV(file){
     var reader=new FileReader();
     reader.onload=function(e){
-      var lines=e.target.result.split('\n').filter(function(l){return l.trim()&&!l.trim().startsWith('#')}).slice(1);
-      var newPos=lines.map(function(line,idx){
+      var allLines=e.target.result.split('\n').filter(function(l){return l.trim()&&!l.trim().startsWith('#')});
+      if(allLines.length===0){showImportError('파일이 비어 있거나 주석(#)만 포함되어 있습니다.');return;}
+      var dataLines=allLines.slice(1);
+      if(dataLines.length===0){showImportError('헤더 행만 있고 데이터가 없습니다.\n\n형식: ticker,name,account,shares,buyPrice,divYield');return;}
+      var skipped=[];
+      var newPos=dataLines.map(function(line,idx){
         var vals=line.split(',');
-        return {id:Date.now()+idx,ticker:(vals[0]||'').trim().toUpperCase(),
+        var ticker=(vals[0]||'').trim().toUpperCase();
+        var sharesRaw=(vals[3]||'').trim();
+        var shares=parseFloat(sharesRaw)||0;
+        if(!ticker) skipped.push((idx+2)+'행: 티커(ticker)가 비어 있음 → "'+line.trim()+'"');
+        else if(!(shares>0)) skipped.push((idx+2)+'행: 수량(shares)이 0이거나 숫자가 아님 (값: "'+sharesRaw+'") → "'+line.trim()+'"');
+        return {id:Date.now()+idx,ticker:ticker,
           name:(vals[1]||'').replace(/"/g,'').trim(),
           account:(vals[2]||accounts[0]||'').replace(/"/g,'').trim(),
-          shares:parseFloat(vals[3])||0,buyPrice:parseFloat(vals[4])||0,divYield:parseFloat(vals[5])||0};
+          shares:shares,buyPrice:parseFloat(vals[4])||0,divYield:parseFloat(vals[5])||0};
       }).filter(function(p){return p.ticker&&p.shares>0});
+      if(newPos.length===0){
+        var msg='가져온 종목이 없습니다.\n\n필수 조건:\n  • ticker(종목코드) 필수\n  • shares(수량) > 0 필수\n\n예시:\nAAPL,애플,계좌명,10,150.00,0.5\n005930.KS,삼성전자,계좌명,5,72000,2.3';
+        if(skipped.length>0) msg+='\n\n문제 행 ('+skipped.length+'건):\n'+skipped.join('\n');
+        showImportError(msg);return;
+      }
+      var newAccounts=[];
+      newPos.forEach(function(p){if(p.account&&!accounts.includes(p.account)&&!newAccounts.includes(p.account))newAccounts.push(p.account)});
+      if(newAccounts.length>0) setAccounts(function(prev){return prev.concat(newAccounts)});
       setPositions(function(prev){return prev.concat(newPos)});
+      var msg=newPos.length+'개 종목을 성공적으로 가져왔습니다.';
+      if(newAccounts.length>0) msg+='\n\n새로 추가된 계좌 ('+newAccounts.length+'개):\n'+newAccounts.map(function(a){return '  + '+a}).join('\n');
+      if(skipped.length>0) msg+='\n\n건너뛴 행 ('+skipped.length+'건):\n'+skipped.join('\n');
+      showImportSuccess(msg);
     };
     reader.readAsText(file);
+  }
+  function showImportError(msg){
+    var overlay=document.createElement('div');
+    overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px';
+    var box=document.createElement('div');
+    box.style.cssText='background:var(--bg2);border:1px solid var(--red);border-radius:10px;padding:20px 24px;max-width:520px;width:100%;max-height:80vh;overflow-y:auto';
+    box.innerHTML='<div style="font-size:13px;font-weight:600;color:var(--red);margin-bottom:10px">⚠ CSV 가져오기 실패</div>'
+      +'<pre style="font-size:11px;color:var(--text2);white-space:pre-wrap;line-height:1.6;font-family:var(--mono)">'+msg+'</pre>'
+      +'<button style="margin-top:14px;padding:6px 18px;border-radius:6px;border:1px solid var(--border2);background:var(--bg4);color:var(--text);cursor:pointer;font-size:11px" onclick="this.closest(\'div[style*=fixed]\').remove()">닫기</button>';
+    overlay.appendChild(box);overlay.addEventListener('click',function(e){if(e.target===overlay)overlay.remove()});
+    document.body.appendChild(overlay);
+  }
+  function showImportSuccess(msg){
+    var overlay=document.createElement('div');
+    overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px';
+    var box=document.createElement('div');
+    box.style.cssText='background:var(--bg2);border:1px solid var(--green);border-radius:10px;padding:20px 24px;max-width:520px;width:100%;max-height:80vh;overflow-y:auto';
+    box.innerHTML='<div style="font-size:13px;font-weight:600;color:var(--green);margin-bottom:10px">✓ CSV 가져오기 완료</div>'
+      +'<pre style="font-size:11px;color:var(--text2);white-space:pre-wrap;line-height:1.6;font-family:var(--mono)">'+msg+'</pre>'
+      +'<button style="margin-top:14px;padding:6px 18px;border-radius:6px;border:1px solid var(--border2);background:var(--bg4);color:var(--text);cursor:pointer;font-size:11px" onclick="this.closest(\'div[style*=fixed]\').remove()">닫기</button>';
+    overlay.appendChild(box);overlay.addEventListener('click',function(e){if(e.target===overlay)overlay.remove()});
+    document.body.appendChild(overlay);
   }
   function importJSON(file){
     if(!window.confirm(l.importConfirm)) return;
