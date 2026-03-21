@@ -2008,8 +2008,10 @@ function App(props){
     reader.onload=function(e){
       var allLines=e.target.result.split('\n').filter(function(l){return l.trim()&&!l.trim().startsWith('#')});
       if(allLines.length===0){showImportError('파일이 비어 있거나 주석(#)만 포함되어 있습니다.');return;}
-      var dataLines=allLines.slice(1);
-      if(dataLines.length===0){showImportError('헤더 행만 있고 데이터가 없습니다.\n\n형식: ticker,name,account,shares,buyPrice,divYield');return;}
+      var firstVal=(allLines[0].split(',')[0]||'').trim().toLowerCase();
+      var isHeader=firstVal==='ticker'||firstVal==='종목코드'||firstVal==='symbol';
+      var dataLines=isHeader?allLines.slice(1):allLines;
+      if(dataLines.length===0){showImportError('데이터가 없습니다.\n\n형식: ticker,name,account,shares,buyPrice,divYield\n\n예시:\nAAPL,애플,계좌명,10,150.00,0.5');return;}
       var skipped=[];
       var newPos=dataLines.map(function(line,idx){
         var vals=line.split(',');
