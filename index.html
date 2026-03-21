@@ -142,6 +142,10 @@ td.r{text-align:right}
 .num{font-family:var(--mono)}
 .g{color:var(--green)}.r2{color:var(--red)}.dim{color:var(--text3)}
 .acc-badge{font-size:9px;padding:2px 5px;border-radius:3px;background:rgba(61,142,248,.1);color:var(--acc);border:1px solid rgba(61,142,248,.2)}
+.cell-editable{cursor:text;border-radius:3px;padding:1px 3px;transition:background .1s}
+.cell-editable:hover{background:var(--bg4);outline:1px dashed var(--border2)}
+.cell-input{background:var(--bg3);border:1px solid var(--acc);color:var(--text);border-radius:4px;padding:2px 5px;font-size:11px;font-family:var(--mono);outline:none;min-width:50px}
+.cell-input:focus{box-shadow:0 0 0 2px rgba(61,142,248,.2)}
 .kr-badge{font-size:8px;padding:1px 4px;border-radius:3px;background:rgba(255,184,0,.1);color:var(--yellow);border:1px solid rgba(255,184,0,.2);margin-left:3px}
 .grp-row{background:var(--bg3)}
 .grp-row td{padding:5px 10px;font-size:10px;font-weight:600;color:var(--text2)}
@@ -1155,8 +1159,11 @@ function SettingsModal(props){
 
 // ── 포지션 행 ──
 function PRow(props){
-  var p=props.p,prices=props.prices,portVal=props.portVal,usdRate=props.usdRate,onEdit=props.onEdit,onDel=props.onDel,failedTickers=props.failedTickers||[],colVis=props.colVis||{},onDragStart=props.onDragStart,onDragOver=props.onDragOver,onDrop=props.onDrop,isDragging=props.isDragging;
+  var p=props.p,prices=props.prices,portVal=props.portVal,usdRate=props.usdRate,onEdit=props.onEdit,onDel=props.onDel,onUpdate=props.onUpdate,accounts=props.accounts||[],failedTickers=props.failedTickers||[],colVis=props.colVis||{},onDragStart=props.onDragStart,onDragOver=props.onDragOver,onDrop=props.onDrop,isDragging=props.isDragging;
   var nts=useState(false);var showNote=nts[0];var setShowNote=nts[1];
+  var efs=useState(null);var editField=efs[0];var setEditField=efs[1];
+  var evs=useState('');var editVal=evs[0];var setEditVal=evs[1];
+  var dcs=useState(false);var delConfirm=dcs[0];var setDelConfirm=dcs[1];
   var st=STOCKS.find(function(s){return s.t===p.ticker});
   var isKRW=st&&st.cur==='KRW';
   var rate=isKRW?(usdRate||1370):1;
@@ -1176,13 +1183,31 @@ function PRow(props){
   var fP=function(v){return isKRW?'₩'+Math.round(v).toLocaleString('ko'):f2(v)};
   var dispT=dispTicker(p.ticker);
   var isFailed=failedTickers.indexOf(p.ticker)>=0;
-  function heatBg(v){
-    var c=Math.max(-25,Math.min(25,v));
-    var t=Math.abs(c)/25*0.22;
-    return c>=0?'rgba(23,232,161,'+t+')':'rgba(255,77,114,'+t+')';
+  function heatBg(v){var c=Math.max(-25,Math.min(25,v));var t=Math.abs(c)/25*0.22;return c>=0?'rgba(23,232,161,'+t+')':'rgba(255,77,114,'+t+')';}
+  function startEdit(field,raw){setEditField(field);setEditVal(String(raw));}
+  function commitEdit(){
+    if(!editField)return;
+    var v=editVal.trim();
+    if(editField==='name') onUpdate&&onUpdate('name',v||p.ticker);
+    else if(editField==='shares'){var n=parseFloat(v);if(!isNaN(n)&&n>0)onUpdate&&onUpdate('shares',n);}
+    else if(editField==='buyPrice'){var n=parseFloat(v);if(!isNaN(n)&&n>=0)onUpdate&&onUpdate('buyPrice',n);}
+    else if(editField==='divYield'){var n=parseFloat(v);if(!isNaN(n)&&n>=0)onUpdate&&onUpdate('divYield',n);}
+    else if(editField==='account'&&v)onUpdate&&onUpdate('account',v);
+    setEditField(null);
   }
-  return React.createElement('tr',{className:isDragging?'dragging':'',draggable:true,
-    onDragStart:function(){onDragStart&&onDragStart(p.id)},
+  function inlineInput(field,raw,style){
+    return React.createElement('input',{className:'cell-input',autoFocus:true,value:editVal,
+      style:Object.assign({width:'100%',minWidth:50},style||{}),
+      onChange:function(e){setEditVal(e.target.value)},
+      onBlur:commitEdit,
+      onKeyDown:function(e){if(e.key==='Enter')e.target.blur();if(e.key==='Escape'){setEditField(null);}}});
+  }
+  function editable(field,display,raw,style){
+    if(editField===field)return inlineInput(field,raw,style);
+    return React.createElement('span',{className:'cell-editable',onClick:function(){startEdit(field,raw)}},display);
+  }
+  return React.createElement('tr',{className:isDragging?'dragging':'',draggable:!editField,
+    onDragStart:function(){if(!editField)onDragStart&&onDragStart(p.id)},
     onDragOver:function(e){onDragOver&&onDragOver(e)},
     onDrop:function(){onDrop&&onDrop(p.id)}},
     React.createElement('td',{style:{padding:'4px 4px',cursor:'grab',color:'var(--text4)',fontSize:13,userSelect:'none'}},'⠿'),
@@ -1190,7 +1215,7 @@ function PRow(props){
       React.createElement('div',{className:'ticker-cell'},
         React.createElement('span',{className:'t-badge'+(isKRW?' kr':'')},dispT),
         React.createElement('div',null,
-          React.createElement('div',{className:'t-name'},p.name||p.ticker),
+          editable('name',React.createElement('div',{className:'t-name'},p.name||p.ticker),p.name||p.ticker),
           isKRW&&React.createElement('span',{className:'kr-badge'},'KR')
         )
       )
@@ -1201,9 +1226,16 @@ function PRow(props){
         showNote&&p.note&&React.createElement('div',{className:'note-tooltip'},p.note)
       )
     ),
-    colVis.account&&React.createElement('td',null,React.createElement('span',{className:'acc-badge'},p.account)),
-    colVis.shares&&React.createElement('td',{className:'r num'},p.shares.toLocaleString('en',{maximumFractionDigits:4})),
-    colVis.buy&&React.createElement('td',{className:'r num dim'},fP(p.buyPrice)),
+    colVis.account&&React.createElement('td',null,
+      editField==='account'
+        ?React.createElement('select',{className:'cell-input',autoFocus:true,value:editVal,
+            onChange:function(e){setEditVal(e.target.value)},
+            onBlur:commitEdit},
+            accounts.map(function(a){return React.createElement('option',{key:a,value:a},a)}))
+        :React.createElement('span',{className:'acc-badge cell-editable',onClick:function(){startEdit('account',p.account)}},p.account)
+    ),
+    colVis.shares&&React.createElement('td',{className:'r num'},editable('shares',p.shares.toLocaleString('en',{maximumFractionDigits:4}),p.shares,{textAlign:'right'})),
+    colVis.buy&&React.createElement('td',{className:'r num dim'},editable('buyPrice',fP(p.buyPrice),p.buyPrice,{textAlign:'right'})),
     colVis.cur&&React.createElement('td',{className:'r num'},
       React.createElement('span',null,fP(rawPrice)),
       isFailed&&React.createElement('span',{title:'Price not updated',style:{marginLeft:3,color:'var(--yellow)',fontSize:9}},'⚠')
@@ -1211,7 +1243,7 @@ function PRow(props){
     colVis.val&&React.createElement('td',{className:'r num'},f2(val)),
     colVis.gain&&React.createElement('td',{className:'r num '+(gain>=0?'g':'r2'),style:{background:heatBg(pct)}},(gain>=0?'+':'-')+f2(gain)),
     colVis.pct&&React.createElement('td',{className:'r num '+(pct>=0?'g':'r2'),style:{background:heatBg(pct)}},(pct>=0?'+':'')+pct.toFixed(2)+'%'),
-    colVis.dy&&React.createElement('td',{className:'r num '+(dy>0?'g':'dim')},dy>0?dy.toFixed(2)+'%':'—'),
+    colVis.dy&&React.createElement('td',{className:'r num '+(dy>0?'g':'dim')},editable('divYield',dy>0?dy.toFixed(2)+'%':'—',dy,{textAlign:'right',width:50})),
     colVis.adiv&&React.createElement('td',{className:'r num '+(aDiv>0?'g':'dim')},aDiv>0?'$'+aDiv.toFixed(2):'—'),
     colVis.wt&&React.createElement('td',{className:'r num dim'},wt.toFixed(1)+'%'),
     colVis.bep&&React.createElement('td',{className:'r'},
@@ -1219,12 +1251,17 @@ function PRow(props){
       tgtPrice&&React.createElement('div',{className:'bep-tgt'},fP(tgtPrice*rate)+' (+'+tgtRet+'%)')
     ),
     React.createElement('td',null,
-      React.createElement('div',{style:{display:'flex',gap:3,justifyContent:'flex-end'}},
-        React.createElement('button',{className:'btn btn-sm btn-ghost',onClick:onEdit},'✎'),
-        React.createElement('button',{className:'btn btn-sm btn-ghost',onClick:onDel,style:{color:'var(--text3)'},
-          onMouseEnter:function(e){e.currentTarget.style.color='var(--red)'},
-          onMouseLeave:function(e){e.currentTarget.style.color='var(--text3)'}},'✕')
-      )
+      delConfirm
+        ?React.createElement('div',{style:{display:'flex',gap:3,alignItems:'center',justifyContent:'flex-end'}},
+            React.createElement('span',{style:{fontSize:9,color:'var(--text3)',whiteSpace:'nowrap'}},'삭제?'),
+            React.createElement('button',{className:'btn btn-sm',style:{background:'var(--red)',border:'none',color:'#fff',padding:'2px 7px'},onClick:onDel},'확인'),
+            React.createElement('button',{className:'btn btn-sm btn-ghost',onClick:function(){setDelConfirm(false)}},'취소'))
+        :React.createElement('div',{style:{display:'flex',gap:3,justifyContent:'flex-end'}},
+            React.createElement('button',{className:'btn btn-sm btn-ghost',onClick:onEdit,title:'상세 편집'},'✎'),
+            React.createElement('button',{className:'btn btn-sm btn-ghost',onClick:function(){setDelConfirm(true)},
+              style:{color:'var(--text3)'},
+              onMouseEnter:function(e){e.currentTarget.style.color='var(--red)'},
+              onMouseLeave:function(e){e.currentTarget.style.color='var(--text3)'}},'🗑'))
     )
   );
 }
@@ -1954,6 +1991,9 @@ function App(props){
     else setPositions(positions.concat([Object.assign({},pos,{id:Date.now()})]));
     setShowModal(false);setEditPos(null);
   }
+  function updatePos(id,field,value){
+    setPositions(positions.map(function(p){return p.id===id?Object.assign({},p,{[field]:value}):p}));
+  }
   function delPos(id){
     var deleted=positions.find(function(p){return p.id===id});
     if(!deleted) return;
@@ -2482,8 +2522,9 @@ function App(props){
                                 )
                               )
                             ].concat(rows.map(function(p){
-                              return React.createElement(PRow,{key:p.id,p:p,prices:prices,portVal:port.val,usdRate:usdRate,failedTickers:failedTickers,colVis:colVis,isDragging:dragRowId===p.id,onDragStart:onDragStart,onDragOver:onDragOver,onDrop:onDrop,
+                              return React.createElement(PRow,{key:p.id,p:p,prices:prices,portVal:port.val,usdRate:usdRate,failedTickers:failedTickers,colVis:colVis,accounts:accounts,isDragging:dragRowId===p.id,onDragStart:onDragStart,onDragOver:onDragOver,onDrop:onDrop,
                                 onEdit:function(){setEditPos(p);setShowModal(true)},
+                                onUpdate:function(field,val){updatePos(p.id,field,val)},
                                 onDel:function(){delPos(p.id)}});
                             })));
                           },[])
