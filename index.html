@@ -2118,12 +2118,12 @@ function App(props){
       ),
       React.createElement('div',{className:'sb-sec'},
         React.createElement('div',{className:'sb-lbl'},l.accounts),
-        React.createElement('div',{className:'sb-item'+(selAcc==='All'?' active':''),onClick:function(){setSelAcc('All')}},
+        React.createElement('div',{className:'sb-item'+(selAcc==='All'?' active':''),onClick:function(){setSelAcc('All');setMainTab('positions')}},
           React.createElement('span',{className:'sb-name'},l.allAccounts),
           React.createElement('span',{className:'sb-cnt'},positions.length)
         ),
         accounts.map(function(a,i){
-          return React.createElement('div',{key:a,className:'sb-item'+(selAcc===a?' active':''),onClick:function(){if(renamingAcc!==a)setSelAcc(a)}},
+          return React.createElement('div',{key:a,className:'sb-item'+(selAcc===a?' active':''),onClick:function(){if(renamingAcc!==a){setSelAcc(a);setMainTab('positions')}}},
             React.createElement('span',{className:'sb-name'},
               React.createElement('span',{className:'sb-dot',style:{background:DOT_C[i%6]}}),
               renamingAcc===a
