@@ -293,6 +293,68 @@ thead th.sort-desc::after{content:' ▼';color:var(--acc);font-size:7px}
 /* SNAPSHOT */
 .snapshot-card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:12px}
 .snap-chart-wrap{height:140px;margin-top:8px}
+/* LIGHT THEME */
+html.light{--bg:#f0f4fc;--bg2:#ffffff;--bg3:#f5f7fd;--bg4:#e8edf8;--bg5:#dde4f5;--border:#d4daf0;--border2:#c0cbea;--text:#1a2040;--text2:#4a5580;--text3:#8090b0;--text4:#b8c4e0;--green:#0aaf78;--green2:#089060;--green3:rgba(10,175,120,.1);--red:#e02050;--red3:rgba(224,32,80,.1);--acc:#2563eb;--acc2:#1d4ed8}
+/* AUTO-REFRESH */
+.ar-sel{background:var(--bg3);border:1px solid var(--border2);color:var(--text);font-size:10px;padding:2px 5px;border-radius:4px;font-family:var(--sans);cursor:pointer;outline:none}
+.ar-cd{font-family:var(--mono);font-size:9px;color:var(--text3);min-width:28px;text-align:right;white-space:nowrap}
+/* NOTE */
+.note-icon{font-size:10px;cursor:pointer;color:var(--text3);padding:1px 3px;border-radius:3px;line-height:1}
+.note-icon:hover{background:var(--bg4)}
+.note-icon.has-note{color:var(--acc)}
+.note-wrap{position:relative;display:inline-flex;align-items:center}
+.note-tooltip{position:absolute;z-index:200;background:var(--bg2);border:1px solid var(--border2);border-radius:6px;padding:8px 10px;font-size:10px;color:var(--text2);max-width:180px;white-space:pre-wrap;box-shadow:0 4px 12px rgba(0,0,0,.3);left:0;top:100%;margin-top:4px;pointer-events:none}
+/* DRAG */
+.drag-handle{cursor:grab;color:var(--text4);font-size:13px;padding:0 4px;user-select:none;flex-shrink:0}
+.drag-handle:active{cursor:grabbing}
+tr.dragging{opacity:.35}
+/* COLUMN VISIBILITY */
+.col-vis-wrap{position:relative}
+.col-vis-drop{position:absolute;right:0;top:calc(100% + 4px);background:var(--bg2);border:1px solid var(--border2);border-radius:8px;padding:8px;z-index:60;min-width:155px;box-shadow:0 6px 20px rgba(0,0,0,.3)}
+.col-vis-item{display:flex;align-items:center;gap:7px;padding:4px 5px;border-radius:4px;cursor:pointer;font-size:11px;color:var(--text2)}
+.col-vis-item:hover{background:var(--bg4)}
+.col-vis-item input[type=checkbox]{cursor:pointer;accent-color:var(--acc);width:13px;height:13px}
+/* BEP */
+.bep-val{font-family:var(--mono);font-size:10px;color:var(--text3)}
+.bep-tgt{font-family:var(--mono);font-size:9px;color:var(--acc);margin-top:1px}
+/* TREEMAP */
+.treemap-wrap{width:100%;height:200px;position:relative;border-radius:8px;overflow:hidden;cursor:default}
+/* DIVIDEND CALENDAR */
+.div-cal{display:grid;grid-template-columns:repeat(6,1fr);gap:4px;margin-top:8px}
+.div-cal-m{background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:6px 4px;text-align:center}
+.div-cal-m.has-div{background:rgba(23,232,161,.07);border-color:var(--green2)}
+.div-cal-mn{font-size:8px;font-weight:600;color:var(--text2);margin-bottom:2px}
+.div-cal-ma{font-family:var(--mono);font-size:9px;color:var(--green);font-weight:500}
+.div-cal-mt{color:var(--text3);font-size:7px;margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* ALERTS */
+.alert-row{display:flex;align-items:center;gap:7px;padding:5px 0;border-bottom:1px solid var(--border);font-size:11px}
+.alert-row:last-child{border-bottom:none}
+.alert-type{font-size:8px;font-weight:700;padding:2px 5px;border-radius:3px;text-transform:uppercase;flex-shrink:0}
+.alert-above{background:rgba(23,232,161,.12);color:var(--green)}
+.alert-below{background:rgba(255,77,114,.12);color:var(--red)}
+/* TRADES */
+.trade-row{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border);font-size:11px;flex-wrap:wrap}
+.trade-row:last-child{border-bottom:none}
+/* BENCHMARK */
+.bench-sel{display:flex;gap:4px;margin-bottom:8px;flex-wrap:wrap}
+.bench-pill{padding:2px 8px;border-radius:10px;font-size:9px;cursor:pointer;border:1px solid var(--border2);color:var(--text3);background:transparent;transition:all .1s}
+.bench-pill.active{background:var(--acc);border-color:var(--acc);color:#fff}
+/* LOTS */
+.lots-table{width:100%;font-size:10px;border-collapse:collapse;margin-top:6px}
+.lots-table th{font-size:9px;color:var(--text3);font-weight:600;text-transform:uppercase;padding:3px 5px;border-bottom:1px solid var(--border);text-align:left}
+.lots-table td{padding:4px 5px;border-bottom:1px solid var(--border);font-family:var(--mono)}
+.lots-table tr:last-child td{border-bottom:none}
+/* PRINT */
+@media print{
+  .sidebar,.topbar,.page-hdr,.tabs,.pills,.search-row,.undo-bar,.toast-ctr,.sidebar-backdrop,
+  .site-footer,.cookie-banner,.legal-modal-overlay,.overlay,.btn{display:none!important}
+  .main{margin-left:0!important}.app{height:auto;overflow:visible}
+  body,html{background:#fff;color:#000;overflow:visible}
+  .hero{background:#f5f5f5;border:1px solid #ddd;-webkit-print-color-adjust:exact}
+  .hero-val,.hstat-val,.hero-gain{color:#000!important}
+  .tbl-wrap{overflow:visible}.chart-card,.bar-card,.snapshot-card,.sector-card{page-break-inside:avoid}
+  .content{padding:12px}.hero,.charts-row,.chart-card{margin-bottom:8px}
+}
 /* SIDEBAR BACKDROP */
 .sidebar-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:99;cursor:pointer}
 /* MOBILE ≤640px */
@@ -564,6 +626,17 @@ const T={
     snapshotBtn:'📸 스냅샷',snapshotSaved:'스냅샷 저장됨',
     portfolioHistory:'포트폴리오 가치 추이',snapCount:function(n){return n+'개 스냅샷 저장됨'},
     accountCtx:function(a){return a+' 계좌'},
+    themeToggle:function(t){return t==='dark'?'☀️':'🌙'},
+    arLabel:'자동갱신',arOff:'끄기',arCd:function(s){return s+'초'},
+    notePh:'메모를 입력하세요…',noteLbl:'메모',saveNote:'저장',
+    bepLbl:'BEP/목표',targetRetLbl:'목표수익률 (%)',targetRetPh:'예: 10',
+    lotsLbl:'분할 매수 내역',addLotBtn:'+ 내역 추가',lotDateLbl:'날짜',lotSharesLbl:'수량',lotPriceLbl:'단가',lotDeleteBtn:'삭제',
+    benchmarkLbl:'벤치마크 비교',benchOff:'없음',benchSP:'S&P 500',benchKS:'KOSPI',benchNQ:'나스닥',
+    tradesLbl:'매도 기록',addTradeBtn:'+ 매도 기록',tradeDateLbl:'날짜',tradeSellLbl:'매도가',tradeQtyLbl:'수량',tradeRealizedLbl:'실현 손익',tradeNone:'매도 기록이 없습니다',
+    divCalLbl:'배당 캘린더',divCalEmpty:'배당 데이터 없음',
+    alertsLbl:'가격 알림',addAlertBtn:'+ 알림 추가',alertAboveLbl:'이상',alertBelowLbl:'이하',alertPriceLbl:'목표가',alertNone:'설정된 알림 없음',alertAdded:'알림이 추가되었습니다',alertFired:function(t,p){return t+' 목표가 도달: '+p},
+    treemapLbl:'수익률 트리맵',treemapEmpty:'포지션을 추가해주세요',
+    printBtn:'🖨️ 인쇄',colSettingsBtn:'⊞ 컬럼',thShares2:'수량',thBuy2:'매수가',thBEP:'BEP',thNote:'메모',
   },
   en:{
     shortly:'Shortly',justNow:'Now',
@@ -665,6 +738,17 @@ const T={
     snapshotBtn:'📸 Snapshot',snapshotSaved:'Snapshot saved',
     portfolioHistory:'Portfolio Value History',snapCount:function(n){return n+' snapshots saved'},
     accountCtx:function(a){return a+' account'},
+    themeToggle:function(t){return t==='dark'?'☀️':'🌙'},
+    arLabel:'Auto-refresh',arOff:'Off',arCd:function(s){return s+'s'},
+    notePh:'Enter a note…',noteLbl:'Note',saveNote:'Save',
+    bepLbl:'BEP/Target',targetRetLbl:'Target Return (%)',targetRetPh:'e.g. 10',
+    lotsLbl:'Purchase Lots',addLotBtn:'+ Add Lot',lotDateLbl:'Date',lotSharesLbl:'Shares',lotPriceLbl:'Price',lotDeleteBtn:'Del',
+    benchmarkLbl:'Benchmark Comparison',benchOff:'None',benchSP:'S&P 500',benchKS:'KOSPI',benchNQ:'Nasdaq',
+    tradesLbl:'Realized Trades',addTradeBtn:'+ Add Trade',tradeDateLbl:'Date',tradeSellLbl:'Sell Price',tradeQtyLbl:'Shares',tradeRealizedLbl:'Realized P&L',tradeNone:'No trade history yet',
+    divCalLbl:'Dividend Calendar',divCalEmpty:'No dividend data',
+    alertsLbl:'Price Alerts',addAlertBtn:'+ Add Alert',alertAboveLbl:'above',alertBelowLbl:'below',alertPriceLbl:'Target Price',alertNone:'No alerts set',alertAdded:'Alert added',alertFired:function(t,p){return t+' reached target: '+p},
+    treemapLbl:'Return Treemap',treemapEmpty:'Add positions to view',
+    printBtn:'🖨️ Print',colSettingsBtn:'⊞ Columns',thShares2:'Shares',thBuy2:'Buy',thBEP:'BEP',thNote:'Note',
   }
 };
 
@@ -1071,7 +1155,8 @@ function SettingsModal(props){
 
 // ── 포지션 행 ──
 function PRow(props){
-  var p=props.p,prices=props.prices,portVal=props.portVal,usdRate=props.usdRate,onEdit=props.onEdit,onDel=props.onDel,failedTickers=props.failedTickers||[];
+  var p=props.p,prices=props.prices,portVal=props.portVal,usdRate=props.usdRate,onEdit=props.onEdit,onDel=props.onDel,failedTickers=props.failedTickers||[],colVis=props.colVis||{},onDragStart=props.onDragStart,onDragOver=props.onDragOver,onDrop=props.onDrop,isDragging=props.isDragging;
+  var nts=useState(false);var showNote=nts[0];var setShowNote=nts[1];
   var st=STOCKS.find(function(s){return s.t===p.ticker});
   var isKRW=st&&st.cur==='KRW';
   var rate=isKRW?(usdRate||1370):1;
@@ -1085,6 +1170,8 @@ function PRow(props){
   var dy=p.divYield!==undefined?p.divYield:0;
   var aDiv=val*(dy/100);
   var wt=portVal>0?val/portVal*100:0;
+  var tgtRet=p.targetReturn||0;
+  var tgtPrice=tgtRet?buyUSD*(1+tgtRet/100):null;
   var f2=function(v){return '$'+Math.abs(v).toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2})};
   var fP=function(v){return isKRW?'₩'+Math.round(v).toLocaleString('ko'):f2(v)};
   var dispT=dispTicker(p.ticker);
@@ -1094,7 +1181,11 @@ function PRow(props){
     var t=Math.abs(c)/25*0.22;
     return c>=0?'rgba(23,232,161,'+t+')':'rgba(255,77,114,'+t+')';
   }
-  return React.createElement('tr',null,
+  return React.createElement('tr',{className:isDragging?'dragging':'',draggable:true,
+    onDragStart:function(){onDragStart&&onDragStart(p.id)},
+    onDragOver:function(e){onDragOver&&onDragOver(e)},
+    onDrop:function(){onDrop&&onDrop(p.id)}},
+    React.createElement('td',{style:{padding:'4px 4px',cursor:'grab',color:'var(--text4)',fontSize:13,userSelect:'none'}},'⠿'),
     React.createElement('td',null,
       React.createElement('div',{className:'ticker-cell'},
         React.createElement('span',{className:'t-badge'+(isKRW?' kr':'')},dispT),
@@ -1104,19 +1195,29 @@ function PRow(props){
         )
       )
     ),
-    React.createElement('td',null,React.createElement('span',{className:'acc-badge'},p.account)),
-    React.createElement('td',{className:'r num'},p.shares.toLocaleString('en',{maximumFractionDigits:4})),
-    React.createElement('td',{className:'r num dim'},fP(p.buyPrice)),
-    React.createElement('td',{className:'r num'},
+    colVis.note&&React.createElement('td',null,
+      React.createElement('div',{className:'note-wrap'},
+        React.createElement('span',{className:'note-icon'+(p.note?' has-note':''),onClick:function(){setShowNote(function(v){return !v})}},p.note?'📝':'○'),
+        showNote&&p.note&&React.createElement('div',{className:'note-tooltip'},p.note)
+      )
+    ),
+    colVis.account&&React.createElement('td',null,React.createElement('span',{className:'acc-badge'},p.account)),
+    colVis.shares&&React.createElement('td',{className:'r num'},p.shares.toLocaleString('en',{maximumFractionDigits:4})),
+    colVis.buy&&React.createElement('td',{className:'r num dim'},fP(p.buyPrice)),
+    colVis.cur&&React.createElement('td',{className:'r num'},
       React.createElement('span',null,fP(rawPrice)),
       isFailed&&React.createElement('span',{title:'Price not updated',style:{marginLeft:3,color:'var(--yellow)',fontSize:9}},'⚠')
     ),
-    React.createElement('td',{className:'r num'},f2(val)),
-    React.createElement('td',{className:'r num '+(gain>=0?'g':'r2'),style:{background:heatBg(pct)}},(gain>=0?'+':'-')+f2(gain)),
-    React.createElement('td',{className:'r num '+(pct>=0?'g':'r2'),style:{background:heatBg(pct)}},(pct>=0?'+':'')+pct.toFixed(2)+'%'),
-    React.createElement('td',{className:'r num '+(dy>0?'g':'dim')},dy>0?dy.toFixed(2)+'%':'—'),
-    React.createElement('td',{className:'r num '+(aDiv>0?'g':'dim')},aDiv>0?'$'+aDiv.toFixed(2):'—'),
-    React.createElement('td',{className:'r num dim'},wt.toFixed(1)+'%'),
+    colVis.val&&React.createElement('td',{className:'r num'},f2(val)),
+    colVis.gain&&React.createElement('td',{className:'r num '+(gain>=0?'g':'r2'),style:{background:heatBg(pct)}},(gain>=0?'+':'-')+f2(gain)),
+    colVis.pct&&React.createElement('td',{className:'r num '+(pct>=0?'g':'r2'),style:{background:heatBg(pct)}},(pct>=0?'+':'')+pct.toFixed(2)+'%'),
+    colVis.dy&&React.createElement('td',{className:'r num '+(dy>0?'g':'dim')},dy>0?dy.toFixed(2)+'%':'—'),
+    colVis.adiv&&React.createElement('td',{className:'r num '+(aDiv>0?'g':'dim')},aDiv>0?'$'+aDiv.toFixed(2):'—'),
+    colVis.wt&&React.createElement('td',{className:'r num dim'},wt.toFixed(1)+'%'),
+    colVis.bep&&React.createElement('td',{className:'r'},
+      React.createElement('div',{className:'bep-val'},fP(p.buyPrice)),
+      tgtPrice&&React.createElement('div',{className:'bep-tgt'},fP(tgtPrice*rate)+' (+'+tgtRet+'%)')
+    ),
     React.createElement('td',null,
       React.createElement('div',{style:{display:'flex',gap:3,justifyContent:'flex-end'}},
         React.createElement('button',{className:'btn btn-sm btn-ghost',onClick:onEdit},'✎'),
@@ -1141,6 +1242,12 @@ function AddModal(props){
   var ais=useState([]);var acItems=ais[0];var setAcItems=ais[1];
   var axs=useState(-1);var acIdx=axs[0];var setAcIdx=axs[1];
   var aws=useState(false);var showAc=aws[0];var setShowAc=aws[1];
+  var nts=useState(editPos?editPos.note||'':'');var note=nts[0];var setNote=nts[1];
+  var trs=useState(editPos?editPos.targetReturn||'':'');var targetReturn=trs[0];var setTargetReturn=trs[1];
+  var lts=useState(editPos&&editPos.lots?editPos.lots:[]);var lots=lts[0];var setLots=lts[1];
+  var lds=useState(new Date().toISOString().slice(0,10));var lotDate=lds[0];var setLotDate=lds[1];
+  var lss=useState('');var lotShares=lss[0];var setLotShares=lss[1];
+  var lps=useState('');var lotPrice=lps[0];var setLotPrice=lps[1];
 
   function onTicker(v){
     setTicker(v.toUpperCase());setSelS(null);
@@ -1165,11 +1272,30 @@ function AddModal(props){
     else if(e.key==='Enter'&&acIdx>=0){e.preventDefault();pick(acItems[acIdx])}
     else if(e.key==='Escape') setShowAc(false);
   }
+  function addLot(){
+    if(!lotShares||!lotPrice) return;
+    var newLots=lots.concat([{date:lotDate,shares:parseFloat(lotShares),price:parseFloat(lotPrice)}]);
+    setLots(newLots);
+    var totalSh=newLots.reduce(function(s,l){return s+l.shares},0);
+    var avgP=newLots.reduce(function(s,l){return s+l.shares*l.price},0)/totalSh;
+    setShares(totalSh.toFixed(4));setBuyPrice(avgP.toFixed(4));
+    setLotShares('');setLotPrice('');
+  }
+  function delLot(i){
+    var newLots=lots.filter(function(_,idx){return idx!==i});
+    setLots(newLots);
+    if(newLots.length>0){
+      var totalSh=newLots.reduce(function(s,l){return s+l.shares},0);
+      var avgP=newLots.reduce(function(s,l){return s+l.shares*l.price},0)/totalSh;
+      setShares(totalSh.toFixed(4));setBuyPrice(avgP.toFixed(4));
+    } else {setShares('');setBuyPrice('');}
+  }
   function save(){
     if(!ticker||!shares||!buyPrice||!account) return;
     var st=selS||STOCKS.find(function(s){return s.t===ticker});
     onSave({ticker:ticker,name:st?st.n:ticker,shares:parseFloat(shares),buyPrice:parseFloat(buyPrice),
-      divYield:divYield!==''?parseFloat(divYield):(st?st.d:0),account:account});
+      divYield:divYield!==''?parseFloat(divYield):(st?st.d:0),account:account,
+      note:note||undefined,targetReturn:targetReturn?parseFloat(targetReturn):undefined,lots:lots.length>0?lots:undefined});
   }
   var isKRWStock=selS&&selS.cur==='KRW';
   return React.createElement('div',{className:'overlay',onClick:function(e){if(e.target===e.currentTarget)onClose()}},
@@ -1224,6 +1350,38 @@ function AddModal(props){
             React.createElement('select',{value:account,onChange:function(e){setAccount(e.target.value)}},
               accounts.map(function(a){return React.createElement('option',{key:a,value:a},a)})
             )
+          )
+        ),
+        React.createElement('div',{className:'row2'},
+          React.createElement('div',{className:'field'},
+            React.createElement('label',null,l.targetRetLbl),
+            React.createElement('input',{type:'number',step:'1',min:'0',value:targetReturn,placeholder:l.targetRetPh,onChange:function(e){setTargetReturn(e.target.value)}})
+          ),
+          React.createElement('div',{className:'field'},
+            React.createElement('label',null,l.noteLbl),
+            React.createElement('input',{value:note,placeholder:l.notePh,onChange:function(e){setNote(e.target.value)}})
+          )
+        ),
+        React.createElement('div',{className:'field'},
+          React.createElement('label',null,l.lotsLbl),
+          React.createElement('div',{style:{display:'flex',gap:4,flexWrap:'wrap',marginBottom:4}},
+            React.createElement('input',{type:'date',value:lotDate,onChange:function(e){setLotDate(e.target.value)},style:{width:110}}),
+            React.createElement('input',{type:'number',value:lotShares,placeholder:l.lotSharesLbl,onChange:function(e){setLotShares(e.target.value)},style:{width:70}}),
+            React.createElement('input',{type:'number',value:lotPrice,placeholder:l.lotPriceLbl,onChange:function(e){setLotPrice(e.target.value)},style:{width:80}}),
+            React.createElement('button',{className:'btn btn-sm',onClick:addLot},l.addLotBtn)
+          ),
+          lots.length>0&&React.createElement('table',{className:'lots-table'},
+            React.createElement('thead',null,React.createElement('tr',null,
+              React.createElement('th',null,l.lotDateLbl),React.createElement('th',null,l.lotSharesLbl),React.createElement('th',null,l.lotPriceLbl),React.createElement('th',null,'')
+            )),
+            React.createElement('tbody',null,lots.map(function(lot,i){
+              return React.createElement('tr',{key:i},
+                React.createElement('td',null,lot.date),
+                React.createElement('td',null,lot.shares),
+                React.createElement('td',null,lot.price),
+                React.createElement('td',null,React.createElement('span',{style:{cursor:'pointer',color:'var(--red)',fontSize:11},onClick:function(){delLot(i)}},'✕'))
+              );
+            }))
           )
         )
       ),
@@ -1372,6 +1530,190 @@ function IOModal(props){
   );
 }
 
+// ── 수익률 트리맵 ──
+function TreemapChart(props){
+  var positions=props.positions,prices=props.prices,usdRate=props.usdRate,portVal=props.portVal,lang=props.lang||'ko';
+  var l=T[lang];
+  var ref=useRef(null);
+  useEffect(function(){
+    var el=ref.current;if(!el) return;
+    var W=el.offsetWidth,H=el.offsetHeight;if(!W||!H) return;
+    var ctx=el.getContext('2d');
+    ctx.clearRect(0,0,W,H);
+    var items=positions.map(function(p){
+      var st=STOCKS.find(function(s){return s.t===p.ticker});
+      var rate=st&&st.cur==='KRW'?(usdRate||1370):1;
+      var cur=(prices[p.ticker]||p.buyPrice)/rate;
+      var val=p.shares*cur;
+      var cost=p.shares*(p.buyPrice/rate);
+      var pct=cost>0?(val-cost)/cost*100:0;
+      return {ticker:dispTicker(p.ticker),val:val,pct:pct};
+    }).filter(function(x){return x.val>0}).sort(function(a,b){return b.val-a.val});
+    if(!items.length) return;
+    var total=items.reduce(function(s,x){return s+x.val},0);
+    // squarified treemap layout
+    function heatCol(pct){
+      var c=Math.max(-30,Math.min(30,pct)),t=Math.abs(c)/30;
+      return c>=0?'rgba(23,232,161,'+(0.15+t*0.5)+')':'rgba(255,77,114,'+(0.15+t*0.5)+')';
+    }
+    var rects=[];
+    function layout(nodes,x,y,w,h){
+      if(!nodes.length) return;
+      if(nodes.length===1){rects.push({x:x,y:y,w:w,h:h,item:nodes[0]});return}
+      var half=nodes.slice(0,Math.ceil(nodes.length/2)),rest=nodes.slice(Math.ceil(nodes.length/2));
+      var hSum=half.reduce(function(s,n){return s+n.val},0),ratio=hSum/total;
+      if(w>=h){layout(half,x,y,w*ratio,h);layout(rest,x+w*ratio,y,w*(1-ratio),h);}
+      else{layout(half,x,y,w,h*ratio);layout(rest,x,y+h*ratio,w,h*(1-ratio));}
+    }
+    layout(items,0,0,W,H);
+    rects.forEach(function(r){
+      ctx.fillStyle=heatCol(r.item.pct);
+      ctx.fillRect(r.x+1,r.y+1,r.w-2,r.h-2);
+      ctx.strokeStyle='rgba(0,0,0,.15)';ctx.strokeRect(r.x+1,r.y+1,r.w-2,r.h-2);
+      if(r.w>35&&r.h>22){
+        ctx.fillStyle='rgba(255,255,255,.9)';
+        ctx.font='bold '+(Math.min(13,r.w/5))+'px sans-serif';
+        ctx.textAlign='center';ctx.textBaseline='middle';
+        ctx.fillText(r.item.ticker,r.x+r.w/2,r.y+r.h/2-5);
+        ctx.font=(Math.min(10,r.w/6))+'px sans-serif';
+        ctx.fillStyle=r.item.pct>=0?'rgba(23,232,161,.9)':'rgba(255,77,114,.9)';
+        ctx.fillText((r.item.pct>=0?'+':'')+r.item.pct.toFixed(1)+'%',r.x+r.w/2,r.y+r.h/2+8);
+      }
+    });
+  },[positions,prices,usdRate,portVal]);
+  if(!positions.length) return React.createElement('div',{className:'empty',style:{padding:20}},React.createElement('div',{className:'empty-icon'},'🗺️'),l.treemapEmpty);
+  return React.createElement('canvas',{ref:ref,className:'treemap-wrap',width:600,height:200,style:{width:'100%',height:200}});
+}
+
+// ── 배당 캘린더 ──
+function DivCalendar(props){
+  var positions=props.positions,prices=props.prices,usdRate=props.usdRate,lang=props.lang||'ko';
+  var l=T[lang];
+  var MO=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  var byMonth=MO.map(function(){return {amt:0,tickers:[]}});
+  positions.forEach(function(p){
+    var st=STOCKS.find(function(s){return s.t===p.ticker});
+    var dy=p.divYield||0;if(!dy) return;
+    var rate=st&&st.cur==='KRW'?(usdRate||1370):1;
+    var cur=(prices[p.ticker]||p.buyPrice)/rate;
+    var annDiv=p.shares*cur*(dy/100);
+    var monthly=annDiv/12;
+    byMonth.forEach(function(m){m.amt+=monthly;m.tickers.push(dispTicker(p.ticker))});
+  });
+  // deduplicate tickers per month
+  byMonth=byMonth.map(function(m){return {amt:m.amt,tickers:positions.filter(function(p){return (p.divYield||0)>0}).map(function(p){return dispTicker(p.ticker)})}});
+  if(!positions.some(function(p){return (p.divYield||0)>0}))
+    return React.createElement('div',{className:'empty',style:{padding:12}},React.createElement('div',{className:'empty-icon'},'📅'),l.divCalEmpty);
+  return React.createElement('div',{className:'div-cal'},
+    byMonth.map(function(m,i){
+      var hasDiv=m.amt>0;
+      return React.createElement('div',{key:i,className:'div-cal-m'+(hasDiv?' has-div':'')},
+        React.createElement('div',{className:'div-cal-mn'},MO[i]),
+        hasDiv?[
+          React.createElement('div',{key:'a',className:'div-cal-ma'},'$'+m.amt.toFixed(0)),
+          React.createElement('div',{key:'t',className:'div-cal-mt'},m.tickers.slice(0,3).join(' '))
+        ]:React.createElement('div',{className:'div-cal-mt',style:{color:'var(--text4)'}},'-')
+      );
+    })
+  );
+}
+
+// ── 가격 알림 모달 ──
+function AlertsModal(props){
+  var alerts=props.alerts,onSave=props.onSave,onDel=props.onDel,onClose=props.onClose,lang=props.lang||'ko';
+  var l=T[lang];
+  var ts=useState('');var ticker=ts[0];var setTicker=ts[1];
+  var ps=useState('');var price=ps[0];var setPrice=ps[1];
+  var ty=useState('above');var type=ty[0];var setType=ty[1];
+  function add(){
+    if(!ticker||!price) return;
+    onSave({id:Date.now()+'',ticker:ticker.toUpperCase(),price:parseFloat(price),type:type,active:true});
+    setTicker('');setPrice('');
+    addToastProxy(l.alertAdded);
+  }
+  function addToastProxy(msg){/* toast handled by parent */}
+  return React.createElement('div',{className:'overlay',onClick:function(e){if(e.target===e.currentTarget)onClose()}},
+    React.createElement('div',{className:'modal',style:{maxWidth:400}},
+      React.createElement('div',{className:'modal-hd'},
+        React.createElement('div',{className:'modal-title'},l.alertsLbl),
+        React.createElement('button',{className:'close-x',onClick:onClose},'×')
+      ),
+      React.createElement('div',{className:'modal-body'},
+        React.createElement('div',{style:{display:'flex',gap:6,marginBottom:8}},
+          React.createElement('input',{value:ticker,placeholder:'AAPL',onChange:function(e){setTicker(e.target.value)},style:{flex:1}}),
+          React.createElement('select',{value:type,onChange:function(e){setType(e.target.value)},className:'ar-sel'},
+            React.createElement('option',{value:'above'},l.alertAboveLbl),
+            React.createElement('option',{value:'below'},l.alertBelowLbl)
+          ),
+          React.createElement('input',{type:'number',value:price,placeholder:l.alertPriceLbl,onChange:function(e){setPrice(e.target.value)},style:{width:80}}),
+          React.createElement('button',{className:'btn btn-primary btn-sm',onClick:add},'+')
+        ),
+        alerts.length===0
+          ?React.createElement('div',{className:'empty',style:{padding:16}},l.alertNone)
+          :alerts.map(function(a){
+            return React.createElement('div',{key:a.id,className:'alert-row'},
+              React.createElement('span',{className:'t-badge',style:{fontSize:10}},a.ticker),
+              React.createElement('span',{className:'alert-type '+(a.type==='above'?'alert-above':'alert-below')},a.type==='above'?l.alertAboveLbl:l.alertBelowLbl),
+              React.createElement('span',{style:{fontFamily:'var(--mono)',fontSize:11,flex:1}},'$'+a.price),
+              React.createElement('button',{className:'btn btn-sm btn-ghost',style:{color:'var(--text3)'},onClick:function(){onDel(a.id)}},'✕')
+            );
+          })
+      )
+    )
+  );
+}
+
+// ── 매도 기록 모달 ──
+function TradesModal(props){
+  var trades=props.trades,positions=props.positions,onSave=props.onSave,onDel=props.onDel,onClose=props.onClose,lang=props.lang||'ko';
+  var l=T[lang];
+  var ts=useState('');var ticker=ts[0];var setTicker=ts[1];
+  var ds=useState(new Date().toISOString().slice(0,10));var date=ds[0];var setDate=ds[1];
+  var qs=useState('');var qty=qs[0];var setQty=qs[1];
+  var ss=useState('');var sell=ss[0];var setSell=ss[1];
+  var bs=useState('');var buy=bs[0];var setBuy=bs[1];
+  function addTrade(){
+    if(!ticker||!qty||!sell) return;
+    var g=(parseFloat(sell)-parseFloat(buy||0))*parseFloat(qty);
+    onSave({id:Date.now()+'',ticker:ticker.toUpperCase(),date:date,shares:parseFloat(qty),sellPrice:parseFloat(sell),buyPrice:parseFloat(buy||0),gain:g});
+    setTicker('');setQty('');setSell('');setBuy('');
+  }
+  var totalRealized=trades.reduce(function(s,t){return s+t.gain},0);
+  return React.createElement('div',{className:'overlay',onClick:function(e){if(e.target===e.currentTarget)onClose()}},
+    React.createElement('div',{className:'modal',style:{maxWidth:480}},
+      React.createElement('div',{className:'modal-hd'},
+        React.createElement('div',{className:'modal-title'},l.tradesLbl),
+        React.createElement('button',{className:'close-x',onClick:onClose},'×')
+      ),
+      React.createElement('div',{className:'modal-body'},
+        React.createElement('div',{style:{display:'flex',gap:5,marginBottom:8,flexWrap:'wrap'}},
+          React.createElement('input',{value:ticker,placeholder:'Ticker',onChange:function(e){setTicker(e.target.value)},style:{width:70}}),
+          React.createElement('input',{type:'date',value:date,onChange:function(e){setDate(e.target.value)},style:{flex:1}}),
+          React.createElement('input',{type:'number',value:qty,placeholder:l.tradeQtyLbl,onChange:function(e){setQty(e.target.value)},style:{width:70}}),
+          React.createElement('input',{type:'number',value:buy,placeholder:l.thBuy2+'($)',onChange:function(e){setBuy(e.target.value)},style:{width:80}}),
+          React.createElement('input',{type:'number',value:sell,placeholder:l.tradeSellLbl+'($)',onChange:function(e){setSell(e.target.value)},style:{width:80}}),
+          React.createElement('button',{className:'btn btn-primary btn-sm',onClick:addTrade},'+')
+        ),
+        trades.length>0&&React.createElement('div',{style:{marginBottom:8,fontFamily:'var(--mono)',fontSize:11,color:totalRealized>=0?'var(--green)':'var(--red)'}},
+          l.tradeRealizedLbl+': '+(totalRealized>=0?'+':'')+('$'+Math.abs(totalRealized).toFixed(2))
+        ),
+        trades.length===0
+          ?React.createElement('div',{className:'empty',style:{padding:16}},l.tradeNone)
+          :trades.map(function(t){
+            return React.createElement('div',{key:t.id,className:'trade-row'},
+              React.createElement('span',{className:'t-badge',style:{fontSize:10}},t.ticker),
+              React.createElement('span',{className:'dim',style:{fontSize:9}},t.date),
+              React.createElement('span',{className:'num dim'},t.shares+'sh'),
+              React.createElement('span',{className:'num'},('$'+t.sellPrice.toFixed(2))),
+              React.createElement('span',{className:'num '+(t.gain>=0?'g':'r2'),style:{flex:1}},(t.gain>=0?'+':'-')+'$'+Math.abs(t.gain).toFixed(2)),
+              React.createElement('button',{className:'btn btn-sm btn-ghost',style:{color:'var(--text3)'},onClick:function(){onDel(t.id)}},'✕')
+            );
+          })
+      )
+    )
+  );
+}
+
 // ── App ──
 function App(props){
   var onLogout=props.onLogout||function(){};
@@ -1414,6 +1756,20 @@ function App(props){
   var ftp=useState(false);var showFailedPopup=ftp[0];var setShowFailedPopup=ftp[1];
   var tas=useState(function(){return ld('targetAlloc',{})});var targetAlloc=tas[0];var setTargetAlloc=tas[1];
   var snaps=useState(function(){return ld('snapshots',[])});var snapshots=snaps[0];var setSnapshots=snaps[1];
+  // ── 신규 기능 상태 ──
+  var thm=useState(function(){return ld('theme','dark')});var theme=thm[0];var setTheme=thm[1];
+  var ars=useState(function(){return ld('autoRefresh',0)});var autoRefresh=ars[0];var setAutoRefresh=ars[1];
+  var arc=useState(0);var arCountdown=arc[0];var setArCountdown=arc[1];
+  var alts=useState(function(){return ld('alerts',[])});var alerts=alts[0];var setAlerts=alts[1];
+  var sas2=useState(false);var showAlerts=sas2[0];var setShowAlerts=sas2[1];
+  var trds=useState(function(){return ld('trades',[])});var trades=trds[0];var setTrades=trds[1];
+  var str=useState(false);var showTrades=str[0];var setShowTrades=str[1];
+  var cvs=useState(function(){return ld('colVis',{account:true,shares:true,buy:true,cur:true,val:true,gain:true,pct:true,dy:true,adiv:true,wt:true,bep:false,note:true})});var colVis=cvs[0];var setColVis=cvs[1];
+  var scv=useState(false);var showColVis=scv[0];var setShowColVis=scv[1];
+  var cos=useState(function(){return ld('posOrder',[])});var customOrder=cos[0];var setCustomOrder=cos[1];
+  var drg=useState(null);var dragRowId=drg[0];var setDragRowId=drg[1];
+  var bch=useState('none');var benchSel=bch[0];var setBenchSel=bch[1];
+  var bchd=useState({});var benchData=bchd[0];var setBenchData=bchd[1];
   useEffect(function(){sv('sidebarCollapsed',sidebarCollapsed)},[sidebarCollapsed]);
   useEffect(function(){sv('targetAlloc',targetAlloc)},[targetAlloc]);
   useEffect(function(){sv('snapshots',snapshots)},[snapshots]);
@@ -1422,6 +1778,25 @@ function App(props){
   useEffect(function(){sv('apiKeys',apiKeys)},[apiKeys]);
   useEffect(function(){sv('usdRate',usdRate)},[usdRate]);
   useEffect(function(){sv('filters',filters)},[filters]);
+  useEffect(function(){sv('theme',theme);if(theme==='light')document.documentElement.classList.add('light');else document.documentElement.classList.remove('light')},[theme]);
+  useEffect(function(){sv('alerts',alerts)},[alerts]);
+  useEffect(function(){sv('trades',trades)},[trades]);
+  useEffect(function(){sv('colVis',colVis)},[colVis]);
+  useEffect(function(){sv('posOrder',customOrder)},[customOrder]);
+  useEffect(function(){sv('autoRefresh',autoRefresh)},[autoRefresh]);
+  // 자동 갱신 타이머
+  useEffect(function(){
+    if(!autoRefresh) return;
+    var sec=autoRefresh*60;setArCountdown(sec);
+    var iv=setInterval(function(){
+      setArCountdown(function(c){if(c<=1){refresh();return autoRefresh*60;}return c-1;});
+    },1000);
+    return function(){clearInterval(iv)};
+  },[autoRefresh]);
+  // 테마 초기 적용
+  useEffect(function(){
+    if(ld('theme','dark')==='light') document.documentElement.classList.add('light');
+  },[]);
 
   function addToast(t){
     var id=Date.now()+Math.random();
@@ -1429,6 +1804,52 @@ function App(props){
     setTimeout(function(){setToasts(function(prev){return prev.filter(function(x){return x.id!==id})})},9000);
   }
   function removeToast(id){setToasts(function(prev){return prev.filter(function(x){return x.id!==id})})}
+  // 테마 토글
+  function toggleTheme(){setTheme(function(t){return t==='dark'?'light':'dark'})}
+  // 컬럼 토글
+  function toggleColVis(col){setColVis(function(cv){var n=Object.assign({},cv);n[col]=!n[col];return n})}
+  // 가격 알림 체크 (refresh 후 호출)
+  function checkAlerts(newPrices){
+    alerts.forEach(function(a){
+      if(!a.active) return;
+      var p=newPrices[a.ticker];if(!p) return;
+      var hit=(a.type==='above'&&p>=a.price)||(a.type==='below'&&p<=a.price);
+      if(hit){
+        addToast({type:'success',text:T[lang].alertFired(a.ticker,'$'+p.toFixed(2)),sub:null});
+        if(window.Notification&&Notification.permission==='granted')
+          new Notification('📈 '+a.ticker,{body:(a.type==='above'?'≥':'≤')+'$'+a.price+' (now $'+p.toFixed(2)+')'});
+      }
+    });
+  }
+  function saveAlert(a){setAlerts(function(prev){return prev.concat([a])});addToast({type:'success',text:T[lang].alertAdded,sub:null});}
+  function delAlert(id){setAlerts(function(prev){return prev.filter(function(a){return a.id!==id})})}
+  function saveTrade(t){setTrades(function(prev){return prev.concat([t])})}
+  function delTrade(id){setTrades(function(prev){return prev.filter(function(t){return t.id!==id})})}
+  // 드래그 앤 드롭
+  function onDragStart(id){setDragRowId(id)}
+  function onDragOver(e){e.preventDefault()}
+  function onDrop(targetId){
+    if(!dragRowId||dragRowId===targetId) return;
+    setCustomOrder(function(prev){
+      var ids=prev.length?prev:positions.map(function(p){return p.id});
+      var from=ids.indexOf(dragRowId),to=ids.indexOf(targetId);
+      if(from<0||to<0) return ids;
+      var arr=ids.slice();arr.splice(from,1);arr.splice(to,0,dragRowId);
+      return arr;
+    });
+    setDragRowId(null);
+  }
+  // 벤치마크 fetch
+  function fetchBenchmark(sym){
+    if(sym==='none'){setBenchData({});return}
+    var map={sp:'^GSPC',ks:'^KS11',nq:'^IXIC'};var tick=map[sym];
+    fetch('https://query1.finance.yahoo.com/v7/finance/quote?symbols='+encodeURIComponent(tick))
+      .then(function(r){return r.json()})
+      .then(function(d){
+        var q=d&&d.quoteResponse&&d.quoteResponse.result&&d.quoteResponse.result[0];
+        if(q){var chg=q.regularMarketChangePercent||0;setBenchData(function(b){var n=Object.assign({},b);n[sym]=chg;return n});}
+      }).catch(function(){});
+  }
 
   function renameAccount(oldName,newName){
     var n=newName.trim();
@@ -1462,6 +1883,9 @@ function App(props){
     if(searchQ.trim()){
       var q=searchQ.trim().toLowerCase();
       list=list.filter(function(p){return p.ticker.toLowerCase().includes(q)||(p.name||'').toLowerCase().includes(q)});
+    }
+    if(!sortCol&&!searchQ&&customOrder.length>0){
+      list.sort(function(a,b){var ia=customOrder.indexOf(a.id),ib=customOrder.indexOf(b.id);return (ia<0?9999:ia)-(ib<0?9999:ib);});
     }
     if(sortCol){
       var getKey=function(p){
@@ -1508,7 +1932,7 @@ function App(props){
     try{
       var result=await fetchAllPrices(positions,apiKeys,function(msg){setRefreshStatus(msg)},lang);
       var newP=result.prices,msgs=result.msgs;
-      if(Object.keys(newP).length>0) setPrices(function(prev){return Object.assign({},prev,newP)});
+      if(Object.keys(newP).length>0){setPrices(function(prev){return Object.assign({},prev,newP)});checkAlerts(newP);}
       var failed=positions.filter(function(p){return !newP[p.ticker]}).map(function(p){return p.ticker});
       setFailedTickers(failed);
       msgs.forEach(function(m){addToast(m)});
@@ -1701,13 +2125,30 @@ function App(props){
       React.createElement('div',{className:'topbar'},
         React.createElement('div',{className:'topbar-right'},
           React.createElement('button',{className:'btn btn-sm btn-ghost lang-btn',onClick:onLangToggle},l.langSwitch),
+          React.createElement('button',{className:'btn btn-sm btn-ghost',onClick:toggleTheme,title:theme==='dark'?'라이트 모드':'다크 모드'},l.themeToggle(theme)),
           React.createElement('button',{className:'btn btn-sm btn-ghost',onClick:onLogout,style:{color:'var(--text3)'}},l.logout),
           React.createElement(ApiStatus,{apiKeys:apiKeys,lang:lang}),
           refreshStatus&&React.createElement('span',{className:'refresh-status'},refreshStatus),
           failedTickers.length>0&&React.createElement('span',{style:{fontSize:9,color:'var(--yellow)',cursor:'pointer',fontFamily:'var(--mono)'},onClick:function(){setShowFailedPopup(true)},title:l.failedTickersTitle},'⚠ '+failedTickers.length),
-          React.createElement('button',{className:'btn btn-sm',onClick:function(){setShowSettings(true)}},l.apiBtn),
+          React.createElement('div',{style:{display:'flex',alignItems:'center',gap:3,flexShrink:0}},
+            React.createElement('span',{className:'ar-cd'},autoRefresh&&arCountdown?l.arCd(arCountdown):''),
+            React.createElement('select',{className:'ar-sel',value:autoRefresh,onChange:function(e){setAutoRefresh(parseInt(e.target.value));},title:l.arLabel},
+              React.createElement('option',{value:0},l.arOff),
+              React.createElement('option',{value:1},'1m'),
+              React.createElement('option',{value:5},'5m'),
+              React.createElement('option',{value:10},'10m'),
+              React.createElement('option',{value:30},'30m')
+            )
+          ),
+          React.createElement('button',{className:'btn btn-sm btn-ghost',onClick:function(){
+            if(window.Notification&&Notification.permission==='default') Notification.requestPermission();
+            setShowAlerts(true);
+          },title:l.alertsLbl},'🔔'+(alerts.length?(' '+alerts.length):'')),
+          React.createElement('button',{className:'btn btn-sm btn-ghost',onClick:function(){setShowTrades(true)},title:l.tradesLbl},'📊'),
+          React.createElement('button',{className:'btn btn-sm btn-ghost',onClick:function(){setShowSettings(true)}},l.apiBtn),
           React.createElement('button',{className:'btn btn-sm btn-ghost',onClick:function(){setShowIO(true)},title:l.exportTitle},'⇅'),
           React.createElement('button',{className:'btn btn-sm btn-ghost',onClick:saveSnapshot,title:l.snapshotBtn},'📸'),
+          React.createElement('button',{className:'btn btn-sm btn-ghost',onClick:function(){window.print()},title:l.printBtn},l.printBtn),
           React.createElement('button',{className:'btn btn-sm',onClick:refresh,disabled:refreshing},
             React.createElement('span',{className:refreshing?'spinning':''},'↻'),' ',refreshing?l.refreshing:l.refresh
           ),
@@ -1884,6 +2325,33 @@ function App(props){
               React.createElement('span',{className:'chart-sub'},l.snapCount(snapshots.length))
             ),
             React.createElement(SnapChart,{snapshots:snapshots})
+          ),
+
+          filtered.length>0&&React.createElement('div',{className:'chart-card',style:{marginBottom:12}},
+            React.createElement('div',{className:'chart-title'},l.treemapLbl),
+            React.createElement(TreemapChart,{positions:filtered,prices:prices,usdRate:usdRate,portVal:port.val,lang:lang})
+          ),
+
+          React.createElement('div',{className:'chart-card',style:{marginBottom:12}},
+            React.createElement('div',{className:'chart-title'},l.divCalLbl),
+            React.createElement(DivCalendar,{positions:filtered,prices:prices,usdRate:usdRate,lang:lang})
+          ),
+
+          React.createElement('div',{className:'chart-card',style:{marginBottom:12}},
+            React.createElement('div',{className:'chart-title'},
+              l.benchmarkLbl,
+              Object.keys(benchData).length>0&&React.createElement('span',{className:'chart-sub'},
+                Object.entries(benchData).map(function(e){return ({sp:'S&P',ks:'KOSPI',nq:'NQ'}[e[0]]||e[0])+': '+(e[1]>=0?'+':'')+e[1].toFixed(2)+'%';}).join(' · ')
+              )
+            ),
+            React.createElement('div',{className:'bench-sel'},
+              [['none',l.benchOff],['sp',l.benchSP],['ks',l.benchKS],['nq',l.benchNQ]].map(function(b){
+                return React.createElement('span',{key:b[0],className:'bench-pill'+(benchSel===b[0]?' active':''),onClick:function(){
+                  setBenchSel(b[0]);fetchBenchmark(b[0]);
+                }},b[1]);
+              })
+            ),
+            benchSel!=='none'&&Object.keys(benchData).length===0&&React.createElement('div',{style:{fontSize:10,color:'var(--text3)'}},l.fetchYahoo)
           )
         ),
 
@@ -1920,18 +2388,33 @@ function App(props){
                   React.createElement('table',null,
                     React.createElement('thead',null,
                       React.createElement('tr',null,
+                        React.createElement('th',null,''),
                         React.createElement('th',{className:'sortable'+(sortCol==='ticker'?' sort-'+sortDir:''),onClick:function(){doSort('ticker')}},l.thStock),
-                        React.createElement('th',{className:'sortable'+(sortCol==='account'?' sort-'+sortDir:''),onClick:function(){doSort('account')}},l.thAccount),
-                        React.createElement('th',{className:'r sortable'+(sortCol==='shares'?' sort-'+sortDir:''),onClick:function(){doSort('shares')}},l.thShares),
-                        React.createElement('th',{className:'r sortable'+(sortCol==='buy'?' sort-'+sortDir:''),onClick:function(){doSort('buy')}},l.thBuy),
-                        React.createElement('th',{className:'r sortable'+(sortCol==='cur'?' sort-'+sortDir:''),onClick:function(){doSort('cur')}},l.thCurrent),
-                        React.createElement('th',{className:'r sortable'+(sortCol==='val'?' sort-'+sortDir:''),onClick:function(){doSort('val')}},l.thValue),
-                        React.createElement('th',{className:'r sortable'+(sortCol==='gain'?' sort-'+sortDir:''),onClick:function(){doSort('gain')}},l.thGain),
-                        React.createElement('th',{className:'r sortable'+(sortCol==='pct'?' sort-'+sortDir:''),onClick:function(){doSort('pct')}},l.thReturn),
-                        React.createElement('th',{className:'r sortable'+(sortCol==='dy'?' sort-'+sortDir:''),onClick:function(){doSort('dy')}},l.thDiv),
-                        React.createElement('th',{className:'r sortable'+(sortCol==='adiv'?' sort-'+sortDir:''),onClick:function(){doSort('adiv')}},l.thAnnDiv),
-                        React.createElement('th',{className:'r sortable'+(sortCol==='wt'?' sort-'+sortDir:''),onClick:function(){doSort('wt')}},l.thWeight),
-                        React.createElement('th',null,'')
+                        colVis.note&&React.createElement('th',null,l.thNote),
+                        colVis.account&&React.createElement('th',{className:'sortable'+(sortCol==='account'?' sort-'+sortDir:''),onClick:function(){doSort('account')}},l.thAccount),
+                        colVis.shares&&React.createElement('th',{className:'r sortable'+(sortCol==='shares'?' sort-'+sortDir:''),onClick:function(){doSort('shares')}},l.thShares),
+                        colVis.buy&&React.createElement('th',{className:'r sortable'+(sortCol==='buy'?' sort-'+sortDir:''),onClick:function(){doSort('buy')}},l.thBuy),
+                        colVis.cur&&React.createElement('th',{className:'r sortable'+(sortCol==='cur'?' sort-'+sortDir:''),onClick:function(){doSort('cur')}},l.thCurrent),
+                        colVis.val&&React.createElement('th',{className:'r sortable'+(sortCol==='val'?' sort-'+sortDir:''),onClick:function(){doSort('val')}},l.thValue),
+                        colVis.gain&&React.createElement('th',{className:'r sortable'+(sortCol==='gain'?' sort-'+sortDir:''),onClick:function(){doSort('gain')}},l.thGain),
+                        colVis.pct&&React.createElement('th',{className:'r sortable'+(sortCol==='pct'?' sort-'+sortDir:''),onClick:function(){doSort('pct')}},l.thReturn),
+                        colVis.dy&&React.createElement('th',{className:'r sortable'+(sortCol==='dy'?' sort-'+sortDir:''),onClick:function(){doSort('dy')}},l.thDiv),
+                        colVis.adiv&&React.createElement('th',{className:'r sortable'+(sortCol==='adiv'?' sort-'+sortDir:''),onClick:function(){doSort('adiv')}},l.thAnnDiv),
+                        colVis.wt&&React.createElement('th',{className:'r sortable'+(sortCol==='wt'?' sort-'+sortDir:''),onClick:function(){doSort('wt')}},l.thWeight),
+                        colVis.bep&&React.createElement('th',{className:'r'},l.thBEP),
+                        React.createElement('th',{style:{textAlign:'right'}},
+                          React.createElement('div',{className:'col-vis-wrap'},
+                            React.createElement('button',{className:'btn btn-sm btn-ghost',onClick:function(){setShowColVis(function(v){return !v})},style:{padding:'2px 5px',fontSize:10}},l.colSettingsBtn),
+                            showColVis&&React.createElement('div',{className:'col-vis-drop'},
+                              [['note',l.thNote],['account',l.thAccount],['shares',l.thShares],['buy',l.thBuy],['cur',l.thCurrent],['val',l.thValue],['gain',l.thGain],['pct',l.thReturn],['dy',l.thDiv],['adiv',l.thAnnDiv],['wt',l.thWeight],['bep',l.thBEP]].map(function(item){
+                                return React.createElement('label',{key:item[0],className:'col-vis-item'},
+                                  React.createElement('input',{type:'checkbox',checked:!!colVis[item[0]],onChange:function(){toggleColVis(item[0])}}),
+                                  item[1]
+                                );
+                              })
+                            )
+                          )
+                        )
                       )
                     ),
                     React.createElement('tbody',null,
@@ -1954,13 +2437,13 @@ function App(props){
                                 )
                               )
                             ].concat(rows.map(function(p){
-                              return React.createElement(PRow,{key:p.id,p:p,prices:prices,portVal:port.val,usdRate:usdRate,failedTickers:failedTickers,
+                              return React.createElement(PRow,{key:p.id,p:p,prices:prices,portVal:port.val,usdRate:usdRate,failedTickers:failedTickers,colVis:colVis,isDragging:dragRowId===p.id,onDragStart:onDragStart,onDragOver:onDragOver,onDrop:onDrop,
                                 onEdit:function(){setEditPos(p);setShowModal(true)},
                                 onDel:function(){delPos(p.id)}});
                             })));
                           },[])
                         :displayPositions.map(function(p){
-                            return React.createElement(PRow,{key:p.id,p:p,prices:prices,portVal:port.val,usdRate:usdRate,failedTickers:failedTickers,
+                            return React.createElement(PRow,{key:p.id,p:p,prices:prices,portVal:port.val,usdRate:usdRate,failedTickers:failedTickers,colVis:colVis,isDragging:dragRowId===p.id,onDragStart:onDragStart,onDragOver:onDragOver,onDrop:onDrop,
                               onEdit:function(){setEditPos(p);setShowModal(true)},
                               onDel:function(){delPos(p.id)}});
                           })
@@ -1985,6 +2468,8 @@ function App(props){
     showIO&&React.createElement(IOModal,{lang:lang,onClose:function(){setShowIO(false)},
       onExportCSV:exportCSV,onExportJSON:exportJSON,
       onImportCSV:importCSV,onImportJSON:importJSON}),
+    showAlerts&&React.createElement(AlertsModal,{alerts:alerts,lang:lang,onSave:saveAlert,onDel:delAlert,onClose:function(){setShowAlerts(false)}}),
+    showTrades&&React.createElement(TradesModal,{trades:trades,positions:positions,lang:lang,onSave:saveTrade,onDel:delTrade,onClose:function(){setShowTrades(false)}}),
     showFailedPopup&&failedTickers.length>0&&React.createElement('div',{className:'overlay',onClick:function(){setShowFailedPopup(false)}},
       React.createElement('div',{className:'modal',style:{maxWidth:340}},
         React.createElement('div',{className:'modal-hd'},
