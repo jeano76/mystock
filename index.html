@@ -324,12 +324,17 @@ tr.dragging{opacity:.35}
 /* TREEMAP */
 .treemap-wrap{width:100%;height:200px;position:relative;border-radius:8px;overflow:hidden;cursor:default}
 /* DIVIDEND CALENDAR */
-.div-cal{display:grid;grid-template-columns:repeat(6,1fr);gap:4px;margin-top:8px}
-.div-cal-m{background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:6px 4px;text-align:center}
-.div-cal-m.has-div{background:rgba(23,232,161,.07);border-color:var(--green2)}
-.div-cal-mn{font-size:8px;font-weight:600;color:var(--text2);margin-bottom:2px}
-.div-cal-ma{font-family:var(--mono);font-size:9px;color:var(--green);font-weight:500}
-.div-cal-mt{color:var(--text3);font-size:7px;margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.div-cal{display:flex;flex-direction:column;gap:8px;margin-top:8px}
+.div-cal-bars{display:flex;align-items:flex-end;gap:8px;height:140px;padding:0 4px}
+.div-cal-bar-wrap{display:flex;flex-direction:column;align-items:center;flex:1;min-width:32px;max-width:72px;gap:2px}
+.div-cal-bar-amt{font-family:var(--mono);font-size:8px;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;text-align:center}
+.div-cal-bar{width:100%;border-radius:3px 3px 0 0;min-height:4px;transition:opacity .15s}
+.div-cal-bar:hover{opacity:.75}
+.div-cal-bar-tick{font-size:8px;font-weight:600;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;text-align:center}
+.div-cal-bar-yield{font-size:7px;color:var(--text3);text-align:center}
+.div-cal-legend{display:flex;gap:10px;flex-wrap:wrap;margin-top:4px;padding:0 4px}
+.div-cal-leg-item{display:flex;align-items:center;gap:4px;font-size:9px;color:var(--text3)}
+.div-cal-leg-dot{width:8px;height:8px;border-radius:2px;flex-shrink:0}
 /* ALERTS */
 .alert-row{display:flex;align-items:center;gap:7px;padding:5px 0;border-bottom:1px solid var(--border);font-size:11px}
 .alert-row:last-child{border-bottom:none}
@@ -1622,36 +1627,54 @@ function TreemapChart(props){
   return React.createElement('canvas',{ref:ref,className:'treemap-wrap',width:600,height:200,style:{width:'100%',height:200}});
 }
 
-// ── 배당 캘린더 ──
+// ── 배당 캘린더 (종목별 세로 막대그래프) ──
 function DivCalendar(props){
   var positions=props.positions,prices=props.prices,usdRate=props.usdRate,lang=props.lang||'ko';
   var l=T[lang];
-  var MO=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  var byMonth=MO.map(function(){return {amt:0,tickers:[]}});
-  positions.forEach(function(p){
+  // 배당률 구간별 색상
+  function yieldColor(dy){
+    if(dy>=6) return '#ff6b6b';       // 6%+ 고배당 빨강
+    if(dy>=4) return '#f0a500';       // 4~6% 배당주 주황
+    if(dy>=2) return '#17e8a1';       // 2~4% 균형 초록
+    return '#5b9bd5';                 // 0~2% 성장주 파랑
+  }
+  // 종목별 연배당 집계
+  var items=positions.filter(function(p){return (p.divYield||0)>0}).map(function(p){
     var st=STOCKS.find(function(s){return s.t===p.ticker});
-    var dy=p.divYield||0;if(!dy) return;
     var rate=st&&st.cur==='KRW'?(usdRate||1370):1;
     var cur=(prices[p.ticker]||p.buyPrice)/rate;
-    var annDiv=p.shares*cur*(dy/100);
-    var monthly=annDiv/12;
-    byMonth.forEach(function(m){m.amt+=monthly;m.tickers.push(dispTicker(p.ticker))});
-  });
-  // deduplicate tickers per month
-  byMonth=byMonth.map(function(m){return {amt:m.amt,tickers:positions.filter(function(p){return (p.divYield||0)>0}).map(function(p){return dispTicker(p.ticker)})}});
-  if(!positions.some(function(p){return (p.divYield||0)>0}))
+    var annDiv=p.shares*cur*((p.divYield||0)/100);
+    return {ticker:dispTicker(p.ticker),dy:p.divYield||0,annDiv:annDiv};
+  }).filter(function(x){return x.annDiv>0});
+  if(items.length===0)
     return React.createElement('div',{className:'empty',style:{padding:12}},React.createElement('div',{className:'empty-icon'},'📅'),l.divCalEmpty);
+  var maxDiv=Math.max.apply(null,items.map(function(x){return x.annDiv}));
+  var LEGEND=[
+    {color:'#5b9bd5',label:lang==='ko'?'0–2% 성장주':'0–2% Growth'},
+    {color:'#17e8a1',label:lang==='ko'?'2–4% 균형':'2–4% Balanced'},
+    {color:'#f0a500',label:lang==='ko'?'4–6% 배당주':'4–6% Income'},
+    {color:'#ff6b6b',label:lang==='ko'?'6%+ 고배당':'6%+ High Yield'}
+  ];
   return React.createElement('div',{className:'div-cal'},
-    byMonth.map(function(m,i){
-      var hasDiv=m.amt>0;
-      return React.createElement('div',{key:i,className:'div-cal-m'+(hasDiv?' has-div':'')},
-        React.createElement('div',{className:'div-cal-mn'},MO[i]),
-        hasDiv?[
-          React.createElement('div',{key:'a',className:'div-cal-ma'},'$'+m.amt.toFixed(0)),
-          React.createElement('div',{key:'t',className:'div-cal-mt'},m.tickers.slice(0,3).join(' '))
-        ]:React.createElement('div',{className:'div-cal-mt',style:{color:'var(--text4)'}},'-')
-      );
-    })
+    React.createElement('div',{className:'div-cal-bars'},
+      items.map(function(x,i){
+        var pct=Math.max(x.annDiv/maxDiv*100,6);
+        return React.createElement('div',{key:i,className:'div-cal-bar-wrap'},
+          React.createElement('div',{className:'div-cal-bar-amt'},(x.annDiv>=1000?'$'+(x.annDiv/1000).toFixed(1)+'K':'$'+x.annDiv.toFixed(0))),
+          React.createElement('div',{className:'div-cal-bar',style:{height:pct+'%',background:yieldColor(x.dy),title:x.ticker+' '+x.dy+'%'}}),
+          React.createElement('div',{className:'div-cal-bar-tick'},x.ticker),
+          React.createElement('div',{className:'div-cal-bar-yield'},x.dy+'%')
+        );
+      })
+    ),
+    React.createElement('div',{className:'div-cal-legend'},
+      LEGEND.map(function(leg,i){
+        return React.createElement('div',{key:i,className:'div-cal-leg-item'},
+          React.createElement('div',{className:'div-cal-leg-dot',style:{background:leg.color}}),
+          leg.label
+        );
+      })
+    )
   );
 }
 
