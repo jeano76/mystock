@@ -78,8 +78,9 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--s
 .sb-name{font-size:11px;color:var(--text);font-weight:500;display:flex;align-items:center;gap:6px}
 .sb-cnt{font-family:var(--mono);font-size:9px;color:var(--text3)}
 .sb-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
-.sb-add-row{padding:8px 14px;display:flex;gap:6px}
-.sb-add-row input{flex:1;background:var(--bg3);border:1px solid var(--border2);color:var(--text);padding:5px 8px;border-radius:5px;font-size:11px;font-family:var(--sans);outline:none}
+.sb-add-row{padding:8px 10px 8px 14px;display:flex;gap:6px;box-sizing:border-box;width:100%}
+.sb-add-row input{flex:1;min-width:0;background:var(--bg3);border:1px solid var(--border2);color:var(--text);padding:5px 8px;border-radius:5px;font-size:11px;font-family:var(--sans);outline:none;box-sizing:border-box}
+.sb-add-row .btn{flex-shrink:0}
 .sb-add-row input:focus{border-color:var(--acc)}
 .content{padding:14px 18px;flex:1}
 .hero{background:linear-gradient(135deg,var(--bg3),var(--bg4));border:1px solid var(--border2);border-radius:10px;padding:16px 18px;margin-bottom:12px;position:relative;overflow:hidden}
