@@ -39,6 +39,14 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--s
 .sidebar.collapsed .sb-lbl,.sidebar.collapsed .sb-cnt,.sidebar.collapsed .sb-name span:not(.sb-dot),.sidebar.collapsed .sb-add-row,.sidebar.collapsed .sb-sec:not(:first-child){display:none}
 .sidebar.collapsed .sb-item{justify-content:center;padding:6px}
 .sidebar.collapsed .sb-name{font-size:14px}
+.sb-actions{margin-top:auto;border-top:1px solid var(--border);padding:8px 6px;display:flex;flex-wrap:wrap;gap:4px;justify-content:center}
+.sidebar.collapsed .sb-actions{flex-direction:column;align-items:center;padding:6px 4px}
+.sb-action-btn{display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 5px;border-radius:7px;cursor:pointer;border:none;background:transparent;color:var(--text3);font-size:16px;line-height:1;transition:background .12s,color .12s;min-width:36px}
+.sb-action-btn:hover{background:var(--bg3);color:var(--text)}
+.sb-action-lbl{font-size:8px;color:var(--text3);white-space:nowrap;font-family:var(--sans)}
+.sidebar.collapsed .sb-action-lbl{display:none}
+.sb-action-btn.sb-logout{color:var(--text4)}
+.sb-action-btn.sb-logout:hover{color:var(--red);background:rgba(255,77,114,.08)}
 .sb-toggle{cursor:pointer;font-size:11px;color:var(--text3);padding:2px 5px;border-radius:4px;line-height:1;flex-shrink:0}
 .sb-toggle:hover{background:var(--bg4);color:var(--text)}
 .sb-logo-row{display:flex;align-items:center;justify-content:space-between}
@@ -2958,6 +2966,48 @@ function App(props){
           l.krIncluded,React.createElement('br'),
           React.createElement('span',{style:{fontFamily:'var(--mono)',color:'var(--yellow)'}},'1 USD = ₩'+(usdRate||1370).toLocaleString())
         )
+      ),
+      React.createElement('div',{className:'sb-actions'},
+        React.createElement('button',{className:'sb-action-btn',title:l.alertsLbl,onClick:function(){if(window.Notification&&Notification.permission==='default')Notification.requestPermission();setShowAlerts(true)}},
+          React.createElement('span',null,'🔔'+(alerts.length?' '+alerts.length:'')),
+          React.createElement('span',{className:'sb-action-lbl'},lang==='ko'?'알림':'Alerts')
+        ),
+        React.createElement('button',{className:'sb-action-btn',title:l.tradesLbl,onClick:function(){setShowTrades(true)}},
+          React.createElement('span',null,'📊'),
+          React.createElement('span',{className:'sb-action-lbl'},lang==='ko'?'거래':'Trades')
+        ),
+        React.createElement('button',{className:'sb-action-btn',title:l.apiBtn,onClick:function(){setShowSettings(true)}},
+          React.createElement('span',null,'⚙️'),
+          React.createElement('span',{className:'sb-action-lbl'},'API')
+        ),
+        React.createElement('button',{className:'sb-action-btn',title:l.exportTitle,onClick:function(){setShowIO(true)}},
+          React.createElement('span',null,'⇅'),
+          React.createElement('span',{className:'sb-action-lbl'},lang==='ko'?'가져오기':'Import')
+        ),
+        React.createElement('button',{className:'sb-action-btn',title:l.snapshotBtn,onClick:saveSnapshot},
+          React.createElement('span',null,'📸'),
+          React.createElement('span',{className:'sb-action-lbl'},lang==='ko'?'스냅샷':'Snapshot')
+        ),
+        React.createElement('button',{className:'sb-action-btn',title:l.printBtn,onClick:function(){window.print()}},
+          React.createElement('span',null,'🖨️'),
+          React.createElement('span',{className:'sb-action-lbl'},lang==='ko'?'인쇄':'Print')
+        ),
+        React.createElement('a',{className:'sb-action-btn',href:'help.html',target:'_blank',title:'도움말',style:{textDecoration:'none'}},
+          React.createElement('span',null,'❓'),
+          React.createElement('span',{className:'sb-action-lbl'},lang==='ko'?'도움말':'Help')
+        ),
+        React.createElement('button',{className:'sb-action-btn lang-btn',title:l.langSwitch,onClick:onLangToggle},
+          React.createElement('span',{style:{fontSize:11,fontFamily:'var(--mono)',fontWeight:600}},lang==='ko'?'EN':'KO'),
+          React.createElement('span',{className:'sb-action-lbl'},lang==='ko'?'English':'한국어')
+        ),
+        React.createElement('button',{className:'sb-action-btn',title:theme==='dark'?'라이트 모드':'다크 모드',onClick:toggleTheme},
+          React.createElement('span',null,theme==='dark'?'☀️':'🌙'),
+          React.createElement('span',{className:'sb-action-lbl'},theme==='dark'?'Light':'Dark')
+        ),
+        React.createElement('button',{className:'sb-action-btn sb-logout',title:l.logout,onClick:onLogout},
+          React.createElement('span',null,'🚪'),
+          React.createElement('span',{className:'sb-action-lbl'},lang==='ko'?'로그아웃':'Logout')
+        )
       )
     ),
 
@@ -2966,10 +3016,6 @@ function App(props){
     React.createElement('div',{className:'main'},
       React.createElement('div',{className:'topbar'},
         React.createElement('div',{className:'topbar-right'},
-          React.createElement('button',{className:'btn btn-sm btn-ghost lang-btn',onClick:onLangToggle},l.langSwitch),
-          React.createElement('button',{className:'btn btn-sm btn-ghost',onClick:toggleTheme,title:theme==='dark'?'라이트 모드':'다크 모드'},l.themeToggle(theme)),
-          React.createElement('a',{href:'help.html',target:'_blank',className:'btn btn-sm btn-ghost',title:'사용설명서 / User Manual',style:{textDecoration:'none'}},'❓'),
-          React.createElement('button',{className:'btn btn-sm btn-ghost',onClick:onLogout,style:{color:'var(--text3)'}},l.logout),
           React.createElement(ApiStatus,{apiKeys:apiKeys,lang:lang}),
           refreshStatus&&React.createElement('span',{className:'refresh-status'},refreshStatus),
           failedTickers.length>0&&React.createElement('span',{style:{fontSize:9,color:'var(--yellow)',cursor:'pointer',fontFamily:'var(--mono)'},onClick:function(){setShowFailedPopup(true)},title:l.failedTickersTitle},'⚠ '+failedTickers.length),
@@ -2983,15 +3029,6 @@ function App(props){
               React.createElement('option',{value:30},'30m')
             )
           ),
-          React.createElement('button',{className:'btn btn-sm btn-ghost',onClick:function(){
-            if(window.Notification&&Notification.permission==='default') Notification.requestPermission();
-            setShowAlerts(true);
-          },title:l.alertsLbl},'🔔'+(alerts.length?(' '+alerts.length):'')),
-          React.createElement('button',{className:'btn btn-sm btn-ghost',onClick:function(){setShowTrades(true)},title:l.tradesLbl},'📊'),
-          React.createElement('button',{className:'btn btn-sm btn-ghost',onClick:function(){setShowSettings(true)}},l.apiBtn),
-          React.createElement('button',{className:'btn btn-sm btn-ghost',onClick:function(){setShowIO(true)},title:l.exportTitle},'⇅'),
-          React.createElement('button',{className:'btn btn-sm btn-ghost',onClick:saveSnapshot,title:l.snapshotBtn},'📸'),
-          React.createElement('button',{className:'btn btn-sm btn-ghost',onClick:function(){window.print()},title:l.printBtn},l.printBtn),
           React.createElement('button',{className:'btn btn-sm',onClick:refresh,disabled:refreshing},
             React.createElement('span',{className:refreshing?'spinning':''},'↻'),' ',refreshing?l.refreshing:l.refresh
           ),
