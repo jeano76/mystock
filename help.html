@@ -680,8 +680,10 @@ function scrollTo(id){
   const el = document.getElementById(id);
   if(el) el.scrollIntoView({behavior:'smooth', block:'start'});
 }
-// 저장된 언어 복원
-const savedLang = localStorage.getItem('help_lang') || 'ko';
+// 저장된 언어 복원: help_lang → 앱 pfm3_lang → 브라우저 언어 순으로 우선
+const savedLang = localStorage.getItem('help_lang') ||
+  localStorage.getItem('pfm3_lang') ||
+  ((navigator.language || navigator.userLanguage || 'ko').startsWith('ko') ? 'ko' : 'en');
 setLang(savedLang);
 // 저장된 테마 복원
 if(localStorage.getItem('pfm_theme')==='light' || document.documentElement.classList.contains('light')){

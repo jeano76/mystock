@@ -385,7 +385,7 @@ tr.dragging{opacity:.35}
 .div-cal-leg-item{display:flex;align-items:center;gap:4px;font-size:9px;color:var(--text3)}
 .div-cal-leg-dot{width:8px;height:8px;border-radius:2px;flex-shrink:0}
 /* REPORT */
-.report-view{display:flex;flex-direction:column;gap:14px}
+.report-view{display:flex;flex-direction:column;gap:14px;padding:18px}
 .report-hd{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
 .report-hd-title{font-size:15px;font-weight:700;color:var(--text)}
 .report-hd-meta{font-size:10px;color:var(--text3)}
@@ -438,7 +438,7 @@ tr.dragging{opacity:.35}
 .health-bad{background:rgba(255,107,107,0.15);color:#ff6b6b}
 @media(max-width:680px){.report-stat-grid{grid-template-columns:repeat(2,1fr)}.tax-split{grid-template-columns:1fr}.report-two-col{grid-template-columns:1fr}.fx-scenario-grid{grid-template-columns:repeat(2,1fr)}.health-grid{grid-template-columns:1fr}}
 /* FORECAST */
-.forecast-view{display:flex;flex-direction:column;gap:12px}
+.forecast-view{display:flex;flex-direction:column;gap:12px;padding:18px}
 .forecast-controls{display:flex;gap:12px;flex-wrap:wrap;padding:12px 14px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;align-items:flex-end}
 .forecast-ctrl{display:flex;flex-direction:column;gap:5px;flex:1;min-width:160px}
 .forecast-ctrl-toggle{flex:0;min-width:120px}
@@ -3049,46 +3049,46 @@ function App(props){
         ),
         hasKR&&React.createElement('div',{style:{fontSize:9,color:'var(--text3)',fontFamily:'var(--mono)'}},'🇰🇷 '+l.krIncluded)
       ),
-      (mainTab==='overview'||mainTab==='positions')&&React.createElement('div',{className:'content'},
-        React.createElement('div',{className:'hero'},
-          React.createElement('div',{className:'hero-top'},
-            React.createElement('div',null,
-              React.createElement('div',{className:'hero-lbl'},hasKR?l.totalValueKR:l.totalValue),
-              React.createElement('div',{className:'hero-val'},fmtM(port.val)),
-              React.createElement('div',{className:'hero-gain',style:{color:port.gain>=0?'var(--green)':'var(--red)'}},
-                (port.gain>=0?'+':'')+fmtM(port.gain)+' ('+(port.gain>=0?'+':'')+port.gainPct.toFixed(2)+'%)'
-              )
-            ),
-            React.createElement('div',{style:{textAlign:'right'}},
-              React.createElement('div',{className:'hero-lbl'},l.totalCost),
-              React.createElement('div',{style:{fontFamily:'var(--mono)',fontSize:15,color:'var(--text2)'}},fmtM(port.cost))
+      (mainTab==='overview'||mainTab==='positions')&&React.createElement('div',{className:'hero'},
+        React.createElement('div',{className:'hero-top'},
+          React.createElement('div',null,
+            React.createElement('div',{className:'hero-lbl'},hasKR?l.totalValueKR:l.totalValue),
+            React.createElement('div',{className:'hero-val'},fmtM(port.val)),
+            React.createElement('div',{className:'hero-gain',style:{color:port.gain>=0?'var(--green)':'var(--red)'}},
+              (port.gain>=0?'+':'')+fmtM(port.gain)+' ('+(port.gain>=0?'+':'')+port.gainPct.toFixed(2)+'%)'
             )
           ),
-          React.createElement('div',{className:'hero-stats'},
-            React.createElement('div',{className:'hstat'},
-              React.createElement('div',{className:'hstat-lbl'},l.annualDiv),
-              React.createElement('div',{className:'hstat-val',style:{color:'var(--green)'}},fmtK(port.div))
-            ),
-            React.createElement('div',{className:'hstat'},
-              React.createElement('div',{className:'hstat-lbl'},l.investDiv),
-              React.createElement('div',{className:'hstat-val'},port.cost>0?(port.div/port.cost*100).toFixed(2)+'%':'—'),
-              React.createElement('div',{className:'hstat-sub'},l.onCost)
-            ),
-            React.createElement('div',{className:'hstat'},
-              React.createElement('div',{className:'hstat-lbl'},l.marketDiv),
-              React.createElement('div',{className:'hstat-val'},port.val>0?(port.div/port.val*100).toFixed(2)+'%':'—'),
-              React.createElement('div',{className:'hstat-sub'},l.onMarket)
-            )
+          React.createElement('div',{style:{textAlign:'right'}},
+            React.createElement('div',{className:'hero-lbl'},l.totalCost),
+            React.createElement('div',{style:{fontFamily:'var(--mono)',fontSize:15,color:'var(--text2)'}},fmtM(port.cost))
           )
         ),
+        React.createElement('div',{className:'hero-stats'},
+          React.createElement('div',{className:'hstat'},
+            React.createElement('div',{className:'hstat-lbl'},l.annualDiv),
+            React.createElement('div',{className:'hstat-val',style:{color:'var(--green)'}},fmtK(port.div))
+          ),
+          React.createElement('div',{className:'hstat'},
+            React.createElement('div',{className:'hstat-lbl'},l.investDiv),
+            React.createElement('div',{className:'hstat-val'},port.cost>0?(port.div/port.cost*100).toFixed(2)+'%':'—'),
+            React.createElement('div',{className:'hstat-sub'},l.onCost)
+          ),
+          React.createElement('div',{className:'hstat'},
+            React.createElement('div',{className:'hstat-lbl'},l.marketDiv),
+            React.createElement('div',{className:'hstat-val'},port.val>0?(port.div/port.val*100).toFixed(2)+'%':'—'),
+            React.createElement('div',{className:'hstat-sub'},l.onMarket)
+          )
+        )
+      ),
 
-        React.createElement('div',{className:'tabs'},
-          React.createElement('div',{className:'tab'+(mainTab==='overview'?' active':''),onClick:function(){setMainTab('overview')}},l.tabOverview),
-          React.createElement('div',{className:'tab'+(mainTab==='positions'?' active':''),onClick:function(){setMainTab('positions')}},l.tabPositions(filtered.length)),
-          React.createElement('div',{className:'tab'+(mainTab==='forecast'?' active':''),onClick:function(){setMainTab('forecast')}},l.forecastLbl),
-          React.createElement('div',{className:'tab'+(mainTab==='report'?' active':''),onClick:function(){setMainTab('report')}},l.reportLbl)
-        ),
+      React.createElement('div',{className:'tabs'},
+        React.createElement('div',{className:'tab'+(mainTab==='overview'?' active':''),onClick:function(){setMainTab('overview')}},l.tabOverview),
+        React.createElement('div',{className:'tab'+(mainTab==='positions'?' active':''),onClick:function(){setMainTab('positions')}},l.tabPositions(filtered.length)),
+        React.createElement('div',{className:'tab'+(mainTab==='forecast'?' active':''),onClick:function(){setMainTab('forecast')}},l.forecastLbl),
+        React.createElement('div',{className:'tab'+(mainTab==='report'?' active':''),onClick:function(){setMainTab('report')}},l.reportLbl)
+      ),
 
+      (mainTab==='overview'||mainTab==='positions')&&React.createElement('div',{className:'content'},
         mainTab==='overview'&&React.createElement('div',null,
           React.createElement('div',{className:'charts-row'},
             React.createElement('div',{className:'chart-card'},
