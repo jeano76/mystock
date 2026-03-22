@@ -337,6 +337,59 @@ tr.dragging{opacity:.35}
 .div-cal-legend{display:flex;gap:10px;flex-wrap:wrap;padding:0 2px}
 .div-cal-leg-item{display:flex;align-items:center;gap:4px;font-size:9px;color:var(--text3)}
 .div-cal-leg-dot{width:8px;height:8px;border-radius:2px;flex-shrink:0}
+/* REPORT */
+.report-view{display:flex;flex-direction:column;gap:14px}
+.report-hd{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
+.report-hd-title{font-size:15px;font-weight:700;color:var(--text)}
+.report-hd-meta{font-size:10px;color:var(--text3)}
+.report-sec{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;display:flex;flex-direction:column;gap:10px}
+.report-sec-hd{font-size:9px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;border-bottom:1px solid var(--border);padding-bottom:6px}
+.report-stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.report-stat{background:var(--bg3);border-radius:6px;padding:10px 12px}
+.report-stat-lbl{font-size:9px;color:var(--text3);margin-bottom:4px}
+.report-stat-val{font-family:var(--mono);font-size:15px;font-weight:700;color:var(--text)}
+.report-stat-sub{font-size:9px;color:var(--text3);margin-top:2px}
+.report-tbl{width:100%;border-collapse:collapse;font-size:11px}
+.report-tbl th{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.4px;padding:5px 8px;border-bottom:1px solid var(--border);text-align:right;white-space:nowrap}
+.report-tbl th:first-child,.report-tbl th:nth-child(2),.report-tbl th:nth-child(3){text-align:left}
+.report-tbl td{padding:5px 8px;border-bottom:1px solid rgba(128,128,128,0.07);text-align:right;font-family:var(--mono);color:var(--text2);font-size:11px}
+.report-tbl td:first-child{text-align:left;color:var(--text);font-family:inherit;font-weight:500}
+.report-tbl td:nth-child(2){text-align:left;font-family:inherit}
+.report-tbl td:nth-child(3){text-align:left;font-family:inherit}
+.report-tbl .pos{color:var(--green)}.report-tbl .neg{color:var(--red)}
+.tax-split{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tax-box{background:var(--bg3);border-radius:8px;padding:12px 14px;border-left:3px solid var(--border)}
+.tax-box-us{border-left-color:#5b9bd5}.tax-box-kr{border-left-color:#17e8a1}
+.tax-box-hd{font-size:11px;font-weight:700;color:var(--text);margin-bottom:8px}
+.tax-row{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:5px}
+.tax-lbl{font-size:10px;color:var(--text3);flex:1}
+.tax-val{font-family:var(--mono);font-size:10px;color:var(--text2);text-align:right}
+.tax-note{font-size:8px;color:var(--text4);margin-top:2px}
+.tax-summary-row{display:flex;gap:12px;flex-wrap:wrap;margin-top:4px;padding-top:8px;border-top:1px solid var(--border)}
+.tax-summary-item{display:flex;flex-direction:column;gap:2px}
+.tax-summary-lbl{font-size:9px;color:var(--text3)}
+.tax-summary-val{font-family:var(--mono);font-size:13px;font-weight:700;color:var(--text)}
+.tax-summary-val.pos{color:var(--green)}
+.report-bar-row{display:flex;align-items:center;gap:8px;margin-bottom:5px}
+.report-bar-lbl{font-size:10px;color:var(--text2);width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex-shrink:0}
+.report-bar-track{flex:1;height:8px;background:var(--bg3);border-radius:4px;overflow:hidden}
+.report-bar-fill{height:100%;border-radius:4px;transition:width .3s}
+.report-bar-pct{font-family:var(--mono);font-size:10px;color:var(--text3);width:36px;text-align:right;flex-shrink:0}
+.report-two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.fx-scenario-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:4px}
+.fx-scenario{background:var(--bg3);border-radius:6px;padding:8px 10px;text-align:center}
+.fx-scenario-rate{font-size:9px;color:var(--text3);margin-bottom:3px}
+.fx-scenario-val{font-family:var(--mono);font-size:12px;font-weight:600}
+.health-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.health-item{background:var(--bg3);border-radius:6px;padding:10px 12px}
+.health-item-lbl{font-size:9px;color:var(--text3);margin-bottom:4px}
+.health-item-val{font-family:var(--mono);font-size:14px;font-weight:700;color:var(--text)}
+.health-item-sub{font-size:9px;color:var(--text3);margin-top:2px}
+.health-badge{display:inline-block;font-size:8px;font-weight:700;padding:2px 5px;border-radius:3px;margin-left:6px;vertical-align:middle}
+.health-good{background:rgba(23,232,161,0.15);color:var(--green)}
+.health-warn{background:rgba(240,165,0,0.15);color:#f0a500}
+.health-bad{background:rgba(255,107,107,0.15);color:#ff6b6b}
+@media(max-width:680px){.report-stat-grid{grid-template-columns:repeat(2,1fr)}.tax-split{grid-template-columns:1fr}.report-two-col{grid-template-columns:1fr}.fx-scenario-grid{grid-template-columns:repeat(2,1fr)}.health-grid{grid-template-columns:1fr}}
 /* FORECAST */
 .forecast-view{display:flex;flex-direction:column;gap:12px}
 .forecast-controls{display:flex;gap:12px;flex-wrap:wrap;padding:12px 14px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;align-items:flex-end}
@@ -688,6 +741,31 @@ const T={
     forecastPortVal:'포트폴리오',forecastAnnDiv:'연배당',forecastCashDiv:'수령 배당',
     forecastTotalWealth:'총 자산',forecastReturn:'총 수익률',
     forecastYrCol:'년도',forecastCumDiv:'누적 배당',
+    reportLbl:'📋 리포트',reportTitle:'포트폴리오 종합 리포트',
+    reportSec1:'현황 요약',reportSec2:'종목별 분석',reportSec3:'세후 수익 분석',
+    reportSec4:'섹터 & 지역 분산',reportSec5:'환율 리스크',reportSec6:'포트폴리오 건전성',
+    reportTotalVal:'총 평가액',reportCost:'투자 원금',reportGain:'총 손익',
+    reportReturn:'수익률',reportAnnDiv:'연배당(세전)',reportAftDiv:'연배당(세후)',
+    reportTicker:'종목',reportRegion:'지역',reportSector:'섹터',
+    reportWeight:'비중',reportGainCol:'손익',reportRetCol:'수익률',
+    reportDivCol:'연배당',reportAftDivCol:'세후배당',reportTaxCol:'세금비용',
+    reportUsTax:'🇺🇸 미국 주식',reportKrTax:'🇰🇷 한국 주식',
+    reportUsCapGain:'자본차익세',reportUsCapGainDesc:'22% (순이익 기준, 연 250만원 공제)',
+    reportUsDiv:'배당원천세',reportUsDivDesc:'15% (한미 조세협약)',
+    reportKrCapGain:'자본차익세',reportKrCapGainDesc:'0% (상장사 소액주주 면제)',
+    reportKrDiv:'배당원천세',reportKrDivDesc:'15.4% (14% + 지방세 1.4%)',
+    reportTaxNote:'※ 금융소득 연 2,000만원 초과 시 종합과세 적용될 수 있습니다.',
+    reportTaxBefore:'세전 연배당',reportTaxAmount:'예상 세금',reportTaxAfter:'세후 연배당',
+    reportEffYield:'세후 실효 배당수익률',reportCapGainEst:'미실현 양도차익 세금 추정',
+    reportCapGainNote:'(미실현 이익 기준 추정치, 실제 납세는 매도 시 확정)',
+    reportSector2:'섹터',reportRegion2:'지역',reportUsRatio:'미국주식',reportKrRatio:'한국주식',
+    reportFxExp:'USD 노출 비중',reportFxBase:'현재 환율',
+    reportFxScenario:'환율 변동 시나리오 (포트폴리오 USD 가치 → KRW 환산)',
+    reportFxDesc:'환율 상승 = 원화 환산 수익 증가 (달러 강세)',
+    reportConc:'집중도 (상위 5종목)',reportConcSub:function(pct){return pct.toFixed(0)+'% — '+(pct>70?'위험':pct>50?'주의':'양호')},
+    reportNumStocks:'보유 종목 수',reportNumSectors:'섹터 수',reportDivRatio:'배당주 비중',
+    reportHealthGood:'양호',reportHealthWarn:'주의',reportHealthBad:'위험',
+    reportPrint:'🖨️ 리포트 인쇄',reportDate:function(d){return d+' 기준'},
   },
   en:{
     shortly:'Shortly',justNow:'Now',
@@ -808,6 +886,31 @@ const T={
     forecastPortVal:'Portfolio',forecastAnnDiv:'Annual Div',forecastCashDiv:'Div Received',
     forecastTotalWealth:'Total Wealth',forecastReturn:'Total Return',
     forecastYrCol:'Year',forecastCumDiv:'Cumul. Div',
+    reportLbl:'📋 Report',reportTitle:'Portfolio Comprehensive Report',
+    reportSec1:'Summary',reportSec2:'Stock Analysis',reportSec3:'After-Tax Analysis',
+    reportSec4:'Sector & Region Allocation',reportSec5:'FX Risk',reportSec6:'Portfolio Health',
+    reportTotalVal:'Total Value',reportCost:'Cost Basis',reportGain:'Total P&L',
+    reportReturn:'Return',reportAnnDiv:'Annual Div (pre-tax)',reportAftDiv:'Annual Div (after-tax)',
+    reportTicker:'Stock',reportRegion:'Region',reportSector:'Sector',
+    reportWeight:'Weight',reportGainCol:'P&L',reportRetCol:'Return',
+    reportDivCol:'Annual Div',reportAftDivCol:'After-Tax Div',reportTaxCol:'Est. Tax',
+    reportUsTax:'🇺🇸 US Stocks',reportKrTax:'🇰🇷 Korean Stocks',
+    reportUsCapGain:'Capital Gains Tax',reportUsCapGainDesc:'22% (net gain, ₩2.5M annual deduction)',
+    reportUsDiv:'Dividend Withholding',reportUsDivDesc:'15% (US-Korea tax treaty)',
+    reportKrCapGain:'Capital Gains Tax',reportKrCapGainDesc:'0% (small shareholders of listed cos.)',
+    reportKrDiv:'Dividend Withholding',reportKrDivDesc:'15.4% (14% + 1.4% local tax)',
+    reportTaxNote:'※ Comprehensive taxation may apply if total financial income exceeds ₩20M/year.',
+    reportTaxBefore:'Pre-tax Annual Div',reportTaxAmount:'Est. Tax Cost',reportTaxAfter:'After-tax Annual Div',
+    reportEffYield:'Effective Div Yield (after-tax)',reportCapGainEst:'Unrealized Capital Gains Tax (est.)',
+    reportCapGainNote:'(Estimated from unrealized gains; actual tax realized upon sale)',
+    reportSector2:'Sector',reportRegion2:'Region',reportUsRatio:'US Stocks',reportKrRatio:'KR Stocks',
+    reportFxExp:'USD Exposure',reportFxBase:'Current Rate',
+    reportFxScenario:'FX Scenario (USD portfolio → KRW)',
+    reportFxDesc:'Rate up = KRW value increases (USD strengthens)',
+    reportConc:'Concentration (Top 5)',reportConcSub:function(pct){return pct.toFixed(0)+'% — '+(pct>70?'High Risk':pct>50?'Caution':'Healthy')},
+    reportNumStocks:'# of Holdings',reportNumSectors:'# of Sectors',reportDivRatio:'Dividend Stock %',
+    reportHealthGood:'Good',reportHealthWarn:'Caution',reportHealthBad:'Risk',
+    reportPrint:'🖨️ Print Report',reportDate:function(d){return 'As of '+d},
   }
 };
 
@@ -1677,6 +1780,331 @@ function TreemapChart(props){
   return React.createElement('canvas',{ref:ref,className:'treemap-wrap',width:600,height:200,style:{width:'100%',height:200}});
 }
 
+// ── 포트폴리오 종합 리포트 ──
+function ReportView(props){
+  var positions=props.positions,prices=props.prices,usdRate=props.usdRate,port=props.port,lang=props.lang||'ko';
+  var l=T[lang];
+  var today=new Date().toISOString().slice(0,10);
+  var rate0=usdRate||1370;
+  function fmtB(v){if(v>=1e9)return '$'+(v/1e9).toFixed(2)+'B';if(v>=1e6)return '$'+(v/1e6).toFixed(2)+'M';if(v>=1000)return '$'+(v/1000).toFixed(1)+'K';return '$'+v.toFixed(0)}
+  function f2(v){return '$'+v.toFixed(2)}
+  // 종목별 데이터 계산
+  var pdata=positions.map(function(p){
+    var st=STOCKS.find(function(s){return s.t===p.ticker});
+    var isKorean=st?(st.cur==='KRW'):isKR(p.ticker);
+    var r=isKorean?rate0:1;
+    var curP=(prices[p.ticker]||p.buyPrice)/r;
+    var buyP=p.buyPrice/r;
+    var curVal=p.shares*curP;
+    var cost=p.shares*buyP;
+    var gain=curVal-cost;
+    var gainPct=cost>0?gain/cost*100:0;
+    var annDiv=p.shares*curP*((p.divYield||0)/100);
+    var divTax=isKorean?annDiv*0.154:annDiv*0.15;
+    var annDivAfter=annDiv-divTax;
+    var region=isKorean?'KR':'US';
+    var sector=st?st.s:'Other';
+    return {ticker:dispTicker(p.ticker),name:st?st.n:p.ticker,region:region,sector:sector,
+      shares:p.shares,buyP:buyP,curP:curP,curVal:curVal,cost:cost,
+      gain:gain,gainPct:gainPct,annDiv:annDiv,divTax:divTax,annDivAfter:annDivAfter,
+      divYield:p.divYield||0,weight:port.val>0?curVal/port.val*100:0};
+  });
+  // 세금 계산
+  var usPdata=pdata.filter(function(p){return p.region==='US'});
+  var krPdata=pdata.filter(function(p){return p.region==='KR'});
+  var usGain=usPdata.filter(function(p){return p.gain>0}).reduce(function(s,p){return s+p.gain},0);
+  var usGainKRW=usGain*rate0;
+  var usCapTaxKRW=Math.max(0,usGainKRW-2500000)*0.22;
+  var usCapTax=usCapTaxKRW/rate0;
+  var usDivTotal=usPdata.reduce(function(s,p){return s+p.annDiv},0);
+  var usDivTax=usDivTotal*0.15;
+  var usDivAfter=usDivTotal-usDivTax;
+  var krGain=krPdata.filter(function(p){return p.gain>0}).reduce(function(s,p){return s+p.gain},0);
+  var krCapTax=0;
+  var krDivTotal=krPdata.reduce(function(s,p){return s+p.annDiv},0);
+  var krDivTax=krDivTotal*0.154;
+  var krDivAfter=krDivTotal-krDivTax;
+  var totalDivBefore=usDivTotal+krDivTotal;
+  var totalDivTax=usDivTax+krDivTax;
+  var totalDivAfter=usDivAfter+krDivAfter;
+  var totalCapTax=usCapTax+krCapTax;
+  var effYield=port.val>0?totalDivAfter/port.val*100:0;
+  // 섹터 집계
+  var sectors={};
+  pdata.forEach(function(p){sectors[p.sector]=(sectors[p.sector]||0)+p.curVal});
+  var sectorList=Object.entries(sectors).sort(function(a,b){return b[1]-a[1]});
+  // 건전성 지표
+  var sorted=pdata.slice().sort(function(a,b){return b.curVal-a.curVal});
+  var top5Val=sorted.slice(0,5).reduce(function(s,p){return s+p.curVal},0);
+  var conc=port.val>0?top5Val/port.val*100:0;
+  var numSectors=Object.keys(sectors).length;
+  var usVal=usPdata.reduce(function(s,p){return s+p.curVal},0);
+  var krVal=krPdata.reduce(function(s,p){return s+p.curVal},0);
+  var usPct=port.val>0?usVal/port.val*100:0;
+  var krPct=port.val>0?krVal/port.val*100:0;
+  var divStockPct=port.val>0?pdata.filter(function(p){return p.divYield>0}).reduce(function(s,p){return s+p.curVal},0)/port.val*100:0;
+  // 환율 시나리오
+  var fxScenarios=[-20,-10,0,10,20].map(function(chg){
+    var newRate=rate0*(1+chg/100);
+    var newUsKRW=usVal*newRate;
+    var newKrKRW=krVal*rate0;
+    var totalKRW=newUsKRW+newKrKRW;
+    return {chg:chg,totalKRW:totalKRW};
+  });
+  function badgeClass(ok,warn){return ok?'health-good':warn?'health-warn':'health-bad'}
+  var SECTOR_COLORS=['#5b9bd5','#17e8a1','#f0a500','#ff6b6b','#a78bfa','#fb923c','#34d399','#f472b6','#60a5fa','#fbbf24'];
+  if(!positions.length)
+    return React.createElement('div',{className:'empty',style:{padding:40}},React.createElement('div',{className:'empty-icon'},'📋'),lang==='ko'?'포지션을 추가하면 리포트가 생성됩니다.':'Add positions to generate a report.');
+  return React.createElement('div',{className:'report-view'},
+    // 헤더
+    React.createElement('div',{className:'report-hd'},
+      React.createElement('div',null,
+        React.createElement('div',{className:'report-hd-title'},l.reportTitle),
+        React.createElement('div',{className:'report-hd-meta'},l.reportDate(today))
+      ),
+      React.createElement('button',{className:'btn btn-sm btn-ghost',onClick:function(){window.print()}},l.reportPrint)
+    ),
+    // 섹션1: 현황 요약
+    React.createElement('div',{className:'report-sec'},
+      React.createElement('div',{className:'report-sec-hd'},'① '+l.reportSec1),
+      React.createElement('div',{className:'report-stat-grid'},
+        [
+          {lbl:l.reportTotalVal,val:fmtB(port.val),sub:null,color:'var(--text)'},
+          {lbl:l.reportCost,val:fmtB(port.cost||0),sub:null,color:'var(--text)'},
+          {lbl:l.reportGain,val:(port.gain>=0?'+':'')+fmtB(port.gain||0),sub:null,color:port.gain>=0?'var(--green)':'var(--red)'},
+          {lbl:l.reportReturn,val:(port.gainPct>=0?'+':'')+((port.gainPct||0).toFixed(2))+'%',sub:null,color:port.gainPct>=0?'var(--green)':'var(--red)'},
+          {lbl:l.reportAnnDiv,val:fmtB(totalDivBefore),sub:port.val>0?((totalDivBefore/port.val*100).toFixed(2)+'%'):null,color:'var(--text)'},
+          {lbl:l.reportAftDiv,val:fmtB(totalDivAfter),sub:effYield.toFixed(2)+'% '+l.reportEffYield,color:'var(--green)'}
+        ].map(function(s,i){
+          return React.createElement('div',{key:i,className:'report-stat'},
+            React.createElement('div',{className:'report-stat-lbl'},s.lbl),
+            React.createElement('div',{className:'report-stat-val',style:{color:s.color}},s.val),
+            s.sub&&React.createElement('div',{className:'report-stat-sub'},s.sub)
+          );
+        })
+      )
+    ),
+    // 섹션2: 종목별 분석
+    React.createElement('div',{className:'report-sec'},
+      React.createElement('div',{className:'report-sec-hd'},'② '+l.reportSec2),
+      React.createElement('div',{style:{overflowX:'auto'}},
+        React.createElement('table',{className:'report-tbl'},
+          React.createElement('thead',null,
+            React.createElement('tr',null,
+              React.createElement('th',null,l.reportTicker),
+              React.createElement('th',null,l.reportRegion),
+              React.createElement('th',null,l.reportSector),
+              React.createElement('th',null,l.reportWeight),
+              React.createElement('th',null,l.reportGainCol),
+              React.createElement('th',null,l.reportRetCol),
+              React.createElement('th',null,l.reportDivCol),
+              React.createElement('th',null,l.reportAftDivCol),
+              React.createElement('th',null,l.reportTaxCol)
+            )
+          ),
+          React.createElement('tbody',null,
+            pdata.sort(function(a,b){return b.curVal-a.curVal}).map(function(p,i){
+              return React.createElement('tr',{key:i},
+                React.createElement('td',null,p.ticker),
+                React.createElement('td',null,p.region==='KR'?'🇰🇷 KR':'🇺🇸 US'),
+                React.createElement('td',null,p.sector),
+                React.createElement('td',null,p.weight.toFixed(1)+'%'),
+                React.createElement('td',{className:p.gain>=0?'pos':'neg'},(p.gain>=0?'+':'')+fmtB(p.gain)),
+                React.createElement('td',{className:p.gainPct>=0?'pos':'neg'},(p.gainPct>=0?'+':'')+p.gainPct.toFixed(1)+'%'),
+                React.createElement('td',null,p.annDiv>0?fmtB(p.annDiv):'—'),
+                React.createElement('td',{className:'pos'},p.annDivAfter>0?fmtB(p.annDivAfter):'—'),
+                React.createElement('td',{style:{color:'#f0a500'}},p.divTax>0?fmtB(p.divTax):'—')
+              );
+            })
+          )
+        )
+      )
+    ),
+    // 섹션3: 세후 수익 분석
+    React.createElement('div',{className:'report-sec'},
+      React.createElement('div',{className:'report-sec-hd'},'③ '+l.reportSec3),
+      React.createElement('div',{className:'tax-split'},
+        // 미국주식 세금
+        React.createElement('div',{className:'tax-box tax-box-us'},
+          React.createElement('div',{className:'tax-box-hd'},l.reportUsTax),
+          React.createElement('div',{className:'tax-row'},
+            React.createElement('div',null,
+              React.createElement('div',{className:'tax-lbl'},l.reportUsCapGain),
+              React.createElement('div',{className:'tax-note'},l.reportUsCapGainDesc)
+            ),
+            React.createElement('div',{className:'tax-val',style:{color:'#f0a500'}},fmtB(usCapTax))
+          ),
+          React.createElement('div',{className:'tax-row'},
+            React.createElement('div',null,
+              React.createElement('div',{className:'tax-lbl'},l.reportUsDiv),
+              React.createElement('div',{className:'tax-note'},l.reportUsDivDesc)
+            ),
+            React.createElement('div',{className:'tax-val',style:{color:'#f0a500'}},fmtB(usDivTax))
+          ),
+          React.createElement('div',{style:{borderTop:'1px solid var(--border)',paddingTop:6,marginTop:4}},
+            React.createElement('div',{className:'tax-row'},
+              React.createElement('div',{className:'tax-lbl'},lang==='ko'?'세전 연배당':'Pre-tax Div'),
+              React.createElement('div',{className:'tax-val'},fmtB(usDivTotal))
+            ),
+            React.createElement('div',{className:'tax-row'},
+              React.createElement('div',{className:'tax-lbl'},lang==='ko'?'세후 연배당':'After-tax Div'),
+              React.createElement('div',{className:'tax-val pos'},fmtB(usDivAfter))
+            )
+          )
+        ),
+        // 한국주식 세금
+        React.createElement('div',{className:'tax-box tax-box-kr'},
+          React.createElement('div',{className:'tax-box-hd'},l.reportKrTax),
+          React.createElement('div',{className:'tax-row'},
+            React.createElement('div',null,
+              React.createElement('div',{className:'tax-lbl'},l.reportKrCapGain),
+              React.createElement('div',{className:'tax-note'},l.reportKrCapGainDesc)
+            ),
+            React.createElement('div',{className:'tax-val',style:{color:'var(--green)'}},fmtB(krCapTax))
+          ),
+          React.createElement('div',{className:'tax-row'},
+            React.createElement('div',null,
+              React.createElement('div',{className:'tax-lbl'},l.reportKrDiv),
+              React.createElement('div',{className:'tax-note'},l.reportKrDivDesc)
+            ),
+            React.createElement('div',{className:'tax-val',style:{color:'#f0a500'}},fmtB(krDivTax))
+          ),
+          React.createElement('div',{style:{borderTop:'1px solid var(--border)',paddingTop:6,marginTop:4}},
+            React.createElement('div',{className:'tax-row'},
+              React.createElement('div',{className:'tax-lbl'},lang==='ko'?'세전 연배당':'Pre-tax Div'),
+              React.createElement('div',{className:'tax-val'},fmtB(krDivTotal))
+            ),
+            React.createElement('div',{className:'tax-row'},
+              React.createElement('div',{className:'tax-lbl'},lang==='ko'?'세후 연배당':'After-tax Div'),
+              React.createElement('div',{className:'tax-val pos'},fmtB(krDivAfter))
+            )
+          )
+        )
+      ),
+      // 세금 총합 요약
+      React.createElement('div',{className:'tax-summary-row'},
+        React.createElement('div',{className:'tax-summary-item'},
+          React.createElement('div',{className:'tax-summary-lbl'},l.reportTaxBefore),
+          React.createElement('div',{className:'tax-summary-val'},fmtB(totalDivBefore))
+        ),
+        React.createElement('div',{className:'tax-summary-item'},
+          React.createElement('div',{className:'tax-summary-lbl'},l.reportTaxAmount),
+          React.createElement('div',{className:'tax-summary-val',style:{color:'#f0a500'}},fmtB(totalDivTax))
+        ),
+        React.createElement('div',{className:'tax-summary-item'},
+          React.createElement('div',{className:'tax-summary-lbl'},l.reportTaxAfter),
+          React.createElement('div',{className:'tax-summary-val pos'},fmtB(totalDivAfter))
+        ),
+        React.createElement('div',{className:'tax-summary-item'},
+          React.createElement('div',{className:'tax-summary-lbl'},l.reportEffYield),
+          React.createElement('div',{className:'tax-summary-val pos'},effYield.toFixed(2)+'%')
+        ),
+        usGain>0&&React.createElement('div',{className:'tax-summary-item'},
+          React.createElement('div',{className:'tax-summary-lbl'},l.reportCapGainEst),
+          React.createElement('div',{className:'tax-summary-val',style:{color:'#f0a500'}},fmtB(usCapTax))
+        )
+      ),
+      React.createElement('div',{style:{fontSize:9,color:'var(--text4)',marginTop:4}},l.reportTaxNote)
+    ),
+    // 섹션4: 섹터 & 지역 분산
+    React.createElement('div',{className:'report-sec'},
+      React.createElement('div',{className:'report-sec-hd'},'④ '+l.reportSec4),
+      React.createElement('div',{className:'report-two-col'},
+        React.createElement('div',null,
+          React.createElement('div',{style:{fontSize:10,color:'var(--text3)',marginBottom:6}},l.reportSector2),
+          sectorList.map(function(e,i){
+            var pct=port.val>0?e[1]/port.val*100:0;
+            return React.createElement('div',{key:i,className:'report-bar-row'},
+              React.createElement('div',{className:'report-bar-lbl'},e[0]),
+              React.createElement('div',{className:'report-bar-track'},
+                React.createElement('div',{className:'report-bar-fill',style:{width:pct+'%',background:SECTOR_COLORS[i%SECTOR_COLORS.length]}})
+              ),
+              React.createElement('div',{className:'report-bar-pct'},pct.toFixed(1)+'%')
+            );
+          })
+        ),
+        React.createElement('div',null,
+          React.createElement('div',{style:{fontSize:10,color:'var(--text3)',marginBottom:6}},l.reportRegion2),
+          [
+            {lbl:'🇺🇸 '+l.reportUsRatio,pct:usPct,color:'#5b9bd5'},
+            {lbl:'🇰🇷 '+l.reportKrRatio,pct:krPct,color:'#17e8a1'}
+          ].map(function(e,i){
+            return React.createElement('div',{key:i,className:'report-bar-row'},
+              React.createElement('div',{className:'report-bar-lbl'},e.lbl),
+              React.createElement('div',{className:'report-bar-track'},
+                React.createElement('div',{className:'report-bar-fill',style:{width:e.pct+'%',background:e.color}})
+              ),
+              React.createElement('div',{className:'report-bar-pct'},e.pct.toFixed(1)+'%')
+            );
+          })
+        )
+      )
+    ),
+    // 섹션5: 환율 리스크
+    React.createElement('div',{className:'report-sec'},
+      React.createElement('div',{className:'report-sec-hd'},'⑤ '+l.reportSec5),
+      React.createElement('div',{style:{display:'flex',gap:16,flexWrap:'wrap',fontSize:10,color:'var(--text3)'}},
+        React.createElement('span',null,l.reportFxExp+': ',React.createElement('strong',{style:{color:'var(--text)'}},usPct.toFixed(1)+'%')),
+        React.createElement('span',null,l.reportFxBase+': ',React.createElement('strong',{style:{color:'var(--text)'}},rate0.toLocaleString()+'₩'))
+      ),
+      React.createElement('div',{style:{fontSize:10,color:'var(--text3)',marginTop:2}},l.reportFxDesc),
+      React.createElement('div',{className:'fx-scenario-grid'},
+        fxScenarios.filter(function(s){return s.chg!==0}).map(function(s,i){
+          var base=fxScenarios[2].totalKRW;
+          var diff=s.totalKRW-base;
+          var isPos=s.chg>0;
+          return React.createElement('div',{key:i,className:'fx-scenario'},
+            React.createElement('div',{className:'fx-scenario-rate'},(isPos?'+':'')+s.chg+'%'),
+            React.createElement('div',{className:'fx-scenario-val',style:{color:isPos?'var(--green)':'var(--red)'}},
+              '₩'+(s.totalKRW/1e6).toFixed(0)+'M'
+            ),
+            React.createElement('div',{style:{fontSize:8,color:isPos?'var(--green)':'var(--red)'}},
+              (isPos?'+':'')+((diff/base*100).toFixed(1))+'%'
+            )
+          );
+        })
+      )
+    ),
+    // 섹션6: 포트폴리오 건전성
+    React.createElement('div',{className:'report-sec'},
+      React.createElement('div',{className:'report-sec-hd'},'⑥ '+l.reportSec6),
+      React.createElement('div',{className:'health-grid'},
+        React.createElement('div',{className:'health-item'},
+          React.createElement('div',{className:'health-item-lbl'},l.reportConc),
+          React.createElement('div',null,
+            React.createElement('span',{className:'health-item-val'},conc.toFixed(0)+'%'),
+            React.createElement('span',{className:'health-badge '+(conc<=50?'health-good':conc<=70?'health-warn':'health-bad')},conc<=50?l.reportHealthGood:conc<=70?l.reportHealthWarn:l.reportHealthBad)
+          ),
+          React.createElement('div',{className:'health-item-sub'},lang==='ko'?'상위 5종목 비중':'Top 5 holdings share')
+        ),
+        React.createElement('div',{className:'health-item'},
+          React.createElement('div',{className:'health-item-lbl'},l.reportNumStocks),
+          React.createElement('div',null,
+            React.createElement('span',{className:'health-item-val'},pdata.length),
+            React.createElement('span',{className:'health-badge '+(pdata.length>=10?'health-good':pdata.length>=5?'health-warn':'health-bad')},pdata.length>=10?l.reportHealthGood:pdata.length>=5?l.reportHealthWarn:l.reportHealthBad)
+          ),
+          React.createElement('div',{className:'health-item-sub'},lang==='ko'?'권장: 10종목 이상 분산':'Recommended: 10+ holdings')
+        ),
+        React.createElement('div',{className:'health-item'},
+          React.createElement('div',{className:'health-item-lbl'},l.reportNumSectors),
+          React.createElement('div',null,
+            React.createElement('span',{className:'health-item-val'},numSectors),
+            React.createElement('span',{className:'health-badge '+(numSectors>=4?'health-good':numSectors>=2?'health-warn':'health-bad')},numSectors>=4?l.reportHealthGood:numSectors>=2?l.reportHealthWarn:l.reportHealthBad)
+          ),
+          React.createElement('div',{className:'health-item-sub'},lang==='ko'?'권장: 4개 섹터 이상':'Recommended: 4+ sectors')
+        ),
+        React.createElement('div',{className:'health-item'},
+          React.createElement('div',{className:'health-item-lbl'},l.reportDivRatio),
+          React.createElement('div',null,
+            React.createElement('span',{className:'health-item-val'},divStockPct.toFixed(0)+'%')
+          ),
+          React.createElement('div',{className:'health-item-sub'},lang==='ko'?'배당수익률>0 종목 비중':'Holdings with dividend yield > 0')
+        )
+      )
+    )
+  );
+}
+
 // ── 미래 자산 예측 뷰 ──
 function ForecastView(props){
   var port=props.port,lang=props.lang||'ko';
@@ -2441,6 +2869,9 @@ function App(props){
         ),
         React.createElement('div',{className:'sb-item'+(mainTab==='forecast'?' active':''),onClick:function(){setMainTab('forecast')}},
           React.createElement('span',{className:'sb-name'},l.forecastLbl)
+        ),
+        React.createElement('div',{className:'sb-item'+(mainTab==='report'?' active':''),onClick:function(){setMainTab('report')}},
+          React.createElement('span',{className:'sb-name'},l.reportLbl)
         )
       ),
       React.createElement('div',{className:'sb-sec'},
@@ -2577,7 +3008,8 @@ function App(props){
         React.createElement('div',{className:'tabs'},
           React.createElement('div',{className:'tab'+(mainTab==='overview'?' active':''),onClick:function(){setMainTab('overview')}},l.tabOverview),
           React.createElement('div',{className:'tab'+(mainTab==='positions'?' active':''),onClick:function(){setMainTab('positions')}},l.tabPositions(filtered.length)),
-          React.createElement('div',{className:'tab'+(mainTab==='forecast'?' active':''),onClick:function(){setMainTab('forecast')}},l.forecastLbl)
+          React.createElement('div',{className:'tab'+(mainTab==='forecast'?' active':''),onClick:function(){setMainTab('forecast')}},l.forecastLbl),
+          React.createElement('div',{className:'tab'+(mainTab==='report'?' active':''),onClick:function(){setMainTab('report')}},l.reportLbl)
         ),
 
         mainTab==='overview'&&React.createElement('div',null,
@@ -2829,6 +3261,7 @@ function App(props){
     ),
 
     mainTab==='forecast'&&React.createElement(ForecastView,{port:port,lang:lang}),
+    mainTab==='report'&&React.createElement(ReportView,{positions:filtered,prices:prices,usdRate:usdRate,port:port,lang:lang}),
 
     showSettings&&React.createElement(SettingsModal,{apiKeys:apiKeys,usdRate:usdRate,onSave:saveSettings,lang:lang,onClose:function(){setShowSettings(false)}}),
     (showModal||editPos)&&React.createElement(AddModal,{accounts:accounts,editPos:editPos,lang:lang,
