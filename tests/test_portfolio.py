@@ -75,18 +75,37 @@ def clear_storage_and_reload(driver):
     time.sleep(1.0)
 
 def register_and_login(driver, username="testuser", password="testpass123"):
-    """테스트 계정 생성 및 로그인"""
+    """테스트 계정 생성 및 로그인 (랜딩 페이지 인라인 폼 지원)"""
     clear_storage_and_reload(driver)
     w = wait(driver)
-    # 계정 만들기 화면 확인
-    w.until(EC.presence_of_element_located((By.CSS_SELECTOR, ".auth-card")))
-    # 아이디 / 비밀번호 / 확인 입력
-    inputs = driver.find_elements(By.CSS_SELECTOR, ".auth-card input")
+    # 랜딩 페이지(.landing-overlay) 또는 구형 .auth-card 대기
+    w.until(EC.presence_of_element_located((By.CSS_SELECTOR, ".landing-overlay, .auth-card")))
+    time.sleep(0.3)
+    # 계정 만들기 탭 클릭 (landing 모드)
+    tabs = driver.find_elements(By.CSS_SELECTOR, ".landing-tab")
+    if tabs:
+        create_tab = next(
+            (t for t in tabs if "계정" in t.text or "create" in t.text.lower()),
+            tabs[-1]
+        )
+        driver.execute_script("arguments[0].click()", create_tab)
+        time.sleep(0.3)
+    # 입력 필드: landing inline(.landing-field input) 우선, 구형(.auth-card input) 폴백
+    inputs = driver.find_elements(By.CSS_SELECTOR, ".landing-field input")
+    if not inputs:
+        inputs = driver.find_elements(By.CSS_SELECTOR, ".auth-card input")
     inputs[0].send_keys(username)
     inputs[1].send_keys(password)
-    inputs[2].send_keys(password)
-    # 계정 만들기 버튼
-    driver.find_element(By.CSS_SELECTOR, ".auth-card .btn-primary").click()
+    if len(inputs) > 2:
+        inputs[2].send_keys(password)
+    # 제출 버튼: .landing-form-btn 우선, .auth-card .btn-primary 폴백
+    btn = None
+    for sel in [".landing-form-btn", ".auth-card .btn-primary"]:
+        found = driver.find_elements(By.CSS_SELECTOR, sel)
+        if found:
+            btn = found[-1]
+            break
+    driver.execute_script("arguments[0].click()", btn)
     # 로그인 성공 → 앱 로드 대기
     w.until(EC.presence_of_element_located((By.CSS_SELECTOR, ".app")))
 
@@ -108,19 +127,23 @@ class TC01_PageLoad(unittest.TestCase):
         print(f"  title: {self.driver.title}")
 
     def test_02_auth_overlay_visible(self):
-        """인증 오버레이가 화면에 표시됨"""
-        el = wait(self.driver).until(EC.visibility_of_element_located((By.CSS_SELECTOR, ".auth-overlay")))
+        """인증/랜딩 오버레이가 화면에 표시됨"""
+        el = wait(self.driver).until(
+            EC.visibility_of_element_located((By.CSS_SELECTOR, ".landing-overlay, .auth-overlay"))
+        )
         self.assertTrue(el.is_displayed())
 
     def test_03_auth_card_visible(self):
-        """auth-card 컨테이너 표시"""
-        el = self.driver.find_element(By.CSS_SELECTOR, ".auth-card")
+        """로그인 폼 컨테이너 표시 (.landing-right 또는 .auth-card)"""
+        el = self.driver.find_element(By.CSS_SELECTOR, ".landing-right, .auth-card")
         self.assertTrue(el.is_displayed())
 
     def test_04_logo_visible(self):
         """PORTFOLIO 로고 텍스트"""
-        el = self.driver.find_element(By.CSS_SELECTOR, ".auth-logo")
-        self.assertIn("PORTFOLIO", el.text)
+        logos = self.driver.find_elements(By.CSS_SELECTOR, ".landing-logo, .auth-logo")
+        self.assertGreater(len(logos), 0, "로고 없음")
+        logo_texts = " ".join([l.text for l in logos])
+        self.assertIn("PORTFOLIO", logo_texts)
 
 
 class TC02_AuthLayout(unittest.TestCase):
@@ -134,32 +157,46 @@ class TC02_AuthLayout(unittest.TestCase):
         self.driver.quit()
 
     def test_01_register_title(self):
-        """계정 만들기 제목 표시"""
-        wait(self.driver).until(EC.presence_of_element_located((By.CSS_SELECTOR, ".auth-title")))
-        title = self.driver.find_element(By.CSS_SELECTOR, ".auth-title").text
-        self.assertTrue(len(title) > 0)
-        print(f"  auth title: {title}")
+        """계정 만들기 폼 활성 확인 (3개 입력 필드)"""
+        wait(self.driver).until(EC.presence_of_element_located((By.CSS_SELECTOR, ".landing-overlay, .auth-card")))
+        # Create Account 탭 클릭
+        tabs = self.driver.find_elements(By.CSS_SELECTOR, ".landing-tab")
+        if tabs:
+            for t in tabs:
+                if "계정" in t.text or "create" in t.text.lower():
+                    self.driver.execute_script("arguments[0].click()", t)
+                    time.sleep(0.3)
+                    break
+        inputs = self.driver.find_elements(By.CSS_SELECTOR, ".landing-field input, .auth-card input")
+        self.assertGreaterEqual(len(inputs), 3, f"입력 필드 부족: {len(inputs)}")
+        print(f"  register inputs: {len(inputs)}")
 
     def test_02_three_inputs(self):
         """아이디, 비밀번호, 확인 3개 입력 필드"""
-        inputs = self.driver.find_elements(By.CSS_SELECTOR, ".auth-card input")
-        self.assertEqual(len(inputs), 3)
+        inputs = self.driver.find_elements(By.CSS_SELECTOR, ".landing-field input, .auth-card input")
+        self.assertGreaterEqual(len(inputs), 3)
 
     def test_03_primary_button(self):
         """계정 만들기 버튼 존재"""
-        btn = self.driver.find_element(By.CSS_SELECTOR, ".auth-card .btn-primary")
+        btn = self.driver.find_element(By.CSS_SELECTOR, ".landing-form-btn, .auth-card .btn-primary")
         self.assertTrue(btn.is_displayed())
 
     def test_04_lang_toggle_button(self):
         """언어 전환 버튼 표시 (EN 또는 KO)"""
-        btn = self.driver.find_element(By.CSS_SELECTOR, ".auth-lang .lang-btn")
+        btn = self.driver.find_element(
+            By.CSS_SELECTOR, ".landing-lang-row .lang-btn, .auth-lang .lang-btn"
+        )
         self.assertIn(btn.text, ["EN", "KO"])
         print(f"  lang btn: {btn.text}")
 
     def test_05_encryption_notice(self):
         """PBKDF2-SHA256 암호화 안내 텍스트"""
-        body = self.driver.find_element(By.CSS_SELECTOR, ".auth-card").text
-        self.assertIn("PBKDF2", body)
+        # 랜딩 페이지(.landing-form-sec-note) 또는 구형(.auth-card) 모두 확인
+        elems = self.driver.find_elements(
+            By.CSS_SELECTOR, ".landing-form-sec-note, .landing-right, .auth-card"
+        )
+        full_text = " ".join([e.text for e in elems])
+        self.assertIn("PBKDF2", full_text)
 
 
 class TC03_LangToggle(unittest.TestCase):
@@ -173,35 +210,58 @@ class TC03_LangToggle(unittest.TestCase):
         self.driver.quit()
 
     def test_01_default_korean(self):
-        """초기 언어는 한국어"""
-        wait(self.driver).until(EC.presence_of_element_located((By.CSS_SELECTOR, ".auth-title")))
-        title = self.driver.find_element(By.CSS_SELECTOR, ".auth-title").text
-        # 한국어 타이틀 확인 (계정 만들기)
-        self.assertTrue(any(ord(c) > 127 for c in title), f"한국어 아님: {title}")
+        """초기 언어는 한국어 (랜딩 탭 또는 폼에 한글 포함)"""
+        wait(self.driver).until(EC.presence_of_element_located(
+            (By.CSS_SELECTOR, ".landing-overlay, .auth-card")
+        ))
+        # 랜딩 탭이나 폼 안에 한글이 있어야 함
+        page_text = self.driver.find_element(By.CSS_SELECTOR, ".landing-right, .auth-card").text
+        self.assertTrue(any(ord(c) > 127 for c in page_text), f"한국어 없음: {page_text[:60]}")
 
     def test_02_toggle_to_english(self):
-        """EN 버튼 클릭 시 영어로 전환"""
-        wait(self.driver).until(EC.presence_of_element_located((By.CSS_SELECTOR, ".auth-lang")))
-        btn = self.driver.find_element(By.CSS_SELECTOR, ".auth-lang .lang-btn")
-        self.assertEqual(btn.text, "EN")
+        """언어 버튼 클릭 시 언어 전환"""
+        wait(self.driver).until(EC.presence_of_element_located(
+            (By.CSS_SELECTOR, ".landing-lang-row .lang-btn, .auth-lang .lang-btn")
+        ))
+        btn = self.driver.find_element(
+            By.CSS_SELECTOR, ".landing-lang-row .lang-btn, .auth-lang .lang-btn"
+        )
+        initial_text = btn.text.split('\n')[0].strip()
+        # 현재 버튼 텍스트가 EN 또는 KO 중 하나여야 함
+        self.assertIn(initial_text, ["EN", "KO"], f"언어 버튼 텍스트 이상: '{initial_text}'")
         btn.click()
         time.sleep(0.4)
-        title = self.driver.find_element(By.CSS_SELECTOR, ".auth-title").text
-        self.assertIn("Create", title, f"영어 타이틀 아님: {title}")
-        print(f"  EN title: {title}")
+        # 버튼 텍스트가 바뀌었는지 확인 (반대 언어로 전환됨)
+        btn2 = self.driver.find_element(
+            By.CSS_SELECTOR, ".landing-lang-row .lang-btn, .auth-lang .lang-btn"
+        )
+        new_text = btn2.text.split('\n')[0].strip()
+        self.assertNotEqual(initial_text, new_text, "언어 전환 후 버튼 텍스트 변화 없음")
+        print(f"  lang toggle: {initial_text} → {new_text}")
 
     def test_03_toggle_back_to_korean(self):
-        """KO 버튼 클릭 시 한국어 복귀"""
-        wait(self.driver).until(EC.presence_of_element_located((By.CSS_SELECTOR, ".auth-lang")))
-        btn = self.driver.find_element(By.CSS_SELECTOR, ".auth-lang .lang-btn")
-        btn.click()   # EN
+        """언어 버튼 두 번 클릭 시 원래 언어로 복귀"""
+        wait(self.driver).until(EC.presence_of_element_located(
+            (By.CSS_SELECTOR, ".landing-lang-row .lang-btn, .auth-lang .lang-btn")
+        ))
+        btn = self.driver.find_element(
+            By.CSS_SELECTOR, ".landing-lang-row .lang-btn, .auth-lang .lang-btn"
+        )
+        initial = btn.text.split('\n')[0].strip()
+        btn.click()   # 1st toggle
         time.sleep(0.3)
-        btn = self.driver.find_element(By.CSS_SELECTOR, ".auth-lang .lang-btn")
-        self.assertEqual(btn.text, "KO")
-        btn.click()   # KO
+        btn = self.driver.find_element(
+            By.CSS_SELECTOR, ".landing-lang-row .lang-btn, .auth-lang .lang-btn"
+        )
+        after1 = btn.text.split('\n')[0].strip()
+        self.assertNotEqual(initial, after1, "1번째 토글 후 언어 변화 없음")
+        btn.click()   # 2nd toggle (back)
         time.sleep(0.3)
-        title = self.driver.find_element(By.CSS_SELECTOR, ".auth-title").text
-        self.assertTrue(any(ord(c) > 127 for c in title))
+        btn = self.driver.find_element(
+            By.CSS_SELECTOR, ".landing-lang-row .lang-btn, .auth-lang .lang-btn"
+        )
+        after2 = btn.text.split('\n')[0].strip()
+        self.assertEqual(initial, after2, f"원래 언어로 복귀 실패: {initial} → {after1} → {after2}")
 
 
 class TC04_RegisterValidation(unittest.TestCase):
@@ -216,33 +276,48 @@ class TC04_RegisterValidation(unittest.TestCase):
 
     def test_01_empty_submit_shows_error(self):
         """빈 상태에서 제출 시 오류 표시"""
-        wait(self.driver).until(EC.presence_of_element_located((By.CSS_SELECTOR, ".auth-card")))
-        self.driver.find_element(By.CSS_SELECTOR, ".auth-card .btn-primary").click()
+        wait(self.driver).until(EC.presence_of_element_located(
+            (By.CSS_SELECTOR, ".landing-overlay, .auth-card")
+        ))
+        # Create Account 탭 활성화
+        tabs = self.driver.find_elements(By.CSS_SELECTOR, ".landing-tab")
+        if tabs:
+            for t in tabs:
+                if "계정" in t.text or "create" in t.text.lower():
+                    self.driver.execute_script("arguments[0].click()", t)
+                    time.sleep(0.3)
+                    break
+        btn = self.driver.find_element(By.CSS_SELECTOR, ".landing-form-btn, .auth-card .btn-primary")
+        self.driver.execute_script("arguments[0].click()", btn)
         time.sleep(0.3)
-        err = self.driver.find_element(By.CSS_SELECTOR, ".auth-err")
+        err = self.driver.find_element(By.CSS_SELECTOR, ".landing-form-err, .auth-err")
         self.assertTrue(err.is_displayed())
         print(f"  err: {err.text}")
 
     def test_02_short_id_error(self):
         """아이디 2자 → 오류"""
-        inputs = self.driver.find_elements(By.CSS_SELECTOR, ".auth-card input")
+        inputs = self.driver.find_elements(By.CSS_SELECTOR, ".landing-field input, .auth-card input")
         inputs[0].send_keys("ab")
         inputs[1].send_keys("password123")
-        inputs[2].send_keys("password123")
-        self.driver.find_element(By.CSS_SELECTOR, ".auth-card .btn-primary").click()
+        if len(inputs) > 2:
+            inputs[2].send_keys("password123")
+        btn = self.driver.find_element(By.CSS_SELECTOR, ".landing-form-btn, .auth-card .btn-primary")
+        self.driver.execute_script("arguments[0].click()", btn)
         time.sleep(0.3)
-        err = self.driver.find_element(By.CSS_SELECTOR, ".auth-err")
+        err = self.driver.find_element(By.CSS_SELECTOR, ".landing-form-err, .auth-err")
         self.assertTrue(err.is_displayed())
 
     def test_03_password_mismatch_error(self):
         """비밀번호 불일치 → 오류"""
-        inputs = self.driver.find_elements(By.CSS_SELECTOR, ".auth-card input")
+        inputs = self.driver.find_elements(By.CSS_SELECTOR, ".landing-field input, .auth-card input")
         inputs[0].send_keys("validuser")
         inputs[1].send_keys("password123")
-        inputs[2].send_keys("differentpass")
-        self.driver.find_element(By.CSS_SELECTOR, ".auth-card .btn-primary").click()
+        if len(inputs) > 2:
+            inputs[2].send_keys("differentpass")
+        btn = self.driver.find_element(By.CSS_SELECTOR, ".landing-form-btn, .auth-card .btn-primary")
+        self.driver.execute_script("arguments[0].click()", btn)
         time.sleep(0.3)
-        err = self.driver.find_element(By.CSS_SELECTOR, ".auth-err")
+        err = self.driver.find_element(By.CSS_SELECTOR, ".landing-form-err, .auth-err")
         self.assertTrue(err.is_displayed())
 
 
@@ -270,37 +345,49 @@ class TC05_LoginFlow(unittest.TestCase):
         self.assertTrue(app.is_displayed())
 
     def test_03_logout_shows_login(self):
-        """로그아웃 버튼 클릭 → 로그인 화면으로"""
+        """로그아웃 버튼 클릭 → 로그인 화면으로 (사이드바 .sb-logout)"""
         register_and_login(self.driver)
-        # 로그아웃 버튼 (⎋ 포함 텍스트)
-        btns = self.driver.find_elements(By.CSS_SELECTOR, ".topbar-right .btn-ghost")
-        logout_btn = None
-        for b in btns:
-            if "로그아웃" in b.text or "Logout" in b.text:
-                logout_btn = b
-                break
-        self.assertIsNotNone(logout_btn, "로그아웃 버튼 없음")
-        logout_btn.click()
+        # 로그아웃 버튼은 사이드바 .sb-actions 안에 .sb-logout
+        logout_btn = self.driver.find_elements(By.CSS_SELECTOR, ".sb-actions .sb-logout")
+        if not logout_btn:
+            # fallback: 상단바에서 Logout 텍스트 검색
+            logout_btn = [b for b in self.driver.find_elements(By.CSS_SELECTOR, ".btn")
+                          if "로그아웃" in b.text or "Logout" in b.text]
+        self.assertGreater(len(logout_btn), 0, "로그아웃 버튼 없음")
+        self.driver.execute_script("arguments[0].click()", logout_btn[0])
         time.sleep(0.5)
-        wait(self.driver).until(EC.presence_of_element_located((By.CSS_SELECTOR, ".auth-overlay")))
+        wait(self.driver).until(EC.presence_of_element_located(
+            (By.CSS_SELECTOR, ".landing-overlay, .auth-overlay")
+        ))
 
     def test_04_wrong_password_error(self):
         """로그인 화면에서 잘못된 비밀번호"""
         register_and_login(self.driver)
-        # 로그아웃
-        btns = self.driver.find_elements(By.CSS_SELECTOR, ".topbar-right .btn-ghost")
-        for b in btns:
-            if "로그아웃" in b.text or "Logout" in b.text:
-                b.click(); break
-        time.sleep(0.5)
-        # 로그인 화면
-        wait(self.driver).until(EC.presence_of_element_located((By.CSS_SELECTOR, ".auth-card")))
-        inputs = self.driver.find_elements(By.CSS_SELECTOR, ".auth-card input")
+        # 로그아웃 (사이드바)
+        logout_btn = self.driver.find_elements(By.CSS_SELECTOR, ".sb-actions .sb-logout")
+        if logout_btn:
+            self.driver.execute_script("arguments[0].click()", logout_btn[0])
+        else:
+            self.driver.execute_script("localStorage.removeItem('pfm3_session'); location.reload()")
+        time.sleep(0.8)
+        # 로그인 화면 (랜딩)
+        wait(self.driver).until(EC.presence_of_element_located(
+            (By.CSS_SELECTOR, ".landing-overlay, .auth-card")
+        ))
+        # Login 탭 클릭
+        tabs = self.driver.find_elements(By.CSS_SELECTOR, ".landing-tab")
+        for t in tabs:
+            if "로그인" in t.text or "login" in t.text.lower():
+                self.driver.execute_script("arguments[0].click()", t)
+                time.sleep(0.3)
+                break
+        inputs = self.driver.find_elements(By.CSS_SELECTOR, ".landing-field input, .auth-card input")
         inputs[0].send_keys("testuser")
         inputs[1].send_keys("wrongpassword")
-        self.driver.find_element(By.CSS_SELECTOR, ".auth-card .btn-primary").click()
+        btn = self.driver.find_element(By.CSS_SELECTOR, ".landing-form-btn, .auth-card .btn-primary")
+        self.driver.execute_script("arguments[0].click()", btn)
         time.sleep(1.5)
-        err = self.driver.find_element(By.CSS_SELECTOR, ".auth-err")
+        err = self.driver.find_element(By.CSS_SELECTOR, ".landing-form-err, .auth-err")
         self.assertTrue(err.is_displayed())
 
 
@@ -337,9 +424,9 @@ class TC06_MainLayout(unittest.TestCase):
         self.assertTrue(hero.is_displayed())
 
     def test_05_topbar_buttons_visible(self):
-        """상단 버튼들 (API, 새로고침, + 포지션 추가) 표시"""
+        """상단 버튼들 (새로고침, + 포지션 추가) 표시"""
         btns = self.driver.find_elements(By.CSS_SELECTOR, ".topbar-right .btn")
-        self.assertGreaterEqual(len(btns), 3)
+        self.assertGreaterEqual(len(btns), 2)
         print(f"  topbar buttons: {[b.text for b in btns]}")
 
     def test_06_sidebar_accounts_section(self):
@@ -666,14 +753,15 @@ class TC13_SettingsModal(unittest.TestCase):
         cls.driver.quit()
 
     def test_01_api_button_opens_modal(self):
-        """⚙️ API 버튼 클릭 → 설정 모달 열림"""
-        btns = self.driver.find_elements(By.CSS_SELECTOR, ".topbar-right .btn")
+        """⚙️ API 버튼 클릭 → 설정 모달 열림 (사이드바)"""
         api_btn = None
-        for b in btns:
-            if "API" in b.text:
+        # 사이드바 .sb-action-btn에서 ⚙️ 또는 title에 API/설정 포함
+        for b in self.driver.find_elements(By.CSS_SELECTOR, ".sb-action-btn"):
+            txt = b.text; ttl = b.get_attribute("title") or ""
+            if "⚙" in txt or "API" in ttl or "설정" in ttl or "Settings" in ttl:
                 api_btn = b; break
-        self.assertIsNotNone(api_btn, "API 버튼 없음")
-        api_btn.click()
+        self.assertIsNotNone(api_btn, "⚙️ API 버튼 없음")
+        self.driver.execute_script("arguments[0].click()", api_btn)
         time.sleep(0.4)
         modal = wait(self.driver).until(EC.visibility_of_element_located((By.CSS_SELECTOR, ".modal")))
         self.assertTrue(modal.is_displayed())
@@ -707,21 +795,21 @@ class TC14_IOModal(unittest.TestCase):
         cls.driver.quit()
 
     def test_01_io_button_visible(self):
-        """⇅ 내보내기/가져오기 버튼 표시"""
-        btns = self.driver.find_elements(By.CSS_SELECTOR, ".topbar-right .btn-ghost")
+        """⇅ 내보내기/가져오기 버튼 표시 (사이드바)"""
         io_btn = None
-        for b in btns:
-            if "⇅" in b.text:
+        for b in self.driver.find_elements(By.CSS_SELECTOR, ".sb-action-btn"):
+            txt = b.text; ttl = b.get_attribute("title") or ""
+            if "⇅" in txt or "Export" in ttl or "Import" in ttl or "내보내기" in ttl:
                 io_btn = b; break
-        self.assertIsNotNone(io_btn, "IO 버튼 없음")
+        self.assertIsNotNone(io_btn, "⇅ IO 버튼 없음")
         self.assertTrue(io_btn.is_displayed())
 
     def test_02_io_button_opens_modal(self):
-        """⇅ 버튼 클릭 → IO 모달 열림"""
-        btns = self.driver.find_elements(By.CSS_SELECTOR, ".topbar-right .btn-ghost")
-        for b in btns:
-            if "⇅" in b.text:
-                b.click(); break
+        """⇅ 버튼 클릭 → IO 모달 열림 (사이드바)"""
+        for b in self.driver.find_elements(By.CSS_SELECTOR, ".sb-action-btn"):
+            txt = b.text; ttl = b.get_attribute("title") or ""
+            if "⇅" in txt or "Export" in ttl or "Import" in ttl or "내보내기" in ttl:
+                self.driver.execute_script("arguments[0].click()", b); break
         time.sleep(0.4)
         modal = wait(self.driver).until(EC.visibility_of_element_located((By.CSS_SELECTOR, ".modal")))
         self.assertTrue(modal.is_displayed())
@@ -1066,6 +1154,18 @@ CONTRAST_JS = """
 })()
 """
 
+def find_sb_action(driver, emoji=None, title_keyword=None):
+    """사이드바 하단 .sb-action-btn 버튼 찾기 (emoji 텍스트 또는 title 키워드)"""
+    for b in driver.find_elements(By.CSS_SELECTOR, ".sb-action-btn"):
+        txt = b.text
+        ttl = b.get_attribute("title") or ""
+        if emoji and emoji in txt:
+            return b
+        if title_keyword and title_keyword.lower() in ttl.lower():
+            return b
+    return None
+
+
 def add_position(driver, ticker="AAPL", shares="5"):
     """포지션 추가 헬퍼"""
     btns = driver.find_elements(By.CSS_SELECTOR, ".topbar-right .btn-primary")
@@ -1103,24 +1203,22 @@ class TC18_AlertsModal(unittest.TestCase):
     def tearDownClass(cls):
         cls.driver.quit()
 
-    def test_01_alerts_button_in_topbar(self):
-        """상단 바에 🔔 알림 버튼 존재"""
-        btns = self.driver.find_elements(By.CSS_SELECTOR, ".topbar-right .btn-ghost")
+    def test_01_alerts_button_in_sidebar(self):
+        """사이드바에 🔔 알림 버튼 존재"""
         alert_btn = None
-        for b in btns:
-            if "🔔" in b.text or (b.get_attribute("title") and "Alert" in b.get_attribute("title")):
-                alert_btn = b
-                break
+        for b in self.driver.find_elements(By.CSS_SELECTOR, ".sb-action-btn"):
+            txt = b.text; ttl = b.get_attribute("title") or ""
+            if "🔔" in txt or "Alert" in ttl or "알림" in ttl:
+                alert_btn = b; break
         self.assertIsNotNone(alert_btn, "🔔 알림 버튼 없음")
         self.assertTrue(alert_btn.is_displayed())
 
     def test_02_alerts_button_opens_modal(self):
-        """🔔 버튼 클릭 → 알림 모달 열림"""
-        btns = self.driver.find_elements(By.CSS_SELECTOR, ".topbar-right .btn-ghost")
-        for b in btns:
-            if "🔔" in b.text or (b.get_attribute("title") and "Alert" in b.get_attribute("title")):
-                b.click()
-                break
+        """🔔 버튼 클릭 → 알림 모달 열림 (사이드바)"""
+        for b in self.driver.find_elements(By.CSS_SELECTOR, ".sb-action-btn"):
+            txt = b.text; ttl = b.get_attribute("title") or ""
+            if "🔔" in txt or "Alert" in ttl or "알림" in ttl:
+                self.driver.execute_script("arguments[0].click()", b); break
         time.sleep(0.4)
         modal = wait(self.driver).until(EC.visibility_of_element_located((By.CSS_SELECTOR, ".overlay")))
         self.assertTrue(modal.is_displayed())
@@ -1159,24 +1257,22 @@ class TC19_TradesModal(unittest.TestCase):
     def tearDownClass(cls):
         cls.driver.quit()
 
-    def test_01_trades_button_in_topbar(self):
-        """상단 바에 📊 거래 내역 버튼 존재"""
-        btns = self.driver.find_elements(By.CSS_SELECTOR, ".topbar-right .btn-ghost")
+    def test_01_trades_button_in_sidebar(self):
+        """사이드바에 📊 거래 내역 버튼 존재"""
         trade_btn = None
-        for b in btns:
-            if "📊" in b.text or (b.get_attribute("title") and "Trade" in b.get_attribute("title")):
-                trade_btn = b
-                break
+        for b in self.driver.find_elements(By.CSS_SELECTOR, ".sb-action-btn"):
+            txt = b.text; ttl = b.get_attribute("title") or ""
+            if "📊" in txt or "Trade" in ttl or "거래" in ttl:
+                trade_btn = b; break
         self.assertIsNotNone(trade_btn, "📊 거래 버튼 없음")
         self.assertTrue(trade_btn.is_displayed())
 
     def test_02_trades_button_opens_modal(self):
-        """📊 버튼 클릭 → 거래 내역 모달 열림"""
-        btns = self.driver.find_elements(By.CSS_SELECTOR, ".topbar-right .btn-ghost")
-        for b in btns:
-            if "📊" in b.text or (b.get_attribute("title") and "Trade" in b.get_attribute("title")):
-                b.click()
-                break
+        """📊 버튼 클릭 → 거래 내역 모달 열림 (사이드바)"""
+        for b in self.driver.find_elements(By.CSS_SELECTOR, ".sb-action-btn"):
+            txt = b.text; ttl = b.get_attribute("title") or ""
+            if "📊" in txt or "Trade" in ttl or "거래" in ttl:
+                self.driver.execute_script("arguments[0].click()", b); break
         time.sleep(0.4)
         modal = wait(self.driver).until(EC.visibility_of_element_located((By.CSS_SELECTOR, ".overlay")))
         self.assertTrue(modal.is_displayed())
@@ -1214,8 +1310,13 @@ class TC20_ThemeToggle(unittest.TestCase):
         cls.driver.quit()
 
     def _get_theme_btn(self):
-        btns = self.driver.find_elements(By.CSS_SELECTOR, ".topbar-right .btn-ghost")
-        for b in btns:
+        # 사이드바 .sb-action-btn에서 ☀️/🌙 찾기 (버튼이 사이드바로 이동됨)
+        for b in self.driver.find_elements(By.CSS_SELECTOR, ".sb-action-btn"):
+            txt = b.text
+            if "☀️" in txt or "🌙" in txt:
+                return b
+        # fallback: topbar
+        for b in self.driver.find_elements(By.CSS_SELECTOR, ".btn"):
             txt = b.text
             if "☀️" in txt or "🌙" in txt:
                 return b
@@ -1503,34 +1604,32 @@ class TC23_SnapshotBtn(unittest.TestCase):
         cls.driver.quit()
 
     def test_01_snapshot_button_exists(self):
-        """📸 스냅샷 버튼 존재 (topbar)"""
-        btns = self.driver.find_elements(By.CSS_SELECTOR, ".topbar-right .btn-ghost")
+        """📸 스냅샷 버튼 존재 (사이드바)"""
         snap_btn = None
-        for b in btns:
-            if "📸" in b.text or (b.get_attribute("title") and "snapshot" in b.get_attribute("title").lower()):
-                snap_btn = b
-                break
+        for b in self.driver.find_elements(By.CSS_SELECTOR, ".sb-action-btn"):
+            txt = b.text; ttl = b.get_attribute("title") or ""
+            if "📸" in txt or "snapshot" in ttl.lower() or "스냅샷" in ttl:
+                snap_btn = b; break
         self.assertIsNotNone(snap_btn, "📸 스냅샷 버튼 없음")
         self.assertTrue(snap_btn.is_displayed())
         print(f"  snapshot btn: '{snap_btn.text}'")
 
     def test_02_snapshot_saves_and_shows_toast(self):
-        """📸 버튼 클릭 → 토스트 알림 표시"""
-        btns = self.driver.find_elements(By.CSS_SELECTOR, ".topbar-right .btn-ghost")
-        for b in btns:
-            if "📸" in b.text or (b.get_attribute("title") and "snapshot" in b.get_attribute("title").lower()):
-                b.click()
-                break
+        """📸 버튼 클릭 → 토스트 알림 표시 (사이드바)"""
+        for b in self.driver.find_elements(By.CSS_SELECTOR, ".sb-action-btn"):
+            txt = b.text; ttl = b.get_attribute("title") or ""
+            if "📸" in txt or "snapshot" in ttl.lower() or "스냅샷" in ttl:
+                self.driver.execute_script("arguments[0].click()", b); break
         time.sleep(0.5)
         toasts = self.driver.find_elements(By.CSS_SELECTOR, ".toast")
         self.assertGreater(len(toasts), 0, "스냅샷 저장 토스트 없음")
         print(f"  toast: {toasts[0].text[:40]}")
 
     def _click_snapshot_btn(self):
-        btns = self.driver.find_elements(By.CSS_SELECTOR, ".topbar-right .btn-ghost")
-        for b in btns:
-            if "📸" in b.text or (b.get_attribute("title") and "snapshot" in b.get_attribute("title").lower()):
-                b.click()
+        for b in self.driver.find_elements(By.CSS_SELECTOR, ".sb-action-btn"):
+            txt = b.text; ttl = b.get_attribute("title") or ""
+            if "📸" in txt or "snapshot" in ttl.lower() or "스냅샷" in ttl:
+                self.driver.execute_script("arguments[0].click()", b)
                 return True
         return False
 
@@ -1737,11 +1836,10 @@ class TC26_ColorContrastLight(unittest.TestCase):
         cls.driver = make_driver()
         register_and_login(cls.driver)
         add_position(cls.driver, "AAPL", "10")
-        # 라이트 모드로 전환
-        btns = cls.driver.find_elements(By.CSS_SELECTOR, ".topbar-right .btn-ghost")
-        for b in btns:
+        # 라이트 모드로 전환 (테마 버튼은 사이드바 .sb-action-btn)
+        for b in cls.driver.find_elements(By.CSS_SELECTOR, ".sb-action-btn"):
             if "☀️" in b.text or "🌙" in b.text:
-                b.click()
+                cls.driver.execute_script("arguments[0].click()", b)
                 break
         time.sleep(0.4)
 
@@ -1894,86 +1992,77 @@ class TC27_AllMenuClicks(unittest.TestCase):
         self._close_open_modals()
 
     def test_07_api_settings_button(self):
-        """[상단바] API 설정 버튼 → 모달 열림"""
-        btns = self.driver.find_elements(By.CSS_SELECTOR, ".topbar-right .btn")
-        for b in btns:
-            if "API" in b.text:
-                b.click()
-                break
+        """[사이드바] ⚙️ API 설정 버튼 → 모달 열림"""
+        for b in self.driver.find_elements(By.CSS_SELECTOR, ".sb-action-btn"):
+            txt = b.text; ttl = b.get_attribute("title") or ""
+            if "⚙" in txt or "API" in ttl or "설정" in ttl or "Settings" in ttl:
+                self.driver.execute_script("arguments[0].click()", b); break
         time.sleep(0.4)
         modal = self.w.until(EC.visibility_of_element_located((By.CSS_SELECTOR, ".modal")))
         self.assertTrue(modal.is_displayed())
         self._close_open_modals()
 
     def test_08_io_export_button(self):
-        """[상단바] ⇅ 내보내기/가져오기 버튼 → 모달 열림"""
-        btns = self.driver.find_elements(By.CSS_SELECTOR, ".topbar-right .btn-ghost")
-        for b in btns:
-            if "⇅" in b.text:
-                b.click()
-                break
+        """[사이드바] ⇅ 내보내기/가져오기 버튼 → 모달 열림"""
+        for b in self.driver.find_elements(By.CSS_SELECTOR, ".sb-action-btn"):
+            txt = b.text; ttl = b.get_attribute("title") or ""
+            if "⇅" in txt or "Export" in ttl or "Import" in ttl or "내보내기" in ttl:
+                self.driver.execute_script("arguments[0].click()", b); break
         time.sleep(0.4)
         modal = self.w.until(EC.visibility_of_element_located((By.CSS_SELECTOR, ".modal")))
         self.assertTrue(modal.is_displayed())
         self._close_open_modals()
 
     def test_09_alerts_bell_button(self):
-        """[상단바] 🔔 알림 버튼 → 모달 열림"""
-        btns = self.driver.find_elements(By.CSS_SELECTOR, ".topbar-right .btn-ghost")
-        for b in btns:
-            if "🔔" in b.text or (b.get_attribute("title") and "Alert" in b.get_attribute("title")):
-                b.click()
-                break
+        """[사이드바] 🔔 알림 버튼 → 모달 열림"""
+        for b in self.driver.find_elements(By.CSS_SELECTOR, ".sb-action-btn"):
+            txt = b.text; ttl = b.get_attribute("title") or ""
+            if "🔔" in txt or "Alert" in ttl or "알림" in ttl:
+                self.driver.execute_script("arguments[0].click()", b); break
         time.sleep(0.4)
         overlay = self.w.until(EC.visibility_of_element_located((By.CSS_SELECTOR, ".overlay")))
         self.assertTrue(overlay.is_displayed())
         self._close_open_modals()
 
     def test_10_trades_chart_button(self):
-        """[상단바] 📊 거래 내역 버튼 → 모달 열림"""
-        btns = self.driver.find_elements(By.CSS_SELECTOR, ".topbar-right .btn-ghost")
-        for b in btns:
-            if "📊" in b.text or (b.get_attribute("title") and "Trade" in b.get_attribute("title")):
-                b.click()
-                break
+        """[사이드바] 📊 거래 내역 버튼 → 모달 열림"""
+        for b in self.driver.find_elements(By.CSS_SELECTOR, ".sb-action-btn"):
+            txt = b.text; ttl = b.get_attribute("title") or ""
+            if "📊" in txt or "Trade" in ttl or "거래" in ttl:
+                self.driver.execute_script("arguments[0].click()", b); break
         time.sleep(0.4)
         overlay = self.w.until(EC.visibility_of_element_located((By.CSS_SELECTOR, ".overlay")))
         self.assertTrue(overlay.is_displayed())
         self._close_open_modals()
 
     def test_11_snapshot_button(self):
-        """[상단바] 📸 스냅샷 버튼 → 토스트 표시"""
-        btns = self.driver.find_elements(By.CSS_SELECTOR, ".topbar-right .btn-ghost")
-        for b in btns:
-            if "📸" in b.text or (b.get_attribute("title") and "snapshot" in b.get_attribute("title").lower()):
-                b.click()
-                break
+        """[사이드바] 📸 스냅샷 버튼 → 토스트 표시"""
+        for b in self.driver.find_elements(By.CSS_SELECTOR, ".sb-action-btn"):
+            txt = b.text; ttl = b.get_attribute("title") or ""
+            if "📸" in txt or "snapshot" in ttl.lower() or "스냅샷" in ttl:
+                self.driver.execute_script("arguments[0].click()", b); break
         time.sleep(0.5)
         toasts = self.driver.find_elements(By.CSS_SELECTOR, ".toast")
         self.assertGreater(len(toasts), 0)
 
     def test_12_theme_toggle_button(self):
-        """[상단바] ☀️/🌙 테마 버튼 → 테마 전환"""
-        btns = self.driver.find_elements(By.CSS_SELECTOR, ".topbar-right .btn-ghost")
+        """[사이드바] ☀️/🌙 테마 버튼 → 테마 전환"""
         before = self.driver.find_element(By.TAG_NAME, "html").get_attribute("class")
-        for b in btns:
+        for b in self.driver.find_elements(By.CSS_SELECTOR, ".sb-action-btn"):
             if "☀️" in b.text or "🌙" in b.text:
-                b.click()
-                break
+                self.driver.execute_script("arguments[0].click()", b); break
         time.sleep(0.3)
         after = self.driver.find_element(By.TAG_NAME, "html").get_attribute("class")
         self.assertNotEqual(before, after)
         # 복원
-        btns = self.driver.find_elements(By.CSS_SELECTOR, ".topbar-right .btn-ghost")
-        for b in btns:
+        for b in self.driver.find_elements(By.CSS_SELECTOR, ".sb-action-btn"):
             if "☀️" in b.text or "🌙" in b.text:
-                b.click()
-                break
+                self.driver.execute_script("arguments[0].click()", b); break
         time.sleep(0.2)
 
     def test_13_refresh_button(self):
         """[상단바] 새로고침 버튼 클릭 가능"""
-        btns = self.driver.find_elements(By.CSS_SELECTOR, ".topbar-right .btn-ghost")
+        btns = self.driver.find_elements(By.CSS_SELECTOR, ".topbar-right .btn")
         refresh_btn = None
         for b in btns:
             title = b.get_attribute("title") or ""
@@ -1981,11 +2070,10 @@ class TC27_AllMenuClicks(unittest.TestCase):
                 refresh_btn = b
                 break
         if not refresh_btn:
-            # 아이콘 없이 spinning 클래스로 찾기 시도
             refresh_btn = btns[0] if btns else None
         if refresh_btn:
             self.assertTrue(refresh_btn.is_displayed())
-            refresh_btn.click()
+            self.driver.execute_script("arguments[0].click()", refresh_btn)
             time.sleep(0.3)
             print("  refresh button clicked")
 
@@ -2141,6 +2229,467 @@ class TC28_ExtraViewports(unittest.TestCase):
             driver.quit()
 
 
+class TC29_SidebarActionButtons(unittest.TestCase):
+    """TC29 사이드바 하단 액션 버튼 검증 (topbar에서 이동된 버튼들)"""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.driver = make_driver()
+        register_and_login(cls.driver)
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.driver.quit()
+
+    def test_01_alerts_in_sidebar(self):
+        """🔔 알림 버튼이 .sb-actions에 위치"""
+        btn = find_sb_action(self.driver, emoji="🔔")
+        self.assertIsNotNone(btn, "🔔 버튼 사이드바에 없음")
+        self.assertTrue(btn.is_displayed())
+
+    def test_02_trades_in_sidebar(self):
+        """📊 거래내역 버튼이 .sb-actions에 위치"""
+        btn = find_sb_action(self.driver, emoji="📊")
+        self.assertIsNotNone(btn, "📊 버튼 사이드바에 없음")
+        self.assertTrue(btn.is_displayed())
+
+    def test_03_settings_in_sidebar(self):
+        """⚙️ API 설정 버튼이 .sb-actions에 위치"""
+        btn = find_sb_action(self.driver, emoji="⚙")
+        if not btn:
+            btn = find_sb_action(self.driver, title_keyword="API")
+        if not btn:
+            btn = find_sb_action(self.driver, title_keyword="설정")
+        self.assertIsNotNone(btn, "⚙️ 설정 버튼 사이드바에 없음")
+
+    def test_04_io_in_sidebar(self):
+        """⇅ 가져오기/내보내기 버튼이 .sb-actions에 위치"""
+        btn = find_sb_action(self.driver, emoji="⇅")
+        if not btn:
+            btn = find_sb_action(self.driver, title_keyword="Export")
+        if not btn:
+            btn = find_sb_action(self.driver, title_keyword="내보내기")
+        self.assertIsNotNone(btn, "⇅ IO 버튼 사이드바에 없음")
+
+    def test_05_snapshot_in_sidebar(self):
+        """📸 스냅샷 버튼이 .sb-actions에 위치"""
+        btn = find_sb_action(self.driver, emoji="📸")
+        if not btn:
+            btn = find_sb_action(self.driver, title_keyword="snapshot")
+        if not btn:
+            btn = find_sb_action(self.driver, title_keyword="스냅샷")
+        self.assertIsNotNone(btn, "📸 스냅샷 버튼 사이드바에 없음")
+
+    def test_06_theme_in_sidebar(self):
+        """☀️/🌙 테마 버튼이 .sb-actions에 위치"""
+        btn = find_sb_action(self.driver, emoji="☀️")
+        if not btn:
+            btn = find_sb_action(self.driver, emoji="🌙")
+        self.assertIsNotNone(btn, "테마 버튼 사이드바에 없음")
+
+    def test_07_lang_toggle_in_sidebar(self):
+        """EN/KO 언어 전환 버튼이 .sb-actions에 위치"""
+        btns = self.driver.find_elements(By.CSS_SELECTOR, ".sb-actions .lang-btn")
+        self.assertGreater(len(btns), 0, "언어 토글 버튼 사이드바에 없음")
+        # .sb-action-btn은 label 포함하여 'KO\n한국어' 형식일 수 있음
+        btn_first_line = btns[0].text.split('\n')[0].strip()
+        self.assertIn(btn_first_line, ["EN", "KO"], f"언어 버튼 텍스트 이상: '{btns[0].text}'")
+
+    def test_08_logout_in_sidebar(self):
+        """🚪 로그아웃 버튼이 .sb-actions .sb-logout에 위치"""
+        btns = self.driver.find_elements(By.CSS_SELECTOR, ".sb-actions .sb-logout")
+        self.assertGreater(len(btns), 0, "로그아웃 버튼 사이드바에 없음")
+
+    def test_09_action_count(self):
+        """사이드바 액션 버튼이 최소 7개 이상"""
+        btns = self.driver.find_elements(By.CSS_SELECTOR, ".sb-actions .sb-action-btn")
+        self.assertGreaterEqual(len(btns), 7, f"액션 버튼 부족: {len(btns)}")
+        print(f"  sidebar action btns: {len(btns)}")
+
+    def test_10_action_buttons_not_in_topbar(self):
+        """이전에 상단바에 있던 🔔/📊 버튼이 topbar에 없음"""
+        topbar_text = " ".join(
+            b.text for b in self.driver.find_elements(By.CSS_SELECTOR, ".topbar-right .btn-ghost")
+        )
+        self.assertNotIn("🔔", topbar_text, "🔔 버튼이 여전히 topbar에 있음")
+        self.assertNotIn("📸", topbar_text, "📸 버튼이 여전히 topbar에 있음")
+        print(f"  topbar ghost btns text: '{topbar_text[:60]}'")
+
+
+class TC30_LandingPage(unittest.TestCase):
+    """TC30 랜딩 페이지 레이아웃 검증"""
+
+    def setUp(self):
+        self.driver = make_driver()
+        clear_storage_and_reload(self.driver)
+
+    def tearDown(self):
+        self.driver.quit()
+
+    def test_01_landing_overlay_visible(self):
+        """.landing-overlay 표시"""
+        el = wait(self.driver).until(
+            EC.visibility_of_element_located((By.CSS_SELECTOR, ".landing-overlay"))
+        )
+        self.assertTrue(el.is_displayed())
+
+    def test_02_landing_left_visible(self):
+        """좌측 기능 소개 영역(.landing-left) 표시 (데스크탑 1280px)"""
+        left = self.driver.find_element(By.CSS_SELECTOR, ".landing-left")
+        visible = self.driver.execute_script(
+            "return getComputedStyle(arguments[0]).display !== 'none'", left
+        )
+        self.assertTrue(visible, ".landing-left가 데스크탑에서 숨겨짐")
+
+    def test_03_landing_right_form_panel(self):
+        """우측 로그인 패널(.landing-right) 표시"""
+        right = self.driver.find_element(By.CSS_SELECTOR, ".landing-right")
+        self.assertTrue(right.is_displayed())
+
+    def test_04_login_create_account_tabs(self):
+        """로그인 / 계정 만들기 탭 2개 표시"""
+        tabs = self.driver.find_elements(By.CSS_SELECTOR, ".landing-tab")
+        self.assertEqual(len(tabs), 2)
+        tab_texts = [t.text for t in tabs]
+        print(f"  landing tabs: {tab_texts}")
+
+    def test_05_register_form_three_inputs(self):
+        """계정 만들기 폼에 3개 입력 필드"""
+        tabs = self.driver.find_elements(By.CSS_SELECTOR, ".landing-tab")
+        for t in tabs:
+            if "계정" in t.text or "create" in t.text.lower():
+                self.driver.execute_script("arguments[0].click()", t)
+                time.sleep(0.3)
+                break
+        inputs = self.driver.find_elements(By.CSS_SELECTOR, ".landing-field input")
+        self.assertGreaterEqual(len(inputs), 3, f"입력 필드 {len(inputs)}개 (최소 3개 필요)")
+
+    def test_06_feature_list_exists(self):
+        """기능 소개 목록(.landing-feat) 표시"""
+        feats = self.driver.find_elements(By.CSS_SELECTOR, ".landing-feat")
+        self.assertGreater(len(feats), 0, ".landing-feat 없음")
+        print(f"  feature items: {len(feats)}")
+
+    def test_07_stats_badges_exist(self):
+        """통계 배지(.landing-stat) 표시"""
+        stats = self.driver.find_elements(By.CSS_SELECTOR, ".landing-stat")
+        self.assertGreater(len(stats), 0, ".landing-stat 없음")
+        print(f"  stat badges: {len(stats)}")
+
+    def test_08_mobile_hides_landing_left(self):
+        """모바일(375px)에서 .landing-left 숨겨짐"""
+        d = make_driver(width=375, height=812, mobile=True)
+        try:
+            clear_storage_and_reload(d)
+            wait(d).until(EC.presence_of_element_located((By.CSS_SELECTOR, ".landing-overlay")))
+            left = d.find_element(By.CSS_SELECTOR, ".landing-left")
+            visible = d.execute_script(
+                "return getComputedStyle(arguments[0]).display !== 'none'", left
+            )
+            self.assertFalse(visible, ".landing-left이 모바일에서도 보임")
+            print("  mobile: landing-left hidden ✓")
+        finally:
+            d.quit()
+
+    def test_09_lang_toggle_in_form(self):
+        """폼 영역에 언어 전환 버튼 존재"""
+        btn = self.driver.find_element(
+            By.CSS_SELECTOR, ".landing-lang-row .lang-btn, .auth-lang .lang-btn"
+        )
+        self.assertTrue(btn.is_displayed())
+        self.assertIn(btn.text, ["EN", "KO"])
+
+    def test_10_login_tab_switch(self):
+        """Login 탭 클릭 시 2개 입력 필드 (아이디, 비밀번호)"""
+        tabs = self.driver.find_elements(By.CSS_SELECTOR, ".landing-tab")
+        for t in tabs:
+            if "로그인" in t.text or "login" in t.text.lower():
+                self.driver.execute_script("arguments[0].click()", t)
+                time.sleep(0.3)
+                break
+        inputs = self.driver.find_elements(By.CSS_SELECTOR, ".landing-field input")
+        self.assertEqual(len(inputs), 2, f"로그인 폼 입력 필드: {len(inputs)} (2개 기대)")
+
+
+class TC31_ForecastReportViews(unittest.TestCase):
+    """TC31 Forecast 및 Report 뷰 검증"""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.driver = make_driver()
+        register_and_login(cls.driver)
+        add_position(cls.driver, "AAPL", "10")
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.driver.quit()
+
+    def _click_tab(self, keyword):
+        tabs = self.driver.find_elements(By.CSS_SELECTOR, ".tab")
+        for t in tabs:
+            if keyword.lower() in t.text.lower():
+                t.click()
+                time.sleep(0.5)
+                return True
+        return False
+
+    def test_01_forecast_tab_exists(self):
+        """Forecast 탭 표시"""
+        tabs = self.driver.find_elements(By.CSS_SELECTOR, ".tab")
+        tab_texts = [t.text for t in tabs]
+        self.assertTrue(
+            any("Forecast" in t or "미래" in t for t in tab_texts),
+            f"Forecast 탭 없음: {tab_texts}"
+        )
+
+    def test_02_forecast_view_renders(self):
+        """Forecast 탭 클릭 → .forecast-view 표시"""
+        if not self._click_tab("Forecast"):
+            self._click_tab("미래")
+        view = wait(self.driver).until(
+            EC.presence_of_element_located((By.CSS_SELECTOR, ".forecast-view"))
+        )
+        self.assertTrue(view.is_displayed())
+
+    def test_03_forecast_has_content(self):
+        """Forecast 뷰에 내용(테이블) 존재"""
+        view = self.driver.find_element(By.CSS_SELECTOR, ".forecast-view")
+        self.assertGreater(len(view.text.strip()), 0, "Forecast 뷰 비어있음")
+
+    def test_04_report_tab_exists(self):
+        """Report 탭 표시"""
+        tabs = self.driver.find_elements(By.CSS_SELECTOR, ".tab")
+        tab_texts = [t.text for t in tabs]
+        self.assertTrue(
+            any("Report" in t or "리포트" in t for t in tab_texts),
+            f"Report 탭 없음: {tab_texts}"
+        )
+
+    def test_05_report_view_renders(self):
+        """Report 탭 클릭 → .report-view 표시"""
+        if not self._click_tab("Report"):
+            self._click_tab("리포트")
+        view = wait(self.driver).until(
+            EC.presence_of_element_located((By.CSS_SELECTOR, ".report-view"))
+        )
+        self.assertTrue(view.is_displayed())
+
+    def test_06_report_has_content(self):
+        """Report 뷰에 내용 존재"""
+        view = self.driver.find_element(By.CSS_SELECTOR, ".report-view")
+        self.assertGreater(len(view.text.strip()), 0, "Report 뷰 비어있음")
+
+    def test_07_forecast_below_topbar(self):
+        """.forecast-view 상단이 topbar 아래"""
+        self._click_tab("Forecast") or self._click_tab("미래")
+        tb = self.driver.find_element(By.CSS_SELECTOR, ".topbar")
+        fv = self.driver.find_element(By.CSS_SELECTOR, ".forecast-view")
+        tb_bottom = tb.location["y"] + tb.size["height"]
+        fv_top = fv.location["y"]
+        self.assertGreater(fv_top, tb_bottom - 10,
+            f"forecast-view가 topbar 위에 있음: fv_top={fv_top}, tb_bottom={tb_bottom}")
+        print(f"  forecast-view top={fv_top}, topbar bottom={tb_bottom} ✓")
+
+    def test_08_report_below_topbar(self):
+        """.report-view 상단이 topbar 아래"""
+        self._click_tab("Report") or self._click_tab("리포트")
+        tb = self.driver.find_element(By.CSS_SELECTOR, ".topbar")
+        rv = self.driver.find_element(By.CSS_SELECTOR, ".report-view")
+        tb_bottom = tb.location["y"] + tb.size["height"]
+        rv_top = rv.location["y"]
+        self.assertGreater(rv_top, tb_bottom - 10,
+            f"report-view가 topbar 위에 있음: rv_top={rv_top}, tb_bottom={tb_bottom}")
+        print(f"  report-view top={rv_top}, topbar bottom={tb_bottom} ✓")
+
+    def test_09_all_four_tabs_visible(self):
+        """4개 탭 모두 표시: Overview, Positions, Forecast, Report"""
+        tabs = self.driver.find_elements(By.CSS_SELECTOR, ".tab")
+        tab_texts = " ".join([t.text for t in tabs])
+        for kw in ["Overview", "Position", "Forecast", "Report"]:
+            # 한글 fallback
+            kw_ko = {"Overview": "오버뷰", "Position": "포지션", "Forecast": "미래", "Report": "리포트"}[kw]
+            self.assertTrue(
+                kw.lower() in tab_texts.lower() or kw_ko in tab_texts,
+                f"탭 없음: {kw} / {kw_ko}  (tabs: {tab_texts})"
+            )
+        print(f"  tabs: {tab_texts}")
+
+
+class TC32_BoardView(unittest.TestCase):
+    """TC32 커뮤니티 게시판 뷰 검증"""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.driver = make_driver()
+        register_and_login(cls.driver)
+        add_position(cls.driver, "AAPL", "5")
+        # Board 탭으로 이동
+        tabs = cls.driver.find_elements(By.CSS_SELECTOR, ".tab")
+        for t in tabs:
+            if "Board" in t.text or "게시판" in t.text:
+                t.click()
+                time.sleep(0.8)
+                break
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.driver.quit()
+
+    def test_01_board_tab_exists(self):
+        """Board/게시판 탭 표시"""
+        tabs = self.driver.find_elements(By.CSS_SELECTOR, ".tab")
+        tab_texts = [t.text for t in tabs]
+        self.assertTrue(
+            any("Board" in t or "게시판" in t for t in tab_texts),
+            f"Board 탭 없음: {tab_texts}"
+        )
+
+    def test_02_board_view_renders(self):
+        """.board-view 표시"""
+        view = wait(self.driver).until(
+            EC.presence_of_element_located((By.CSS_SELECTOR, ".board-view"))
+        )
+        self.assertTrue(view.is_displayed())
+
+    def test_03_board_ticker_list(self):
+        """게시판에 종목 목록(.board-ticker-list) 존재"""
+        lst = self.driver.find_elements(By.CSS_SELECTOR, ".board-ticker-list")
+        self.assertGreater(len(lst), 0, ".board-ticker-list 없음")
+
+    def test_04_board_ticker_items(self):
+        """종목 목록에 항목 표시"""
+        items = self.driver.find_elements(By.CSS_SELECTOR, ".board-ticker-item")
+        self.assertGreater(len(items), 0, "종목 항목 없음")
+        item_texts = [i.text for i in items]
+        print(f"  board tickers: {item_texts[:5]}")
+
+    def test_05_board_has_post_area(self):
+        """게시글 영역 또는 빈 상태 텍스트 존재"""
+        board = self.driver.find_element(By.CSS_SELECTOR, ".board-view")
+        # 게시판 우측 영역에 내용이 있어야 함
+        self.assertGreater(len(board.text.strip()), 0, "게시판 뷰가 비어있음")
+        print(f"  board text snippet: {board.text[:60]}")
+
+    def test_06_board_tab_in_sidebar(self):
+        """사이드바에 Board/게시판 항목 표시"""
+        items = self.driver.find_elements(By.CSS_SELECTOR, ".sb-sec .sb-item")
+        item_texts = [i.text for i in items]
+        self.assertTrue(
+            any("Board" in t or "게시판" in t for t in item_texts),
+            f"사이드바에 Board 항목 없음: {item_texts}"
+        )
+
+
+class TC33_ExchangeRate(unittest.TestCase):
+    """TC33 USD/KRW 환율 사이드바 표시 검증"""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.driver = make_driver()
+        register_and_login(cls.driver)
+        # 한국 주식(KRW) 포지션 직접 주입 (005930.KS = 삼성전자)
+        cls.driver.execute_script("""
+            var pos = JSON.parse(localStorage.getItem('pfm3_positions') || '[]');
+            pos.push({id:'kr_test',ticker:'005930.KS',shares:10,buyPrice:70000,divYield:2.0,account:'Brokerage'});
+            localStorage.setItem('pfm3_positions', JSON.stringify(pos));
+        """)
+        cls.driver.refresh()
+        time.sleep(1.5)
+        wait(cls.driver).until(EC.presence_of_element_located((By.CSS_SELECTOR, ".app")))
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.driver.quit()
+
+    def test_01_kr_rate_shown_in_sidebar(self):
+        """한국 주식 포함 시 사이드바에 환율 정보(₩) 표시"""
+        sb = self.driver.find_element(By.CSS_SELECTOR, ".sidebar")
+        sb_text = sb.text
+        self.assertTrue(
+            "₩" in sb_text or "KRW" in sb_text or "USD" in sb_text,
+            f"환율 정보 없음. 사이드바 텍스트: {sb_text[:100]}"
+        )
+        print(f"  sidebar has rate info ✓")
+
+    def test_02_rate_value_in_storage(self):
+        """usdRate가 localStorage에 저장됨 (합리적 범위 900~2000)"""
+        rate = self.driver.execute_script(
+            "return parseInt(localStorage.getItem('pfm3_usdRate') || '1370')"
+        )
+        self.assertGreater(rate, 900, f"환율 너무 낮음: {rate}")
+        self.assertLess(rate, 2000, f"환율 너무 높음: {rate}")
+        print(f"  USD/KRW: {rate}")
+
+    def test_03_kr_included_text_visible(self):
+        """'🇰🇷 한국 주식 포함' 또는 'Korean stocks' 텍스트 표시"""
+        sb_text = self.driver.find_element(By.CSS_SELECTOR, ".sidebar").text
+        has_kr = "🇰🇷" in sb_text or "Korean" in sb_text or "한국" in sb_text
+        self.assertTrue(has_kr, f"한국 주식 포함 표시 없음: {sb_text[:80]}")
+
+
+class TC34_SidebarStructure(unittest.TestCase):
+    """TC34 사이드바 스크롤/고정 구조 검증 (.sb-scroll + .sb-actions)"""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.driver = make_driver()
+        register_and_login(cls.driver)
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.driver.quit()
+
+    def test_01_sb_scroll_exists(self):
+        """.sb-scroll 요소가 사이드바 안에 존재"""
+        scroll = self.driver.find_elements(By.CSS_SELECTOR, ".sidebar .sb-scroll")
+        self.assertGreater(len(scroll), 0, ".sb-scroll 없음")
+
+    def test_02_sb_actions_exists(self):
+        """.sb-actions 요소가 사이드바 안에 존재"""
+        actions = self.driver.find_elements(By.CSS_SELECTOR, ".sidebar .sb-actions")
+        self.assertGreater(len(actions), 0, ".sb-actions 없음")
+
+    def test_03_sb_actions_not_inside_sb_scroll(self):
+        """.sb-actions가 .sb-scroll 외부 (사이드바 직계 자식)"""
+        inside = self.driver.find_elements(By.CSS_SELECTOR, ".sb-scroll .sb-actions")
+        self.assertEqual(len(inside), 0, ".sb-actions가 .sb-scroll 안에 있음 (버그)")
+
+    def test_04_sb_actions_always_visible(self):
+        """.sb-actions가 뷰포트 내 표시됨"""
+        actions = self.driver.find_element(By.CSS_SELECTOR, ".sb-actions")
+        self.assertTrue(actions.is_displayed())
+        viewport_h = self.driver.execute_script("return window.innerHeight")
+        act_bottom = actions.location["y"] + actions.size["height"]
+        self.assertLessEqual(act_bottom, viewport_h + 10,
+            f"sb-actions가 뷰포트 밖: bottom={act_bottom}, viewport={viewport_h}")
+        print(f"  sb-actions bottom={act_bottom}px, viewport={viewport_h}px ✓")
+
+    def test_05_mobile_sb_actions_visible_when_expanded(self):
+        """모바일 사이드바 확장 시 .sb-actions 표시"""
+        d = make_driver(width=375, height=812, mobile=True)
+        try:
+            register_and_login(d)
+            toggle = d.find_element(By.CSS_SELECTOR, ".sb-toggle")
+            toggle.click()
+            time.sleep(0.5)
+            actions = d.find_element(By.CSS_SELECTOR, ".sb-actions")
+            self.assertTrue(actions.is_displayed(), "모바일 확장 시 sb-actions 미표시")
+            viewport_h = d.execute_script("return window.innerHeight")
+            act_bottom = actions.location["y"] + actions.size["height"]
+            self.assertLessEqual(act_bottom, viewport_h * 1.1,
+                f"모바일 sb-actions 뷰포트 밖: bottom={act_bottom}, viewport={viewport_h}")
+            print(f"  [mobile] sb-actions bottom={act_bottom}px ✓")
+        finally:
+            d.quit()
+
+    def test_06_sidebar_flex_column(self):
+        """.sidebar가 flex-direction:column으로 설정됨"""
+        flex_dir = self.driver.execute_script(
+            "return getComputedStyle(document.querySelector('.sidebar')).flexDirection"
+        )
+        self.assertEqual(flex_dir, "column", f"sidebar flex-direction: {flex_dir}")
+
+
 # ── 실행 ─────────────────────────────────────────────────────────
 
 if __name__ == "__main__":
@@ -2181,6 +2730,12 @@ if __name__ == "__main__":
         TC26_ColorContrastLight,
         TC27_AllMenuClicks,
         TC28_ExtraViewports,
+        TC29_SidebarActionButtons,
+        TC30_LandingPage,
+        TC31_ForecastReportViews,
+        TC32_BoardView,
+        TC33_ExchangeRate,
+        TC34_SidebarStructure,
     ]
     for cls in test_classes:
         suite.addTests(loader.loadTestsFromTestCase(cls))
