@@ -712,9 +712,6 @@ const T={
   ko:{
     shortly:'잠시 후',justNow:'지금 바로',
     sec:function(s){return s+'초 후'},min:function(m){return m+'분 후'},hr:function(h){return h+'시간 후'},
-    fetchYahoo:'Yahoo Finance 조회 중...',
-    yahooOk:function(n){return 'Yahoo Finance: '+n+'개 종목 업데이트'},
-    yahooFail:'Yahoo Finance 연결 실패',yahooLimitTxt:'Yahoo Finance 일시 제한 중',
     retryAt:function(t){return t+' 후 재시도 가능'},
     autoRetry:function(t){return '📅 '+t+' 후 자동 재시도됩니다'},
     fetchFinnhub:'Finnhub 조회 중...',finnhubOk:function(n){return 'Finnhub: '+n+'개 업데이트'},
@@ -727,12 +724,13 @@ const T={
     alphaLimitSub:function(t){return '📅 '+t+' 후 재시도 가능 (내일 자정 리셋)'},
     missedTxt:function(n){return n+'개 종목 가격 미업데이트'},
     missedSub:'⚙️ API 설정에서 키를 등록하면 더 많은 데이터를 받을 수 있습니다',
+    noApiKeysTxt:'API 키가 설정되지 않았습니다',
+    noApiKeysSub:'⚙️ API 설정에서 Finnhub, Twelve Data, 또는 Alpha Vantage 키를 등록해주세요',
     apiLimited:function(lb,t){return lb+': 한도 초과 · '+t},
     apiOk:function(lb){return lb+': 정상'},apiNoKey:function(lb){return lb+': 키 없음'},
     settingsTitle:'⚙️ API 설정',
-    yahooNote:'📡 Yahoo Finance는 키 없이 자동 사용됩니다 (미국 + 한국 주식 지원)',
     apiKeyNote:'🔒 API 키는 이 브라우저에만 저장되며 외부 서버로 전송되지 않습니다',
-    krNote:'🇰🇷 한국 주식은 Yahoo Finance 경유, 아래 환율로 USD 환산됩니다',
+    krNote:'🇰🇷 한국 주식 환율은 아래 USD/KRW 환율로 USD 환산됩니다',
     usdKrw:'USD/KRW 환율',resetAt:function(t){return '⏱ '+t+' 리셋'},
     connected:'● 연결됨',noKey:'○ 키 없음',keyPh:'API 키 입력',
     cancel:'취소',save:'저장',ok:'확인',
@@ -885,9 +883,6 @@ const T={
   en:{
     shortly:'Shortly',justNow:'Now',
     sec:function(s){return 'in '+s+'s'},min:function(m){return 'in '+m+'m'},hr:function(h){return 'in '+h+'h'},
-    fetchYahoo:'Fetching Yahoo Finance...',
-    yahooOk:function(n){return 'Yahoo Finance: '+n+' tickers updated'},
-    yahooFail:'Yahoo Finance connection failed',yahooLimitTxt:'Yahoo Finance temporarily limited',
     retryAt:function(t){return 'Retry available '+t},
     autoRetry:function(t){return '📅 Auto-retry '+t},
     fetchFinnhub:'Fetching Finnhub...',finnhubOk:function(n){return 'Finnhub: '+n+' updated'},
@@ -900,12 +895,13 @@ const T={
     alphaLimitSub:function(t){return '📅 Retry '+t+' (resets midnight)'},
     missedTxt:function(n){return n+' tickers not updated'},
     missedSub:'⚙️ Add API keys in settings to get more data',
+    noApiKeysTxt:'No API keys configured',
+    noApiKeysSub:'⚙️ Add a Finnhub, Twelve Data, or Alpha Vantage key in API Settings',
     apiLimited:function(lb,t){return lb+': rate limited · '+t},
     apiOk:function(lb){return lb+': connected'},apiNoKey:function(lb){return lb+': no key'},
     settingsTitle:'⚙️ API Settings',
-    yahooNote:'📡 Yahoo Finance is used automatically without a key (US + Korean stocks)',
     apiKeyNote:'🔒 API keys are stored in this browser only and never sent to external servers',
-    krNote:'🇰🇷 Korean stocks use Yahoo Finance, converted to USD using the rate below',
+    krNote:'🇰🇷 Korean stocks are converted to USD using the rate below',
     usdKrw:'USD/KRW Rate',resetAt:function(t){return '⏱ Reset '+t},
     connected:'● Connected',noKey:'○ No Key',keyPh:'Enter API key',
     cancel:'Cancel',save:'Save',ok:'OK',
@@ -1091,7 +1087,7 @@ function checkRL(api){
   const nr={...rl};delete nr[api];setRLS(nr);return null;
 }
 function markRL(api){
-  const cfg={yahoo:{ms:120000},finnhub:{ms:61000},twelve:{ms:86400000},alpha:{ms:86400000}}[api]||{ms:60000};
+  const cfg={finnhub:{ms:61000},twelve:{ms:86400000},alpha:{ms:86400000}}[api]||{ms:60000};
   const rl=getRLS();
   rl[api]={resetAt:Date.now()+cfg.ms,limitedAt:Date.now()};
   setRLS(rl);return rl[api];
@@ -1113,28 +1109,6 @@ function fmtReset(ts,lang){
 class RLError extends Error{constructor(api){super('rl');this.api=api}}
 function fetchTO(url,ms=9000){
   return Promise.race([fetch(url),new Promise((_,r)=>setTimeout(()=>r(new Error('timeout')),ms))]);
-}
-
-async function fetchYahoo(tickers){
-  const sym=tickers.join(',');
-  const target='https://query1.finance.yahoo.com/v7/finance/quote?symbols='+encodeURIComponent(sym)+'&fields=regularMarketPrice';
-  const proxies=[
-    'https://api.allorigins.win/raw?url='+encodeURIComponent(target),
-    'https://corsproxy.io/?'+encodeURIComponent(target),
-  ];
-  for(const url of proxies){
-    try{
-      const res=await fetchTO(url);
-      if(!res.ok) continue;
-      const data=await res.json();
-      const results=data&&data.quoteResponse&&data.quoteResponse.result;
-      if(!Array.isArray(results)||results.length===0) continue;
-      const out={};
-      results.forEach(function(r){if(r.regularMarketPrice>0) out[r.symbol]=r.regularMarketPrice});
-      if(Object.keys(out).length>0) return out;
-    }catch(e){continue}
-  }
-  throw new Error('yahoo_unavailable');
 }
 
 async function fetchFinnhub(tickers,key){
@@ -1192,24 +1166,7 @@ async function fetchAllPrices(positions,apiKeys,onStatus,lang){
   const usTickers=tickers.filter(function(t){return !isKR(t)});
   const prices={},msgs=[];
 
-  // 1. Yahoo Finance
-  const yrl=checkRL('yahoo');
-  if(!yrl&&tickers.length>0){
-    onStatus(l.fetchYahoo);
-    try{
-      const p=await fetchYahoo(tickers);
-      Object.assign(prices,p);
-      const n=Object.keys(p).length;
-      msgs.push({type:'success',text:l.yahooOk(n),sub:null});
-    }catch(e){
-      const info=markRL('yahoo');
-      msgs.push({type:'limit',text:l.yahooFail,sub:l.retryAt(fmtReset(info.resetAt,lang))});
-    }
-  }else if(yrl){
-    msgs.push({type:'limit',text:l.yahooLimitTxt,sub:l.retryAt(fmtReset(yrl.resetAt,lang))});
-  }
-
-  // 2. Finnhub
+  // 1. Finnhub
   const miss1=usTickers.filter(function(t){return !prices[t]});
   const frl=checkRL('finnhub');
   if(miss1.length>0&&apiKeys.finnhub&&!frl){
@@ -1229,7 +1186,7 @@ async function fetchAllPrices(positions,apiKeys,onStatus,lang){
     msgs.push({type:'limit',text:l.finnhubWait,sub:'📅 '+fmtReset(frl.resetAt,lang)});
   }
 
-  // 3. Twelve Data
+  // 2. Twelve Data
   const miss2=usTickers.filter(function(t){return !prices[t]});
   const trl=checkRL('twelve');
   if(miss2.length>0&&apiKeys.twelve&&!trl){
@@ -1249,7 +1206,7 @@ async function fetchAllPrices(positions,apiKeys,onStatus,lang){
     msgs.push({type:'limit',text:l.twelveWait,sub:'📅 '+fmtReset(trl.resetAt,lang)});
   }
 
-  // 4. Alpha Vantage
+  // 3. Alpha Vantage
   const miss3=usTickers.filter(function(t){return !prices[t]});
   const arl=checkRL('alpha');
   if(miss3.length>0&&apiKeys.alpha&&!arl){
@@ -1269,8 +1226,13 @@ async function fetchAllPrices(positions,apiKeys,onStatus,lang){
     msgs.push({type:'limit',text:l.alphaWait,sub:'📅 '+fmtReset(arl.resetAt,lang)});
   }
 
+  const noKeys=!apiKeys.finnhub&&!apiKeys.twelve&&!apiKeys.alpha;
+  if(noKeys&&tickers.length>0&&Object.keys(prices).length===0){
+    msgs.push({type:'warn',text:l.noApiKeysTxt,sub:l.noApiKeysSub});
+  }
+
   const stillMissing=tickers.filter(function(t){return !prices[t]});
-  if(stillMissing.length>0&&tickers.length>0){
+  if(stillMissing.length>0&&tickers.length>0&&!noKeys){
     msgs.push({type:'warn',text:l.missedTxt(stillMissing.length),sub:l.missedSub});
   }
 
@@ -1378,11 +1340,11 @@ function ApiStatus(props){
   var apiKeys=props.apiKeys,lang=props.lang||'ko';
   var l=T[lang];
   var rl=getRLS();
-  var apis=[{id:'yahoo',label:'YF'},{id:'finnhub',label:'FH'},{id:'twelve',label:'12D'},{id:'alpha',label:'AV'}];
+  var apis=[{id:'finnhub',label:'FH'},{id:'twelve',label:'12D'},{id:'alpha',label:'AV'}];
   return React.createElement('div',{className:'api-status'},
     apis.map(function(a){
       var limited=checkRL(a.id);
-      var hasKey=a.id==='yahoo'||!!apiKeys[a.id];
+      var hasKey=!!apiKeys[a.id];
       var color=limited?'var(--yellow)':hasKey?'var(--green)':'var(--text4)';
       var tip=limited?l.apiLimited(a.label,fmtReset(rl[a.id]&&rl[a.id].resetAt,lang)):hasKey?l.apiOk(a.label):l.apiNoKey(a.label);
       return React.createElement('div',{key:a.id,className:'api-dot-wrap',title:tip},
@@ -1415,7 +1377,6 @@ function SettingsModal(props){
       ),
       React.createElement('div',{className:'modal-body'},
         React.createElement('div',{className:'api-note'},
-          l.yahooNote,React.createElement('br'),
           l.apiKeyNote,React.createElement('br'),
           l.krNote
         ),
@@ -2632,7 +2593,7 @@ function App(props){
   var accounts=as[0];var setAccounts=as[1];
   var ps=useState(function(){return ld('positions',[])});
   var positions=ps[0];var setPositions=ps[1];
-  var BOARD_DEFAULTS={jsonbinKey:'$2a$10$zOKvBFXk6N8QdnHAqKVP.uRH8vnyaaIxhk2kW0y.DN.E8qxn7UuGS',jsonbinBin:'69bfd1eeb7ec241ddc8fdd43'};
+  var BOARD_DEFAULTS={jsonbinKey:'',jsonbinBin:''};
   var ks=useState(function(){var saved=ld('apiKeys',{});return Object.assign({finnhub:'',twelve:'',alpha:''},BOARD_DEFAULTS,saved)});
   var apiKeys=ks[0];var setApiKeys=ks[1];
   var rs=useState(function(){return ld('usdRate',1370)});
@@ -2706,17 +2667,6 @@ function App(props){
   useEffect(function(){
     if(ld('theme','dark')==='light') document.documentElement.classList.add('light');
   },[]);
-  // 앱 로딩 시 USD/KRW 환율 자동 조회 (Yahoo Finance KRW=X)
-  useEffect(function(){
-    if(!hasKR) return; // 한국 주식 없으면 불필요
-    fetch('https://query1.finance.yahoo.com/v7/finance/quote?symbols=KRW%3DX&fields=regularMarketPrice',{headers:{'Accept':'application/json'}})
-      .then(function(r){return r.json()})
-      .then(function(data){
-        var price=data&&data.quoteResponse&&data.quoteResponse.result&&data.quoteResponse.result[0]&&data.quoteResponse.result[0].regularMarketPrice;
-        if(price&&price>100&&price<3000){setUsdRate(Math.round(price));}
-      })
-      .catch(function(){/* 실패 시 기존 저장값 유지 */});
-  },[]);
 
   function addToast(t){
     var id=Date.now()+Math.random();
@@ -2759,16 +2709,9 @@ function App(props){
     });
     setDragRowId(null);
   }
-  // 벤치마크 fetch
+  // 벤치마크 fetch (Yahoo Finance 제거로 비활성화)
   function fetchBenchmark(sym){
-    if(sym==='none'){setBenchData({});return}
-    var map={sp:'^GSPC',ks:'^KS11',nq:'^IXIC'};var tick=map[sym];
-    fetch('https://query1.finance.yahoo.com/v7/finance/quote?symbols='+encodeURIComponent(tick))
-      .then(function(r){return r.json()})
-      .then(function(d){
-        var q=d&&d.quoteResponse&&d.quoteResponse.result&&d.quoteResponse.result[0];
-        if(q){var chg=q.regularMarketChangePercent||0;setBenchData(function(b){var n=Object.assign({},b);n[sym]=chg;return n});}
-      }).catch(function(){});
+    setBenchData({});
   }
 
   function renameAccount(oldName,newName){
@@ -3364,7 +3307,7 @@ function App(props){
                 }},b[1]);
               })
             ),
-            benchSel!=='none'&&Object.keys(benchData).length===0&&React.createElement('div',{style:{fontSize:10,color:'var(--text3)'}},l.fetchYahoo)
+            benchSel!=='none'&&Object.keys(benchData).length===0&&React.createElement('div',{style:{fontSize:10,color:'var(--text3)'}},lang==='ko'?'벤치마크 미지원':'Benchmark unavailable')
           )
         ),
 
@@ -3633,9 +3576,8 @@ function ResetScreen(props){
 
 // ── JSONBin helpers ──
 var JSONBIN_BASE='https://api.jsonbin.io/v3';
-var JSONBIN_ACCESS='$2a$10$xAoxnsKKGqvwO3ZcsfIPJe79hoRyroVXLKSLo13M/P/muKk9dOKhu';
 async function binFetch(binId){
-  var res=await fetch(JSONBIN_BASE+'/b/'+binId+'/latest',{headers:{'X-Bin-Meta':'false','X-Access-Key':JSONBIN_ACCESS}});
+  var res=await fetch(JSONBIN_BASE+'/b/'+binId+'/latest',{headers:{'X-Bin-Meta':'false'}});
   if(!res.ok) throw new Error('fetch fail');
   var data=await res.json();
   return Array.isArray(data.posts)?data.posts:[];
@@ -3926,7 +3868,7 @@ var LEGAL={
       content:[
         {h:'1. 수집하는 정보',p:'본 서비스는 서버에 어떠한 개인정보도 전송하거나 저장하지 않습니다. 모든 데이터(포트폴리오 정보, 계좌 정보, API 키, 로그인 자격증명)는 사용자의 브라우저 로컬 스토리지(localStorage)에만 저장됩니다.'},
         {h:'2. 쿠키 및 추적',p:'본 서비스는 서비스 운영을 위해 브라우저 localStorage를 사용합니다. Google AdSense가 활성화된 경우 Google이 쿠키를 사용하여 관심 기반 광고를 제공할 수 있습니다. Google의 개인정보처리방침은 policies.google.com에서 확인하실 수 있습니다.'},
-        {h:'3. 제3자 API',p:'가격 조회 시 Yahoo Finance, Finnhub, Twelve Data, Alpha Vantage 등 외부 API에 종목 코드(티커)가 전송될 수 있습니다. 해당 서비스의 개인정보처리방침을 확인하세요. API 키는 사용자 브라우저에만 저장됩니다.'},
+        {h:'3. 제3자 API',p:'가격 조회 시 Finnhub, Twelve Data, Alpha Vantage 등 외부 API에 종목 코드(티커)가 전송될 수 있습니다. 해당 서비스의 개인정보처리방침을 확인하세요. API 키는 사용자 브라우저에만 저장됩니다.'},
         {h:'4. 데이터 보안',p:'로그인 비밀번호는 PBKDF2-SHA256 알고리즘(10만 반복)으로 해시 처리되어 저장됩니다. 원본 비밀번호는 어디에도 저장되지 않습니다.'},
         {h:'5. 데이터 삭제',p:"비밀번호 초기화 기능을 사용하면 모든 로컬 데이터를 삭제할 수 있습니다. 브라우저의 '사이트 데이터 삭제' 기능을 통해서도 모든 데이터를 삭제할 수 있습니다."},
         {h:'6. 문의',p:'개인정보 관련 문의사항은 admin@stockinvestonline.com 으로 문의해주세요.'},
@@ -3946,7 +3888,7 @@ var LEGAL={
       title:'서비스 소개',
       content:[
         {h:'Portfolio Manager란?',p:'Portfolio Manager는 개인 투자자를 위한 무료 주식 포트폴리오 관리 도구입니다. 미국 주식, 한국 주식(KOSPI/KOSDAQ), ETF 등 다양한 자산을 한 곳에서 관리할 수 있습니다.'},
-        {h:'주요 기능',p:'• 다중 계좌 관리 (브로커리지, IRA, 401k 등)\n• 실시간(15분 지연) 주가 조회 (Yahoo Finance, Finnhub 등)\n• 배당금 추적 및 월별 예상 배당 시각화\n• 섹터별 자산 배분 분석\n• 한국 주식 지원 (USD/KRW 환율 환산)\n• 로컬 암호화 저장 (PBKDF2-SHA256)'},
+        {h:'주요 기능',p:'• 다중 계좌 관리 (브로커리지, IRA, 401k 등)\n• 실시간(15분 지연) 주가 조회 (Finnhub, Twelve Data, Alpha Vantage)\n• 배당금 추적 및 월별 예상 배당 시각화\n• 섹터별 자산 배분 분석\n• 한국 주식 지원 (USD/KRW 환율 환산)\n• 로컬 암호화 저장 (PBKDF2-SHA256)'},
         {h:'데이터 보안',p:'모든 데이터는 사용자의 브라우저에만 저장됩니다. 서버로 전송되는 개인 데이터는 없습니다.'},
         {h:'무료 서비스',p:'본 서비스는 광고 수익으로 운영되는 무료 서비스입니다. 광고 차단기를 해제해주시면 서비스 유지에 큰 도움이 됩니다.'},
       ]
@@ -3967,7 +3909,7 @@ var LEGAL={
       content:[
         {h:'1. Information Collected',p:'This service does not transmit or store any personal information on servers. All data (portfolio, account info, API keys, login credentials) is stored only in your browser\'s localStorage.'},
         {h:'2. Cookies & Tracking',p:'This service uses browser localStorage for operation. If Google AdSense is active, Google may use cookies to serve interest-based ads. See Google\'s privacy policy at policies.google.com.'},
-        {h:'3. Third-Party APIs',p:'When fetching prices, ticker symbols may be sent to Yahoo Finance, Finnhub, Twelve Data, Alpha Vantage. Please review their privacy policies. API keys are stored in your browser only.'},
+        {h:'3. Third-Party APIs',p:'When fetching prices, ticker symbols may be sent to Finnhub, Twelve Data, Alpha Vantage. Please review their privacy policies. API keys are stored in your browser only.'},
         {h:'4. Data Security',p:'Login passwords are hashed using PBKDF2-SHA256 (100k iterations) before storage. The original password is never stored anywhere.'},
         {h:'5. Data Deletion',p:'You can delete all local data via the Reset Password feature, or through your browser\'s "Clear Site Data" option.'},
         {h:'6. Contact',p:'For privacy-related inquiries, contact admin@stockinvestonline.com.'},
@@ -3987,7 +3929,7 @@ var LEGAL={
       title:'About',
       content:[
         {h:'What is Portfolio Manager?',p:'Portfolio Manager is a free stock portfolio management tool for individual investors. Manage US stocks, Korean stocks (KOSPI/KOSDAQ), ETFs and more in one place.'},
-        {h:'Key Features',p:'• Multi-account management (brokerage, IRA, 401k, etc.)\n• Real-time (15min delay) prices via Yahoo Finance, Finnhub, etc.\n• Dividend tracking & monthly estimated dividend charts\n• Sector allocation analysis\n• Korean stock support (USD/KRW conversion)\n• Local encrypted storage (PBKDF2-SHA256)'},
+        {h:'Key Features',p:'• Multi-account management (brokerage, IRA, 401k, etc.)\n• Real-time (15min delay) prices via Finnhub, Twelve Data, Alpha Vantage\n• Dividend tracking & monthly estimated dividend charts\n• Sector allocation analysis\n• Korean stock support (USD/KRW conversion)\n• Local encrypted storage (PBKDF2-SHA256)'},
         {h:'Data Security',p:'All data is stored in your browser only. No personal data is sent to any server.'},
         {h:'Free Service',p:'This service is free and supported by ads. Disabling your ad blocker helps keep the service running.'},
       ]
