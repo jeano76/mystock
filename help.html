@@ -123,22 +123,22 @@ a:hover{text-decoration:underline}
 <nav class="toc" id="toc">
   <div class="toc-title" data-ko>목차</div>
   <div class="toc-title" data-en>Contents</div>
-  <a class="toc-item" onclick="scrollTo('s0')"><span data-ko>📖 시작하기</span><span data-en>📖 Getting Started</span></a>
-  <a class="toc-item sub" onclick="scrollTo('s0a')"><span data-ko>계정 만들기</span><span data-en>Create Account</span></a>
-  <a class="toc-item sub" onclick="scrollTo('s0b')"><span data-ko>로그인</span><span data-en>Login</span></a>
-  <a class="toc-item" onclick="scrollTo('s1')"><span data-ko>🖥️ 화면 구성</span><span data-en>🖥️ Screen Layout</span></a>
-  <a class="toc-item" onclick="scrollTo('s2')"><span data-ko>📋 포지션 관리</span><span data-en>📋 Position Management</span></a>
-  <a class="toc-item" onclick="scrollTo('s3')"><span data-ko>📊 Overview 탭</span><span data-en>📊 Overview Tab</span></a>
-  <a class="toc-item sub" onclick="scrollTo('s3a')"><span data-ko>배당 캘린더</span><span data-en>Dividend Calendar</span></a>
-  <a class="toc-item" onclick="scrollTo('s4')"><span data-ko>📈 미래 자산 예측</span><span data-en>📈 Future Forecast</span></a>
-  <a class="toc-item" onclick="scrollTo('s5')"><span data-ko>📋 종합 리포트</span><span data-en>📋 Report</span></a>
-  <a class="toc-item sub" onclick="scrollTo('s5a')"><span data-ko>세후 수익 분석</span><span data-en>After-Tax Analysis</span></a>
-  <a class="toc-item" onclick="scrollTo('s6')"><span data-ko>⚙️ API 설정</span><span data-en>⚙️ API Settings</span></a>
-  <a class="toc-item" onclick="scrollTo('s7')"><span data-ko>📤 데이터 관리</span><span data-en>📤 Data Management</span></a>
-  <a class="toc-item" onclick="scrollTo('s8')"><span data-ko>🔔 가격 알림</span><span data-en>🔔 Price Alerts</span></a>
-  <a class="toc-item" onclick="scrollTo('s9')"><span data-ko>📱 모바일 사용</span><span data-en>📱 Mobile Usage</span></a>
-  <a class="toc-item" onclick="scrollTo('s10')"><span data-ko>🔒 보안</span><span data-en>🔒 Security</span></a>
-  <a class="toc-item" onclick="scrollTo('s11')"><span data-ko>💡 세금 안내</span><span data-en>💡 Tax Guide</span></a>
+  <a class="toc-item" onclick="gotoSection('s0')"><span data-ko>📖 시작하기</span><span data-en>📖 Getting Started</span></a>
+  <a class="toc-item sub" onclick="gotoSection('s0a')"><span data-ko>계정 만들기</span><span data-en>Create Account</span></a>
+  <a class="toc-item sub" onclick="gotoSection('s0b')"><span data-ko>로그인</span><span data-en>Login</span></a>
+  <a class="toc-item" onclick="gotoSection('s1')"><span data-ko>🖥️ 화면 구성</span><span data-en>🖥️ Screen Layout</span></a>
+  <a class="toc-item" onclick="gotoSection('s2')"><span data-ko>📋 포지션 관리</span><span data-en>📋 Position Management</span></a>
+  <a class="toc-item" onclick="gotoSection('s3')"><span data-ko>📊 Overview 탭</span><span data-en>📊 Overview Tab</span></a>
+  <a class="toc-item sub" onclick="gotoSection('s3a')"><span data-ko>배당 캘린더</span><span data-en>Dividend Calendar</span></a>
+  <a class="toc-item" onclick="gotoSection('s4')"><span data-ko>📈 미래 자산 예측</span><span data-en>📈 Future Forecast</span></a>
+  <a class="toc-item" onclick="gotoSection('s5')"><span data-ko>📋 종합 리포트</span><span data-en>📋 Report</span></a>
+  <a class="toc-item sub" onclick="gotoSection('s5a')"><span data-ko>세후 수익 분석</span><span data-en>After-Tax Analysis</span></a>
+  <a class="toc-item" onclick="gotoSection('s6')"><span data-ko>⚙️ API 설정</span><span data-en>⚙️ API Settings</span></a>
+  <a class="toc-item" onclick="gotoSection('s7')"><span data-ko>📤 데이터 관리</span><span data-en>📤 Data Management</span></a>
+  <a class="toc-item" onclick="gotoSection('s8')"><span data-ko>🔔 가격 알림</span><span data-en>🔔 Price Alerts</span></a>
+  <a class="toc-item" onclick="gotoSection('s9')"><span data-ko>📱 모바일 사용</span><span data-en>📱 Mobile Usage</span></a>
+  <a class="toc-item" onclick="gotoSection('s10')"><span data-ko>🔒 보안</span><span data-en>🔒 Security</span></a>
+  <a class="toc-item" onclick="gotoSection('s11')"><span data-ko>💡 세금 안내</span><span data-en>💡 Tax Guide</span></a>
 </nav>
 
 <!-- 본문 -->
@@ -676,10 +676,27 @@ function toggleTheme(){
   document.documentElement.classList.toggle('light');
   document.querySelector('.theme-btn').textContent = document.documentElement.classList.contains('light') ? '🌙' : '☀️';
 }
-function scrollTo(id){
+function gotoSection(id){
   const el = document.getElementById(id);
-  if(el) el.scrollIntoView({behavior:'smooth', block:'start'});
+  if(!el) return;
+  const top = el.getBoundingClientRect().top + window.pageYOffset - 72;
+  window.scrollTo({top: top, behavior: 'smooth'});
 }
+// TOC active highlight on scroll
+window.addEventListener('scroll', function(){
+  const items = document.querySelectorAll('.toc-item');
+  const sections = ['s0','s0a','s0b','s1','s2','s3','s3a','s4','s5','s5a','s6','s7','s8','s9','s10','s11'];
+  let current = '';
+  sections.forEach(function(id){
+    const el = document.getElementById(id);
+    if(el && el.getBoundingClientRect().top <= 100) current = id;
+  });
+  items.forEach(function(item){
+    const onclick = item.getAttribute('onclick') || '';
+    const match = onclick.match(/gotoSection\('(\w+)'\)/);
+    item.classList.toggle('active', match && match[1] === current);
+  });
+}, {passive:true});
 // 저장된 언어 복원: help_lang → 앱 pfm3_lang → 브라우저 언어 순으로 우선
 const savedLang = localStorage.getItem('help_lang') ||
   localStorage.getItem('pfm3_lang') ||
