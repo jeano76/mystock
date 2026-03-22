@@ -225,6 +225,45 @@ td.r{text-align:right}
 .auth-warn{background:rgba(255,184,0,.08);border:1px solid rgba(255,184,0,.3);border-radius:6px;padding:10px 12px;font-size:11px;color:var(--yellow);line-height:1.6}
 .auth-link{font-size:10px;color:var(--text3);cursor:pointer;text-align:center;margin-top:4px}
 .auth-link:hover{color:var(--acc)}
+/* LANDING PAGE */
+.landing-overlay{position:fixed;inset:0;z-index:1000;display:grid;grid-template-columns:1fr 420px;background:var(--bg);overflow:hidden}
+.landing-left{display:flex;flex-direction:column;justify-content:center;padding:64px 72px;background:radial-gradient(ellipse at 30% 40%,rgba(0,210,120,.06) 0%,transparent 60%);overflow-y:auto}
+.landing-right{background:var(--bg2);border-left:1px solid var(--border2);display:flex;flex-direction:column;justify-content:center;align-items:center;padding:40px 36px;overflow-y:auto}
+.landing-logo{font-family:var(--mono);font-size:22px;font-weight:600;letter-spacing:.08em;margin-bottom:48px;display:flex;align-items:center;gap:10px}
+.landing-logo em{color:var(--acc);font-style:normal;font-size:26px}
+.landing-logo-badge{font-size:10px;background:rgba(0,210,120,.15);color:var(--acc);border:1px solid rgba(0,210,120,.3);border-radius:4px;padding:2px 7px;font-weight:500;letter-spacing:.04em;align-self:center}
+.landing-headline{font-size:34px;font-weight:800;line-height:1.25;margin-bottom:14px;color:var(--text)}
+.landing-headline em{font-style:normal;color:var(--acc)}
+.landing-sub{font-size:13px;color:var(--text2);line-height:1.8;margin-bottom:44px;max-width:500px}
+.landing-features{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:44px;max-width:580px}
+.landing-feat{display:flex;align-items:flex-start;gap:12px;padding:16px;background:rgba(255,255,255,.025);border:1px solid var(--border);border-radius:10px;transition:border-color .2s}
+.landing-feat:hover{border-color:rgba(0,210,120,.35)}
+.landing-feat-icon{font-size:22px;flex-shrink:0;line-height:1;margin-top:1px}
+.landing-feat-title{font-size:12px;font-weight:700;color:var(--text);margin-bottom:4px;letter-spacing:.01em}
+.landing-feat-desc{font-size:10.5px;color:var(--text3);line-height:1.55}
+.landing-stats{display:flex;gap:36px;padding-top:22px;border-top:1px solid var(--border)}
+.landing-stat{display:flex;flex-direction:column;gap:3px}
+.landing-stat-val{font-size:22px;font-weight:800;font-family:var(--mono);color:var(--acc)}
+.landing-stat-lbl{font-size:10px;color:var(--text3);letter-spacing:.02em}
+.landing-form-wrap{width:100%;max-width:340px;display:flex;flex-direction:column;gap:0}
+.landing-form-header{margin-bottom:24px;text-align:center}
+.landing-form-title{font-size:20px;font-weight:700;color:var(--text);margin-bottom:6px}
+.landing-form-sub{font-size:11px;color:var(--text3);line-height:1.6}
+.landing-tab-row{display:flex;gap:0;margin-bottom:22px;border:1px solid var(--border);border-radius:8px;overflow:hidden}
+.landing-tab{flex:1;padding:8px;font-size:11px;font-weight:600;text-align:center;cursor:pointer;background:transparent;color:var(--text3);border:none;transition:all .15s}
+.landing-tab.active{background:var(--acc);color:#000}
+.landing-form-fields{display:flex;flex-direction:column;gap:12px}
+.landing-field label{display:block;font-size:10px;color:var(--text3);margin-bottom:5px;font-weight:500;letter-spacing:.03em}
+.landing-field input{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:7px;padding:9px 12px;font-size:12px;color:var(--text);outline:none;transition:border-color .15s;box-sizing:border-box}
+.landing-field input:focus{border-color:var(--acc)}
+.landing-form-err{background:rgba(255,77,114,.1);border:1px solid rgba(255,77,114,.3);border-radius:6px;padding:8px 12px;font-size:11px;color:var(--red);text-align:center;line-height:1.5;margin-bottom:4px}
+.landing-form-warn{background:rgba(255,184,0,.08);border:1px solid rgba(255,184,0,.3);border-radius:6px;padding:10px 12px;font-size:11px;color:var(--yellow);line-height:1.6;margin-bottom:4px}
+.landing-form-btn{width:100%;padding:11px;font-size:13px;font-weight:700;letter-spacing:.02em;margin-top:4px;border-radius:8px}
+.landing-form-hint{font-size:10px;color:var(--text3);text-align:center;cursor:pointer;margin-top:8px;line-height:1.5}
+.landing-form-hint:hover{color:var(--acc)}
+.landing-form-sec-note{font-size:9.5px;color:var(--text4);text-align:center;line-height:1.6;margin-top:12px;padding-top:12px;border-top:1px solid var(--border)}
+.landing-lang-row{display:flex;justify-content:flex-end;margin-bottom:24px;width:100%;max-width:340px}
+@media(max-width:860px){.landing-overlay{grid-template-columns:1fr}.landing-left{display:none}.landing-right{padding:32px 24px}}
 /* COOKIE CONSENT */
 .cookie-banner{position:fixed;bottom:0;left:0;right:0;background:var(--bg3);border-top:1px solid var(--border2);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px;z-index:900;flex-wrap:wrap}
 .cookie-text{font-size:11px;color:var(--text2);line-height:1.6;flex:1;min-width:200px}
@@ -2929,6 +2968,7 @@ function App(props){
         React.createElement('div',{className:'topbar-right'},
           React.createElement('button',{className:'btn btn-sm btn-ghost lang-btn',onClick:onLangToggle},l.langSwitch),
           React.createElement('button',{className:'btn btn-sm btn-ghost',onClick:toggleTheme,title:theme==='dark'?'라이트 모드':'다크 모드'},l.themeToggle(theme)),
+          React.createElement('a',{href:'help.html',target:'_blank',className:'btn btn-sm btn-ghost',title:'사용설명서 / User Manual',style:{textDecoration:'none'}},'❓'),
           React.createElement('button',{className:'btn btn-sm btn-ghost',onClick:onLogout,style:{color:'var(--text3)'}},l.logout),
           React.createElement(ApiStatus,{apiKeys:apiKeys,lang:lang}),
           refreshStatus&&React.createElement('span',{className:'refresh-status'},refreshStatus),
@@ -3305,7 +3345,7 @@ function App(props){
 
 // ── 계정 등록 화면 ──
 function RegisterScreen(props){
-  var onDone=props.onDone,lang=props.lang||'ko',onLangToggle=props.onLangToggle||function(){};
+  var onDone=props.onDone,lang=props.lang||'ko',onLangToggle=props.onLangToggle||function(){},inline=props.inline||false;
   var l=T[lang];
   var is=useState('');var id=is[0];var setId=is[1];
   var ps=useState('');var pw=ps[0];var setPw=ps[1];
@@ -3326,22 +3366,19 @@ function RegisterScreen(props){
     }catch(e){setErr(l.errGeneral)}
     finally{setLoading(false)}
   }
+  var formFields=React.createElement('div',{className:inline?'landing-form-fields':''},
+    err&&React.createElement('div',{className:inline?'landing-form-err':'auth-err'},err),
+    React.createElement('div',{className:inline?'landing-field':'field'},React.createElement('label',null,l.idLbl),React.createElement('input',{type:'text',placeholder:l.idPh,value:id,onChange:function(e){setId(e.target.value)},onKeyDown:function(e){if(e.key==='Enter')submit()},autoFocus:true})),
+    React.createElement('div',{className:inline?'landing-field':'field'},React.createElement('label',null,l.pwLbl),React.createElement('input',{type:'password',placeholder:l.pwPh,value:pw,onChange:function(e){setPw(e.target.value)},onKeyDown:function(e){if(e.key==='Enter')submit()}})),
+    React.createElement('div',{className:inline?'landing-field':'field'},React.createElement('label',null,l.pw2Lbl),React.createElement('input',{type:'password',placeholder:l.pw2Ph,value:pw2,onChange:function(e){setPw2(e.target.value)},onKeyDown:function(e){if(e.key==='Enter')submit()}})),
+    React.createElement('button',{className:'btn btn-primary'+(inline?' landing-form-btn':''),style:inline?{}:{width:'100%',padding:'10px',fontSize:12},onClick:submit,disabled:loading},loading?l.processing:l.createBtn)
+  );
+  if(inline) return formFields;
   return React.createElement('div',{className:'auth-overlay'},
     React.createElement('div',{className:'auth-card'},
       React.createElement('div',{className:'auth-logo'},React.createElement('em',null,'▸'),'PORTFOLIO'),
       React.createElement('div',{className:'auth-title'},l.createAccount),
-      React.createElement('div',{className:'auth-sub'},
-        l.firstTime,React.createElement('br'),
-        React.createElement('span',{style:{color:'var(--text3)',fontSize:10}},
-          l.encMsg1,React.createElement('strong',null,'PBKDF2-SHA256'),
-          l.encMsg2,React.createElement('br'),l.encMsg3
-        )
-      ),
-      err&&React.createElement('div',{className:'auth-err'},err),
-      React.createElement('div',{className:'field'},React.createElement('label',null,l.idLbl),React.createElement('input',{type:'text',placeholder:l.idPh,value:id,onChange:function(e){setId(e.target.value)},onKeyDown:function(e){if(e.key==='Enter')submit()},autoFocus:true})),
-      React.createElement('div',{className:'field'},React.createElement('label',null,l.pwLbl),React.createElement('input',{type:'password',placeholder:l.pwPh,value:pw,onChange:function(e){setPw(e.target.value)},onKeyDown:function(e){if(e.key==='Enter')submit()}})),
-      React.createElement('div',{className:'field'},React.createElement('label',null,l.pw2Lbl),React.createElement('input',{type:'password',placeholder:l.pw2Ph,value:pw2,onChange:function(e){setPw2(e.target.value)},onKeyDown:function(e){if(e.key==='Enter')submit()}})),
-      React.createElement('button',{className:'btn btn-primary',style:{width:'100%',padding:'10px',fontSize:12},onClick:submit,disabled:loading},loading?l.processing:l.createBtn),
+      formFields,
       React.createElement('div',{className:'auth-lang'},React.createElement('button',{className:'lang-btn',onClick:onLangToggle},l.langSwitch))
     )
   );
@@ -3349,7 +3386,7 @@ function RegisterScreen(props){
 
 // ── 로그인 화면 ──
 function LoginScreen(props){
-  var onDone=props.onDone;var onReset=props.onReset;var lang=props.lang||'ko';var onLangToggle=props.onLangToggle||function(){};
+  var onDone=props.onDone;var onReset=props.onReset;var lang=props.lang||'ko';var onLangToggle=props.onLangToggle||function(){};var inline=props.inline||false;
   var is=useState('');var id=is[0];var setId=is[1];
   var ps=useState('');var pw=ps[0];var setPw=ps[1];
   var es=useState('');var err=es[0];var setErr=es[1];
@@ -3367,15 +3404,19 @@ function LoginScreen(props){
     }catch(e){setErr(l.errOccurred)}
     finally{setLoading(false)}
   }
+  var formFields=React.createElement('div',{className:inline?'landing-form-fields':''},
+    err&&React.createElement('div',{className:inline?'landing-form-err':'auth-err'},err),
+    React.createElement('div',{className:inline?'landing-field':'field'},React.createElement('label',null,l.idLbl),React.createElement('input',{type:'text',placeholder:l.loginIdPh,value:id,onChange:function(e){setId(e.target.value)},onKeyDown:function(e){if(e.key==='Enter')submit()},autoFocus:true})),
+    React.createElement('div',{className:inline?'landing-field':'field'},React.createElement('label',null,l.pwLbl),React.createElement('input',{type:'password',placeholder:l.loginPwPh,value:pw,onChange:function(e){setPw(e.target.value)},onKeyDown:function(e){if(e.key==='Enter')submit()}})),
+    React.createElement('button',{className:'btn btn-primary'+(inline?' landing-form-btn':''),style:inline?{}:{width:'100%',padding:'10px',fontSize:12},onClick:submit,disabled:loading},loading?l.verifying:l.loginBtn),
+    React.createElement('div',{className:inline?'landing-form-hint':'auth-link',onClick:onReset},l.resetLink)
+  );
+  if(inline) return formFields;
   return React.createElement('div',{className:'auth-overlay'},
     React.createElement('div',{className:'auth-card'},
       React.createElement('div',{className:'auth-logo'},React.createElement('em',null,'▸'),'PORTFOLIO'),
       React.createElement('div',{className:'auth-title'},l.loginTitle),
-      err&&React.createElement('div',{className:'auth-err'},err),
-      React.createElement('div',{className:'field'},React.createElement('label',null,l.idLbl),React.createElement('input',{type:'text',placeholder:l.loginIdPh,value:id,onChange:function(e){setId(e.target.value)},onKeyDown:function(e){if(e.key==='Enter')submit()},autoFocus:true})),
-      React.createElement('div',{className:'field'},React.createElement('label',null,l.pwLbl),React.createElement('input',{type:'password',placeholder:l.loginPwPh,value:pw,onChange:function(e){setPw(e.target.value)},onKeyDown:function(e){if(e.key==='Enter')submit()}})),
-      React.createElement('button',{className:'btn btn-primary',style:{width:'100%',padding:'10px',fontSize:12},onClick:submit,disabled:loading},loading?l.verifying:l.loginBtn),
-      React.createElement('div',{className:'auth-link',onClick:onReset},l.resetLink),
+      formFields,
       React.createElement('div',{className:'auth-lang'},React.createElement('button',{className:'lang-btn',onClick:onLangToggle},l.langSwitch))
     )
   );
@@ -3383,7 +3424,7 @@ function LoginScreen(props){
 
 // ── 초기화 화면 ──
 function ResetScreen(props){
-  var onDone=props.onDone;var onCancel=props.onCancel;var lang=props.lang||'ko';var onLangToggle=props.onLangToggle||function(){};
+  var onDone=props.onDone;var onCancel=props.onCancel;var lang=props.lang||'ko';var onLangToggle=props.onLangToggle||function(){};var inline=props.inline||false;
   var is=useState('');var id=is[0];var setId=is[1];
   var es=useState('');var err=es[0];var setErr=es[1];
   var ls=useState(false);var loading=ls[0];var setLoading=ls[1];
@@ -3402,30 +3443,125 @@ function ResetScreen(props){
     }catch(e){setErr(l.errOccurred)}
     finally{setLoading(false)}
   }
+  var formContent=React.createElement('div',{className:inline?'landing-form-fields':''},
+    React.createElement('div',{className:inline?'landing-form-warn':'auth-warn'},l.resetWarn),
+    err&&React.createElement('div',{className:inline?'landing-form-err':'auth-err'},err),
+    React.createElement('div',{className:inline?'landing-field':'field'},React.createElement('label',null,l.curIdLbl),React.createElement('input',{type:'text',placeholder:l.curIdPh,value:id,onChange:function(e){setId(e.target.value)},onKeyDown:function(e){if(e.key==='Enter')doReset()},autoFocus:true})),
+    React.createElement('div',{style:{display:'flex',gap:8}},
+      React.createElement('button',{className:'btn',style:{flex:1},onClick:onCancel},l.cancel),
+      React.createElement('button',{className:'btn',style:{flex:1,background:'var(--red)',borderColor:'var(--red)',color:'#fff'},onClick:doReset,disabled:loading},loading?l.processing:l.resetBtn)
+    )
+  );
+  if(inline) return formContent;
   return React.createElement('div',{className:'auth-overlay'},
     React.createElement('div',{className:'auth-card'},
       React.createElement('div',{className:'auth-logo'},React.createElement('em',null,'▸'),'PORTFOLIO'),
       React.createElement('div',{className:'auth-title'},l.resetTitle),
-      React.createElement('div',{className:'auth-warn'},l.resetWarn),
-      err&&React.createElement('div',{className:'auth-err'},err),
-      React.createElement('div',{className:'field'},React.createElement('label',null,l.curIdLbl),React.createElement('input',{type:'text',placeholder:l.curIdPh,value:id,onChange:function(e){setId(e.target.value)},onKeyDown:function(e){if(e.key==='Enter')doReset()},autoFocus:true})),
-      React.createElement('div',{style:{display:'flex',gap:8}},
-        React.createElement('button',{className:'btn',style:{flex:1},onClick:onCancel},l.cancel),
-        React.createElement('button',{className:'btn',style:{flex:1,background:'var(--red)',borderColor:'var(--red)',color:'#fff'},onClick:doReset,disabled:loading},loading?l.processing:l.resetBtn)
-      ),
+      formContent,
       React.createElement('div',{className:'auth-lang'},React.createElement('button',{className:'lang-btn',onClick:onLangToggle},l.langSwitch))
     )
   );
 }
 
-// ── Auth 래퍼 ──
+// ── Auth 래퍼 (Landing Page) ──
 function AuthScreen(props){
   var hasAccount=props.hasAccount;var onLogin=props.onLogin;var lang=props.lang||'ko';var onLangToggle=props.onLangToggle||function(){};
   var ms=useState(hasAccount?'login':'register');var mode=ms[0];var setMode=ms[1];
   var rs=useState(false);var showReset=rs[0];var setShowReset=rs[1];
-  if(showReset) return React.createElement(ResetScreen,{onDone:function(){setShowReset(false);setMode('register')},onCancel:function(){setShowReset(false)},lang:lang,onLangToggle:onLangToggle});
-  if(mode==='register') return React.createElement(RegisterScreen,{onDone:onLogin,lang:lang,onLangToggle:onLangToggle});
-  return React.createElement(LoginScreen,{onDone:onLogin,onReset:function(){setShowReset(true)},lang:lang,onLangToggle:onLangToggle});
+  var l=T[lang];
+  // Feature list data
+  var feats=lang==='ko'?[
+    {icon:'📈',title:'실시간 시세 추적',desc:'미국·한국 주식 실시간 가격 및 수익률 자동 갱신'},
+    {icon:'💰',title:'배당 캘린더',desc:'24개월 월별 배당 수입 예측 및 시각화'},
+    {icon:'🔭',title:'미래 자산 예측',desc:'배당 성장률 기반 10/20/30년 복리 시뮬레이션'},
+    {icon:'📊',title:'포트폴리오 분석',desc:'섹터·지역·종목별 분산도 및 집중도 리포트'},
+    {icon:'🏦',title:'다중 계좌 관리',desc:'여러 증권 계좌를 하나의 대시보드로 통합 관리'},
+    {icon:'🔒',title:'완전한 보안',desc:'모든 데이터는 로컬 저장 · 서버 전송 없음'},
+  ]:[
+    {icon:'📈',title:'Real-time Tracking',desc:'Live prices & P&L for US and Korean stocks'},
+    {icon:'💰',title:'Dividend Calendar',desc:'24-month dividend income forecast & visualization'},
+    {icon:'🔭',title:'Future Forecast',desc:'10/20/30-year DRIP compound growth simulation'},
+    {icon:'📊',title:'Portfolio Report',desc:'Sector, region & tax breakdown with smart insights'},
+    {icon:'🏦',title:'Multi-account',desc:'Manage multiple brokerage accounts in one dashboard'},
+    {icon:'🔒',title:'Full Privacy',desc:'All data stored locally — nothing sent to servers'},
+  ];
+  var stats=lang==='ko'?[
+    {val:'500+',lbl:'지원 종목'},
+    {val:'실시간',lbl:'가격 갱신'},
+    {val:'100%',lbl:'로컬 저장'},
+    {val:'무료',lbl:'완전 무료'},
+  ]:[
+    {val:'500+',lbl:'Stocks'},
+    {val:'Live',lbl:'Price Updates'},
+    {val:'100%',lbl:'Local Storage'},
+    {val:'Free',lbl:'Forever Free'},
+  ];
+  var headline=lang==='ko'
+    ?React.createElement('h1',{className:'landing-headline'},React.createElement('em',null,'전문가급'),' 포트폴리오',React.createElement('br',null),'관리 시스템')
+    :React.createElement('h1',{className:'landing-headline'},'Professional',React.createElement('br',null),React.createElement('em',null,'Portfolio'),' Manager');
+  var subText=lang==='ko'
+    ?'미국·한국 주식을 한 곳에서 실시간 관리하세요. 배당 추적, 미래 자산 예측, 세금 분석까지 — 완전 무료, 서버 저장 없음.'
+    :'Track US & Korean stocks in one place with real-time prices, dividend forecasts, 30-year growth simulations, and tax reports — completely free, no server storage.';
+  // Form section
+  var formContent;
+  if(showReset){
+    formContent=React.createElement(ResetScreen,{onDone:function(){setShowReset(false);setMode('register')},onCancel:function(){setShowReset(false)},lang:lang,onLangToggle:onLangToggle,inline:true});
+  } else {
+    // Tab row
+    var tabRow=React.createElement('div',{className:'landing-tab-row'},
+      React.createElement('button',{className:'landing-tab'+(mode==='login'?' active':''),onClick:function(){setMode('login')}},lang==='ko'?'로그인':'Login'),
+      React.createElement('button',{className:'landing-tab'+(mode==='register'?' active':''),onClick:function(){setMode('register')}},lang==='ko'?'계정 만들기':'Create Account')
+    );
+    var formInner=mode==='register'
+      ?React.createElement(RegisterScreen,{onDone:onLogin,lang:lang,onLangToggle:onLangToggle,inline:true})
+      :React.createElement(LoginScreen,{onDone:onLogin,onReset:function(){setShowReset(true)},lang:lang,onLangToggle:onLangToggle,inline:true});
+    formContent=React.createElement(React.Fragment,null,tabRow,formInner);
+  }
+  return React.createElement('div',{className:'landing-overlay'},
+    // LEFT: marketing
+    React.createElement('div',{className:'landing-left'},
+      React.createElement('div',{className:'landing-logo'},
+        React.createElement('em',null,'▸'),
+        'PORTFOLIO',
+        React.createElement('span',{className:'landing-logo-badge'},'PRO')
+      ),
+      headline,
+      React.createElement('p',{className:'landing-sub'},subText),
+      React.createElement('div',{className:'landing-features'},
+        feats.map(function(f,i){return React.createElement('div',{className:'landing-feat',key:i},
+          React.createElement('div',{className:'landing-feat-icon'},f.icon),
+          React.createElement('div',null,
+            React.createElement('div',{className:'landing-feat-title'},f.title),
+            React.createElement('div',{className:'landing-feat-desc'},f.desc)
+          )
+        )})
+      ),
+      React.createElement('div',{className:'landing-stats'},
+        stats.map(function(s,i){return React.createElement('div',{className:'landing-stat',key:i},
+          React.createElement('div',{className:'landing-stat-val'},s.val),
+          React.createElement('div',{className:'landing-stat-lbl'},s.lbl)
+        )})
+      )
+    ),
+    // RIGHT: form
+    React.createElement('div',{className:'landing-right'},
+      React.createElement('div',{className:'landing-lang-row'},
+        React.createElement('button',{className:'btn btn-sm btn-ghost lang-btn',onClick:onLangToggle},l.langSwitch)
+      ),
+      React.createElement('div',{className:'landing-form-wrap'},
+        React.createElement('div',{className:'landing-form-header'},
+          React.createElement('div',{className:'landing-logo',style:{justifyContent:'center',marginBottom:12}},React.createElement('em',null,'▸'),'PORTFOLIO'),
+          React.createElement('div',{className:'landing-form-sub'},lang==='ko'?'포트폴리오 관리를 시작하세요':'Manage your portfolio like a pro')
+        ),
+        formContent,
+        React.createElement('div',{className:'landing-form-sec-note'},
+          lang==='ko'
+            ?'🔒 비밀번호는 PBKDF2-SHA256으로 암호화 · 모든 데이터 로컬 저장'
+            :'🔒 Password encrypted with PBKDF2-SHA256 · All data stored locally'
+        )
+      )
+    )
+  );
 }
 
 // ── 법적 모달 (개인정보처리방침 / 이용약관 / 소개 / 문의) ──

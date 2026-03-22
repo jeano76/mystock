@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Portfolio Manager 사용설명서</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a0a0a;--bg2:#111111;--bg3:#1a1a1a;--bg4:#222222;
+  --border:#2a2a2a;--text:#f0f0f0;--text2:#aaaaaa;--text3:#666666;
+  --green:#17e8a1;--blue:#5b9bd5;--orange:#f0a500;--red:#ff6b6b;
+  --acc:#17e8a1;
+}
+html.light{
+  --bg:#f5f5f5;--bg2:#ffffff;--bg3:#eeeeee;--bg4:#e0e0e0;
+  --border:#dddddd;--text:#111111;--text2:#444444;--text3:#888888;
+  --green:#0d9e6e;--blue:#2563eb;--orange:#b45309;--red:#dc2626;
+}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;line-height:1.6}
+a{color:var(--green);text-decoration:none}
+a:hover{text-decoration:underline}
+
+/* ── 헤더 ── */
+.site-header{position:sticky;top:0;z-index:100;background:var(--bg2);border-bottom:1px solid var(--border);padding:12px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.site-logo{font-size:16px;font-weight:800;letter-spacing:2px;color:var(--green)}
+.header-right{display:flex;align-items:center;gap:10px}
+.lang-btn{padding:5px 14px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;font-size:12px;font-weight:600}
+.lang-btn.active{background:var(--green);color:#000;border-color:var(--green)}
+.theme-btn{padding:5px 12px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;font-size:14px}
+.back-btn{padding:6px 14px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;font-size:12px}
+.back-btn:hover{border-color:var(--green);color:var(--green)}
+
+/* ── 레이아웃 ── */
+.layout{display:flex;min-height:calc(100vh - 56px)}
+
+/* TOC */
+.toc{width:240px;flex-shrink:0;padding:24px 16px;border-right:1px solid var(--border);position:sticky;top:56px;height:calc(100vh - 56px);overflow-y:auto}
+.toc-title{font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px}
+.toc-item{display:block;padding:5px 10px;border-radius:6px;font-size:12px;color:var(--text2);cursor:pointer;transition:background .15s}
+.toc-item:hover,.toc-item.active{background:var(--bg3);color:var(--text)}
+.toc-item.sub{padding-left:20px;font-size:11px;color:var(--text3)}
+
+/* 본문 */
+.content{flex:1;max-width:860px;padding:36px 40px;overflow-x:hidden}
+@media(max-width:768px){.toc{display:none}.content{padding:24px 16px}}
+
+/* ── 섹션 ── */
+.section{margin-bottom:56px;scroll-margin-top:72px}
+.section-num{font-size:11px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
+.section-title{font-size:22px;font-weight:800;color:var(--text);margin-bottom:8px}
+.section-desc{font-size:14px;color:var(--text2);margin-bottom:24px;line-height:1.7}
+
+/* ── 스크린샷 ── */
+.ss-wrap{margin:20px 0;border-radius:12px;overflow:hidden;border:1px solid var(--border);background:var(--bg3)}
+.ss-wrap img{width:100%;display:block}
+.ss-caption{padding:10px 14px;font-size:11px;color:var(--text3);border-top:1px solid var(--border)}
+
+/* ── 2-col 스크린샷 ── */
+.ss-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:20px 0}
+@media(max-width:600px){.ss-row{grid-template-columns:1fr}}
+
+/* ── 팁/노트 박스 ── */
+.tip{background:rgba(23,232,161,0.08);border-left:3px solid var(--green);border-radius:0 8px 8px 0;padding:12px 16px;margin:16px 0;font-size:13px;color:var(--text2)}
+.note{background:rgba(91,155,213,0.08);border-left:3px solid var(--blue);border-radius:0 8px 8px 0;padding:12px 16px;margin:16px 0;font-size:13px;color:var(--text2)}
+.warn{background:rgba(240,165,0,0.08);border-left:3px solid var(--orange);border-radius:0 8px 8px 0;padding:12px 16px;margin:16px 0;font-size:13px;color:var(--text2)}
+.tip strong,.note strong,.warn strong{color:var(--text)}
+
+/* ── 스텝 리스트 ── */
+.steps{list-style:none;margin:16px 0;display:flex;flex-direction:column;gap:10px}
+.steps li{display:flex;gap:12px;align-items:flex-start;font-size:13px;color:var(--text2)}
+.step-num{min-width:24px;height:24px;border-radius:50%;background:var(--green);color:#000;font-weight:800;font-size:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.steps li strong{color:var(--text)}
+
+/* ── 기능 표 ── */
+.feat-table{width:100%;border-collapse:collapse;font-size:13px;margin:16px 0}
+.feat-table th{text-align:left;padding:8px 12px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text3);border-bottom:1px solid var(--border)}
+.feat-table td{padding:9px 12px;border-bottom:1px solid rgba(128,128,128,0.1);color:var(--text2);vertical-align:top}
+.feat-table td:first-child{font-weight:600;color:var(--text);white-space:nowrap}
+.feat-table tr:last-child td{border-bottom:none}
+
+/* ── 세금 표 ── */
+.tax-table{width:100%;border-collapse:collapse;font-size:13px;margin:16px 0;border-radius:8px;overflow:hidden;border:1px solid var(--border)}
+.tax-table th{padding:10px 14px;background:var(--bg3);text-align:left;font-size:11px;font-weight:700;color:var(--text2)}
+.tax-table td{padding:10px 14px;border-top:1px solid var(--border);color:var(--text2);vertical-align:top}
+.tax-table td:first-child{color:var(--text);font-weight:600}
+.tag{display:inline-block;font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;vertical-align:middle;margin-left:4px}
+.tag-us{background:rgba(91,155,213,0.2);color:var(--blue)}
+.tag-kr{background:rgba(23,232,161,0.15);color:var(--green)}
+.tag-free{background:rgba(23,232,161,0.15);color:var(--green)}
+.tag-paid{background:rgba(240,165,0,0.15);color:var(--orange)}
+
+/* ── 히어로 ── */
+.hero-banner{background:linear-gradient(135deg,var(--bg3),var(--bg4));border:1px solid var(--border);border-radius:12px;padding:36px 40px;margin-bottom:40px;text-align:center}
+.hero-banner h1{font-size:28px;font-weight:800;color:var(--text);margin-bottom:8px}
+.hero-banner p{color:var(--text2);font-size:15px;margin-bottom:20px}
+.hero-badges{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.badge{padding:5px 14px;border-radius:20px;border:1px solid var(--border);font-size:12px;color:var(--text2)}
+
+/* ── 언어 표시 ── */
+[data-ko],[data-en]{display:none}
+.ko-active [data-ko]{display:block}
+.en-active [data-en]{display:block}
+span[data-ko],span[data-en]{display:inline}
+</style>
+</head>
+<body class="ko-active">
+
+<header class="site-header">
+  <div class="site-logo">PORTFOLIO</div>
+  <div class="header-right">
+    <button class="lang-btn active" id="btn-ko" onclick="setLang('ko')">한국어</button>
+    <button class="lang-btn" id="btn-en" onclick="setLang('en')">English</button>
+    <button class="theme-btn" onclick="toggleTheme()" title="테마 변경">☀️</button>
+    <button class="back-btn" onclick="history.back()">← <span data-ko>앱으로 돌아가기</span><span data-en>Back to App</span></button>
+  </div>
+</header>
+
+<div class="layout">
+
+<!-- TOC -->
+<nav class="toc" id="toc">
+  <div class="toc-title" data-ko>목차</div>
+  <div class="toc-title" data-en>Contents</div>
+  <a class="toc-item" onclick="scrollTo('s0')"><span data-ko>📖 시작하기</span><span data-en>📖 Getting Started</span></a>
+  <a class="toc-item sub" onclick="scrollTo('s0a')"><span data-ko>계정 만들기</span><span data-en>Create Account</span></a>
+  <a class="toc-item sub" onclick="scrollTo('s0b')"><span data-ko>로그인</span><span data-en>Login</span></a>
+  <a class="toc-item" onclick="scrollTo('s1')"><span data-ko>🖥️ 화면 구성</span><span data-en>🖥️ Screen Layout</span></a>
+  <a class="toc-item" onclick="scrollTo('s2')"><span data-ko>📋 포지션 관리</span><span data-en>📋 Position Management</span></a>
+  <a class="toc-item" onclick="scrollTo('s3')"><span data-ko>📊 Overview 탭</span><span data-en>📊 Overview Tab</span></a>
+  <a class="toc-item sub" onclick="scrollTo('s3a')"><span data-ko>배당 캘린더</span><span data-en>Dividend Calendar</span></a>
+  <a class="toc-item" onclick="scrollTo('s4')"><span data-ko>📈 미래 자산 예측</span><span data-en>📈 Future Forecast</span></a>
+  <a class="toc-item" onclick="scrollTo('s5')"><span data-ko>📋 종합 리포트</span><span data-en>📋 Report</span></a>
+  <a class="toc-item sub" onclick="scrollTo('s5a')"><span data-ko>세후 수익 분석</span><span data-en>After-Tax Analysis</span></a>
+  <a class="toc-item" onclick="scrollTo('s6')"><span data-ko>⚙️ API 설정</span><span data-en>⚙️ API Settings</span></a>
+  <a class="toc-item" onclick="scrollTo('s7')"><span data-ko>📤 데이터 관리</span><span data-en>📤 Data Management</span></a>
+  <a class="toc-item" onclick="scrollTo('s8')"><span data-ko>🔔 가격 알림</span><span data-en>🔔 Price Alerts</span></a>
+  <a class="toc-item" onclick="scrollTo('s9')"><span data-ko>📱 모바일 사용</span><span data-en>📱 Mobile Usage</span></a>
+  <a class="toc-item" onclick="scrollTo('s10')"><span data-ko>🔒 보안</span><span data-en>🔒 Security</span></a>
+  <a class="toc-item" onclick="scrollTo('s11')"><span data-ko>💡 세금 안내</span><span data-en>💡 Tax Guide</span></a>
+</nav>
+
+<!-- 본문 -->
+<main class="content">
+
+<!-- 히어로 -->
+<div class="hero-banner">
+  <h1>
+    <span data-ko>📖 포트폴리오 매니저 사용설명서</span>
+    <span data-en>📖 Portfolio Manager User Guide</span>
+  </h1>
+  <p>
+    <span data-ko>미국·한국 주식 포트폴리오를 무료로 관리하는 모든 방법을 안내합니다.</span>
+    <span data-en>Everything you need to know about managing your US &amp; Korean stock portfolio — for free.</span>
+  </p>
+  <div class="hero-badges">
+    <span class="badge">🇺🇸 미국주식</span>
+    <span class="badge">🇰🇷 한국주식</span>
+    <span class="badge">📊 ETF</span>
+    <span class="badge">🔒 로컬 암호화</span>
+    <span class="badge">💰 배당 추적</span>
+  </div>
+</div>
+
+<!-- ─────────────────────────────── S0 시작하기 ─── -->
+<section class="section" id="s0">
+  <div class="section-num" data-ko>시작하기</div>
+  <div class="section-num" data-en>Getting Started</div>
+  <h2 class="section-title">
+    <span data-ko>📖 처음 사용하시나요?</span>
+    <span data-en>📖 First Time Here?</span>
+  </h2>
+  <p class="section-desc">
+    <span data-ko>별도의 설치 없이 브라우저에서 바로 사용할 수 있습니다. 모든 데이터는 이 기기 안에만 저장되며 외부 서버로 전송되지 않습니다.</span>
+    <span data-en>No installation needed — works directly in your browser. All data is stored locally on this device and never sent to any external server.</span>
+  </p>
+</section>
+
+<section class="section" id="s0a">
+  <div class="section-num" data-ko>Step 1</div>
+  <div class="section-num" data-en>Step 1</div>
+  <h2 class="section-title">
+    <span data-ko>계정 만들기</span>
+    <span data-en>Create Your Account</span>
+  </h2>
+  <p class="section-desc">
+    <span data-ko>처음 접속하면 아래와 같이 계정 생성 화면이 나타납니다. 아이디와 비밀번호를 설정하면 암호화된 로컬 저장소에 안전하게 보관됩니다.</span>
+    <span data-en>When you first visit, you'll see the account creation screen. Set your ID and password — they are securely stored in an encrypted local vault.</span>
+  </p>
+  <div class="ss-wrap">
+    <img src="docs/screenshots/01b_register_card.png" alt="회원가입 화면">
+    <div class="ss-caption">
+      <span data-ko>▲ 계정 생성 화면 — 아이디(3자 이상), 비밀번호(6자 이상)를 입력하고 「계정 만들기」를 클릭하세요.</span>
+      <span data-en>▲ Account creation screen — Enter an ID (3+ chars) and password (6+ chars), then click "Create Account".</span>
+    </div>
+  </div>
+  <ol class="steps">
+    <li><span class="step-num">1</span><div><strong data-ko>아이디 입력</strong><strong data-en>Enter ID</strong> — <span data-ko>3자 이상, 영문/숫자 권장</span><span data-en>3+ characters, alphanumeric recommended</span></div></li>
+    <li><span class="step-num">2</span><div><strong data-ko>비밀번호 설정</strong><strong data-en>Set Password</strong> — <span data-ko>6자 이상, 잊어버리면 복구 불가 (복구 기능 없음)</span><span data-en>6+ characters. Cannot be recovered if forgotten (no recovery feature)</span></div></li>
+    <li><span class="step-num">3</span><div><strong>「계정 만들기 →」</strong><span data-ko> 클릭 → 자동으로 로그인되어 앱이 시작됩니다.</span><span data-en> — Automatically logs you in and starts the app.</span></div></li>
+  </ol>
+  <div class="warn">
+    <strong>⚠️ <span data-ko>중요</span><span data-en>Important</span></strong> — <span data-ko>비밀번호는 PBKDF2-SHA256 (10만 회 반복)으로 해시 처리되어 저장됩니다. 분실 시 복구가 불가능하므로 안전한 곳에 보관해 주세요.</span><span data-en>Your password is hashed with PBKDF2-SHA256 (100,000 iterations). There is no recovery option — keep your password somewhere safe.</span>
+  </div>
+</section>
+
+<section class="section" id="s0b">
+  <div class="section-num" data-ko>Step 2</div>
+  <div class="section-num" data-en>Step 2</div>
+  <h2 class="section-title">
+    <span data-ko>로그인 / 로그아웃</span>
+    <span data-en>Login / Logout</span>
+  </h2>
+  <p class="section-desc">
+    <span data-ko>계정 생성 후 재방문하면 로그인 화면이 표시됩니다. 세션은 브라우저를 닫아도 유지됩니다.</span>
+    <span data-en>On subsequent visits you'll see the login screen. Your session persists even after closing the browser.</span>
+  </p>
+  <div class="ss-wrap">
+    <img src="docs/screenshots/02_login.png" alt="로그인 화면">
+    <div class="ss-caption">
+      <span data-ko>▲ 로그인 화면 — 우측 상단의 「⎋ 로그아웃」 버튼을 누르면 로그인 화면으로 돌아옵니다.</span>
+      <span data-en>▲ Login screen — Click "⎋ Logout" in the top-right to return here from the app.</span>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────────────────────────── S1 화면 구성 ─── -->
+<section class="section" id="s1">
+  <div class="section-num" data-ko>화면 구성</div>
+  <div class="section-num" data-en>Screen Layout</div>
+  <h2 class="section-title">
+    <span data-ko>🖥️ 화면 구성 이해하기</span>
+    <span data-en>🖥️ Understanding the Screen Layout</span>
+  </h2>
+  <p class="section-desc">
+    <span data-ko>앱은 크게 세 부분으로 나뉩니다: 상단 바, 왼쪽 사이드바, 메인 콘텐츠 영역.</span>
+    <span data-en>The app has three main areas: Top bar, Left sidebar, and Main content area.</span>
+  </p>
+  <div class="ss-wrap">
+    <img src="docs/screenshots/03_overview.png" alt="메인 화면 전체">
+    <div class="ss-caption">
+      <span data-ko>▲ 로그인 후 메인 화면 — 위쪽이 상단 바, 왼쪽이 사이드바, 가운데가 메인 콘텐츠입니다.</span>
+      <span data-en>▲ Main screen after login — top bar at top, sidebar on left, main content in center.</span>
+    </div>
+  </div>
+
+  <h3 style="font-size:15px;margin:24px 0 10px;color:var(--text)">
+    <span data-ko>📌 상단 바 버튼 안내</span>
+    <span data-en>📌 Top Bar Button Guide</span>
+  </h3>
+  <div class="ss-wrap">
+    <img src="docs/screenshots/06_topbar.png" alt="상단 바">
+    <div class="ss-caption">
+      <span data-ko>▲ 상단 바 — 자주 쓰는 기능 버튼들이 모여 있습니다.</span>
+      <span data-en>▲ Top bar — all frequently-used action buttons.</span>
+    </div>
+  </div>
+  <table class="feat-table">
+    <tr><th><span data-ko>버튼</span><span data-en>Button</span></th><th><span data-ko>기능</span><span data-en>Function</span></th></tr>
+    <tr><td>EN / KO</td><td><span data-ko>언어 전환 (한국어 ↔ 영어)</span><span data-en>Switch language (Korean ↔ English)</span></td></tr>
+    <tr><td>☀️ / 🌙</td><td><span data-ko>다크 / 라이트 테마 전환</span><span data-en>Toggle dark / light theme</span></td></tr>
+    <tr><td>⎋ 로그아웃</td><td><span data-ko>현재 계정에서 로그아웃</span><span data-en>Log out of current account</span></td></tr>
+    <tr><td>🔔</td><td><span data-ko>가격 알림 설정</span><span data-en>Price alert settings</span></td></tr>
+    <tr><td>📊</td><td><span data-ko>매도 기록 관리</span><span data-en>Realized trade history</span></td></tr>
+    <tr><td>⚙️ API</td><td><span data-ko>API 키 설정 (자동 가격 조회용)</span><span data-en>API key settings (for auto price fetching)</span></td></tr>
+    <tr><td>⇅</td><td><span data-ko>CSV/JSON 가져오기·내보내기</span><span data-en>CSV/JSON import &amp; export</span></td></tr>
+    <tr><td>📸 스냅샷</td><td><span data-ko>현재 포트폴리오 가치를 기록으로 저장</span><span data-en>Save current portfolio value as a snapshot</span></td></tr>
+    <tr><td>↻ 새로고침</td><td><span data-ko>등록된 API로 실시간 가격 조회</span><span data-en>Refresh prices via configured APIs</span></td></tr>
+    <tr><td>+ 포지션 추가</td><td><span data-ko>새 종목 추가</span><span data-en>Add a new position</span></td></tr>
+  </table>
+
+  <h3 style="font-size:15px;margin:24px 0 10px;color:var(--text)">
+    <span data-ko>📌 사이드바 안내</span>
+    <span data-en>📌 Sidebar Guide</span>
+  </h3>
+  <div class="ss-row">
+    <div class="ss-wrap" style="margin:0">
+      <img src="docs/screenshots/05_sidebar.png" alt="사이드바">
+      <div class="ss-caption">
+        <span data-ko>▲ 사이드바 — VIEWS에서 탭 전환, ACCOUNTS에서 계좌 필터링</span>
+        <span data-en>▲ Sidebar — switch tabs in VIEWS, filter by account in ACCOUNTS</span>
+      </div>
+    </div>
+    <div>
+      <table class="feat-table" style="margin-top:0">
+        <tr><th><span data-ko>항목</span><span data-en>Item</span></th><th><span data-ko>설명</span><span data-en>Description</span></th></tr>
+        <tr><td>📊 Overview</td><td><span data-ko>포트폴리오 요약 차트</span><span data-en>Portfolio summary &amp; charts</span></td></tr>
+        <tr><td>📋 Positions</td><td><span data-ko>보유 종목 전체 목록</span><span data-en>Full holdings list</span></td></tr>
+        <tr><td>📈 미래 예측</td><td><span data-ko>30년 자산 성장 시뮬레이션</span><span data-en>30-year wealth projection</span></td></tr>
+        <tr><td>📋 리포트</td><td><span data-ko>세금 포함 종합 분석 리포트</span><span data-en>Comprehensive report with tax analysis</span></td></tr>
+        <tr><td>All Accounts</td><td><span data-ko>모든 계좌 합산 보기</span><span data-en>View all accounts combined</span></td></tr>
+        <tr><td>Brokerage 등</td><td><span data-ko>계좌별 개별 보기</span><span data-en>View by individual account</span></td></tr>
+        <tr><td>New Account</td><td><span data-ko>새 계좌 추가</span><span data-en>Add a new account</span></td></tr>
+      </table>
+      <div class="tip" style="margin-top:12px">
+        <strong>💡 Tip</strong> — <span data-ko>계좌명 오른쪽 연필 아이콘으로 이름 변경, × 아이콘으로 삭제할 수 있습니다.</span><span data-en>Click the pencil icon next to an account name to rename it, × to delete.</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────────────────────────── S2 포지션 관리 ─── -->
+<section class="section" id="s2">
+  <div class="section-num" data-ko>핵심 기능</div>
+  <div class="section-num" data-en>Core Feature</div>
+  <h2 class="section-title">
+    <span data-ko>📋 포지션 추가 · 수정 · 삭제</span>
+    <span data-en>📋 Add · Edit · Delete Positions</span>
+  </h2>
+  <p class="section-desc">
+    <span data-ko>「+ 포지션 추가」 버튼을 클릭하면 종목 검색 모달이 열립니다. 티커를 입력하면 자동완성 목록에서 선택할 수 있습니다.</span>
+    <span data-en>Click "+ Add Position" to open the position dialog. Type a ticker to see autocomplete suggestions.</span>
+  </p>
+  <div class="ss-row">
+    <div class="ss-wrap" style="margin:0">
+      <img src="docs/screenshots/12_add_modal.png" alt="포지션 추가 모달">
+      <div class="ss-caption"><span data-ko>▲ 포지션 추가 모달</span><span data-en>▲ Add Position modal</span></div>
+    </div>
+    <div class="ss-wrap" style="margin:0">
+      <img src="docs/screenshots/12b_add_modal_autocomplete.png" alt="자동완성">
+      <div class="ss-caption"><span data-ko>▲ 티커 자동완성 — 섹터·비중 미리보기 제공</span><span data-en>▲ Ticker autocomplete with sector &amp; weight preview</span></div>
+    </div>
+  </div>
+  <ol class="steps">
+    <li><span class="step-num">1</span><div><span data-ko><strong>티커 입력</strong> — AAPL, SCHD, 005930.KS 형태로 입력. 한국 주식은 .KS (코스피) 또는 .KQ (코스닥) 접미사를 붙입니다.</span><span data-en><strong>Enter ticker</strong> — e.g. AAPL, SCHD, 005930.KS. Korean stocks use .KS (KOSPI) or .KQ (KOSDAQ) suffix.</span></div></li>
+    <li><span class="step-num">2</span><div><span data-ko><strong>수량 입력</strong> — 보유 주수를 입력합니다.</span><span data-en><strong>Enter shares</strong> — the number of shares you hold.</span></div></li>
+    <li><span class="step-num">3</span><div><span data-ko><strong>평균 매수가 입력</strong> — USD 또는 KRW 단위로 입력. 한국 주식은 원화(₩) 기준.</span><span data-en><strong>Average buy price</strong> — in USD or KRW. Korean stocks use Korean Won (₩).</span></div></li>
+    <li><span class="step-num">4</span><div><span data-ko><strong>배당수익률 입력</strong> (선택) — 연간 배당수익률 %. 입력하면 배당 캘린더·리포트에 반영됩니다.</span><span data-en><strong>Dividend yield</strong> (optional) — Annual yield %. Used in Dividend Calendar &amp; Report.</span></div></li>
+    <li><span class="step-num">5</span><div><span data-ko><strong>계좌 선택</strong> — Brokerage, Roth IRA, 401k 등 원하는 계좌에 배정합니다.</span><span data-en><strong>Select account</strong> — Assign to Brokerage, Roth IRA, 401k, etc.</span></div></li>
+  </ol>
+  <div class="ss-wrap">
+    <img src="docs/screenshots/10_positions.png" alt="포지션 테이블">
+    <div class="ss-caption">
+      <span data-ko>▲ Positions 탭 — 종목 행을 클릭하면 수정, 🗑 아이콘으로 삭제(확인 팝업 있음), 헤더 클릭으로 정렬.</span>
+      <span data-en>▲ Positions tab — click a row to edit, 🗑 to delete (with confirmation), click headers to sort.</span>
+    </div>
+  </div>
+  <div class="ss-wrap">
+    <img src="docs/screenshots/11_filter_row.png" alt="필터">
+    <div class="ss-caption">
+      <span data-ko>▲ 필터 pill — All / US / Korea / ETF로 빠르게 필터링. ⚙ 버튼으로 커스텀 필터 추가 가능.</span>
+      <span data-en>▲ Filter pills — quickly filter by All / US / Korea / ETF. Click ⚙ to add custom filters.</span>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────────────────────────── S3 Overview ─── -->
+<section class="section" id="s3">
+  <div class="section-num" data-ko>분석 탭</div>
+  <div class="section-num" data-en>Analysis Tab</div>
+  <h2 class="section-title">
+    <span data-ko>📊 Overview 탭 — 포트폴리오 한눈에 보기</span>
+    <span data-en>📊 Overview Tab — Portfolio at a Glance</span>
+  </h2>
+  <p class="section-desc">
+    <span data-ko>Overview 탭에서는 포트폴리오 총 평가액, 손익, 배당 통계와 함께 자산 배분·섹터 분석 차트를 확인할 수 있습니다.</span>
+    <span data-en>The Overview tab shows your total portfolio value, P&amp;L, dividend stats, and allocation / sector analysis charts.</span>
+  </p>
+  <div class="ss-wrap">
+    <img src="docs/screenshots/04_hero.png" alt="Hero 섹션">
+    <div class="ss-caption">
+      <span data-ko>▲ Hero 섹션 — 총 평가액(USD), 평가손익, 투자 대비 배당수익률, 시장가 대비 배당수익률을 표시합니다.</span>
+      <span data-en>▲ Hero section — shows total value (USD), unrealized P&amp;L, yield on cost, and yield on market value.</span>
+    </div>
+  </div>
+  <div class="ss-wrap">
+    <img src="docs/screenshots/07_charts_row.png" alt="차트 영역">
+    <div class="ss-caption">
+      <span data-ko>▲ 자산 구성 도넛 차트 (자산/배당 탭 전환 가능) + 섹터 분석 가로 막대 차트.</span>
+      <span data-en>▲ Asset allocation donut chart (switch between Asset/Dividend tabs) + sector horizontal bar chart.</span>
+    </div>
+  </div>
+  <div class="ss-wrap">
+    <img src="docs/screenshots/09_snapshot.png" alt="스냅샷 히스토리">
+    <div class="ss-caption">
+      <span data-ko>▲ 포트폴리오 가치 추이 — 📸 스냅샷 버튼으로 저장한 기록이 꺾은선 그래프로 표시됩니다. 하루에 한 번 저장 가능.</span>
+      <span data-en>▲ Portfolio value history — saves made with the 📸 Snapshot button appear as a line chart. One save per day.</span>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="s3a">
+  <div class="section-num" data-ko>배당 분석</div>
+  <div class="section-num" data-en>Dividend Analysis</div>
+  <h2 class="section-title">
+    <span data-ko>📅 배당 캘린더 — 24개월 예상 배당</span>
+    <span data-en>📅 Dividend Calendar — 24-Month Dividend Forecast</span>
+  </h2>
+  <p class="section-desc">
+    <span data-ko>현재 보유 종목의 배당수익률을 기반으로 향후 24개월 예상 월 배당금을 종목별 색상으로 스택 바 차트에 표시합니다.</span>
+    <span data-en>Shows estimated monthly dividends for the next 24 months, stacked by stock and color-coded by yield tier.</span>
+  </p>
+  <div class="ss-wrap">
+    <img src="docs/screenshots/08_div_calendar.png" alt="배당 캘린더">
+    <div class="ss-caption">
+      <span data-ko>▲ 배당 캘린더 — 현재 월은 흰 테두리로 표시. 각 막대에 마우스를 올리면 종목별 월 배당금을 확인할 수 있습니다.</span>
+      <span data-en>▲ Dividend Calendar — current month has a white outline. Hover over each bar to see per-stock monthly dividend.</span>
+    </div>
+  </div>
+  <table class="feat-table">
+    <tr><th><span data-ko>색상</span><span data-en>Color</span></th><th><span data-ko>배당률 구간</span><span data-en>Yield Range</span></th><th><span data-ko>종류</span><span data-en>Type</span></th></tr>
+    <tr><td style="color:#5b9bd5">■ 파랑</td><td>0 – 2%</td><td><span data-ko>성장주</span><span data-en>Growth</span></td></tr>
+    <tr><td style="color:#17e8a1">■ 초록</td><td>2 – 4%</td><td><span data-ko>균형형</span><span data-en>Balanced</span></td></tr>
+    <tr><td style="color:#f0a500">■ 주황</td><td>4 – 6%</td><td><span data-ko>배당주</span><span data-en>Income</span></td></tr>
+    <tr><td style="color:#ff6b6b">■ 빨강</td><td>6% +</td><td><span data-ko>고배당</span><span data-en>High Yield</span></td></tr>
+  </table>
+</section>
+
+<!-- ─────────────────────────────── S4 미래 예측 ─── -->
+<section class="section" id="s4">
+  <div class="section-num" data-ko>미래 예측</div>
+  <div class="section-num" data-en>Future Forecast</div>
+  <h2 class="section-title">
+    <span data-ko>📈 미래 자산 예측 — 10 / 20 / 30년</span>
+    <span data-en>📈 Future Forecast — 10 / 20 / 30 Years</span>
+  </h2>
+  <p class="section-desc">
+    <span data-ko>배당인상률과 주가상승률을 조절하여 10년, 20년, 30년 후 예상 자산을 시뮬레이션합니다. DRIP(배당 재투자)를 켜면 복리 효과를 계산합니다.</span>
+    <span data-en>Simulate your wealth at 10, 20, and 30 years by adjusting dividend growth and price growth rates. Enable DRIP to model compound reinvestment.</span>
+  </p>
+  <div class="ss-wrap">
+    <img src="docs/screenshots/17_forecast.png" alt="미래 예측">
+    <div class="ss-caption">
+      <span data-ko>▲ 미래 예측 화면 — 슬라이더로 배당인상률·주가상승률을 조절하면 카드와 차트가 실시간 업데이트됩니다.</span>
+      <span data-en>▲ Forecast screen — adjust sliders and cards + chart update in real time.</span>
+    </div>
+  </div>
+  <table class="feat-table">
+    <tr><th><span data-ko>설정</span><span data-en>Setting</span></th><th><span data-ko>기본값</span><span data-en>Default</span></th><th><span data-ko>설명</span><span data-en>Description</span></th></tr>
+    <tr><td><span data-ko>배당인상률</span><span data-en>Div Growth Rate</span></td><td>5.0%</td><td><span data-ko>매년 배당금이 증가하는 비율</span><span data-en>Annual rate at which dividends grow</span></td></tr>
+    <tr><td><span data-ko>주가상승률</span><span data-en>Price Growth Rate</span></td><td>7.0%</td><td><span data-ko>매년 포트폴리오 가치 상승률 (S&amp;P 500 역사 평균 ~10%)</span><span data-en>Annual portfolio value growth (S&amp;P 500 historical avg ~10%)</span></td></tr>
+    <tr><td>DRIP</td><td>ON</td><td><span data-ko>배당금을 매년 포트폴리오에 재투자하여 복리 효과 적용</span><span data-en>Reinvest dividends annually for compound growth effect</span></td></tr>
+  </table>
+  <div class="tip">
+    <strong>💡 <span data-ko>활용 팁</span><span data-en>Usage Tip</span></strong> — <span data-ko>DRIP ON/OFF를 비교하면 배당 재투자의 복리 효과를 직접 확인할 수 있습니다. 장기일수록 차이가 크게 벌어집니다.</span><span data-en>Toggle DRIP ON/OFF to see the compound effect of dividend reinvestment — the difference grows dramatically over time.</span>
+  </div>
+</section>
+
+<!-- ─────────────────────────────── S5 리포트 ─── -->
+<section class="section" id="s5">
+  <div class="section-num" data-ko>종합 리포트</div>
+  <div class="section-num" data-en>Comprehensive Report</div>
+  <h2 class="section-title">
+    <span data-ko>📋 포트폴리오 종합 리포트</span>
+    <span data-en>📋 Portfolio Comprehensive Report</span>
+  </h2>
+  <p class="section-desc">
+    <span data-ko>6개 섹션으로 구성된 종합 리포트입니다. 세금까지 반영한 실질 수익을 확인하고 포트폴리오 건전성을 점검할 수 있습니다.</span>
+    <span data-en>A 6-section comprehensive report covering after-tax returns, sector allocation, FX risk, and portfolio health indicators.</span>
+  </p>
+  <div class="ss-wrap">
+    <img src="docs/screenshots/18_report_top.png" alt="리포트 상단">
+    <div class="ss-caption">
+      <span data-ko>▲ 리포트 상단 — ① 현황 요약 (6개 지표) + ② 종목별 분석 테이블</span>
+      <span data-en>▲ Report top — ① Summary stats + ② Per-stock analysis table</span>
+    </div>
+  </div>
+  <table class="feat-table">
+    <tr><th>#</th><th><span data-ko>섹션</span><span data-en>Section</span></th><th><span data-ko>내용</span><span data-en>Content</span></th></tr>
+    <tr><td>①</td><td><span data-ko>현황 요약</span><span data-en>Summary</span></td><td><span data-ko>총 평가액, 투자원금, 총손익, 수익률, 연배당(세전/세후)</span><span data-en>Total value, cost basis, P&amp;L, return, annual div (pre/post-tax)</span></td></tr>
+    <tr><td>②</td><td><span data-ko>종목별 분석</span><span data-en>Stock Analysis</span></td><td><span data-ko>지역·섹터·비중·손익·세후 배당·세금 비용 테이블</span><span data-en>Per-stock: region, sector, weight, P&amp;L, after-tax div, tax cost</span></td></tr>
+    <tr><td>③</td><td><span data-ko>세후 수익 분석</span><span data-en>After-Tax Analysis</span></td><td><span data-ko>미국/한국 주식 세금 별도 계산 + 세후 실효 배당수익률</span><span data-en>US/KR tax calculation + effective yield after all taxes</span></td></tr>
+    <tr><td>④</td><td><span data-ko>섹터 &amp; 지역 분산</span><span data-en>Allocation</span></td><td><span data-ko>섹터별·지역별 비중 가로 막대그래프</span><span data-en>Sector and region allocation bar charts</span></td></tr>
+    <tr><td>⑤</td><td><span data-ko>환율 리스크</span><span data-en>FX Risk</span></td><td><span data-ko>USD 노출 비중 + 환율 ±10%/±20% 시나리오</span><span data-en>USD exposure + ±10%/±20% FX impact scenarios</span></td></tr>
+    <tr><td>⑥</td><td><span data-ko>포트폴리오 건전성</span><span data-en>Health</span></td><td><span data-ko>집중도, 종목 수, 섹터 수, 배당비중 (양호/주의/위험)</span><span data-en>Concentration, # holdings, # sectors, dividend ratio (Good/Caution/Risk)</span></td></tr>
+  </table>
+</section>
+
+<section class="section" id="s5a">
+  <div class="section-num" data-ko>세금 안내</div>
+  <div class="section-num" data-en>Tax Guide</div>
+  <h2 class="section-title">
+    <span data-ko>💰 세후 수익 분석 (③ 섹션)</span>
+    <span data-en>💰 After-Tax Analysis (Section ③)</span>
+  </h2>
+  <div class="ss-wrap">
+    <img src="docs/screenshots/18b_report_tax.png" alt="세금 분석">
+    <div class="ss-caption">
+      <span data-ko>▲ 미국/한국 주식 세금을 분리하여 계산 — 세전·세금·세후 배당을 한눈에 비교.</span>
+      <span data-en>▲ US and Korean stock taxes calculated separately — compare pre-tax, tax cost, and after-tax dividend at a glance.</span>
+    </div>
+  </div>
+  <div class="ss-wrap">
+    <img src="docs/screenshots/18c_report_health.png" alt="건전성">
+    <div class="ss-caption">
+      <span data-ko>▲ 포트폴리오 건전성 지표 — 집중도/종목수/섹터수마다 양호(초록)·주의(주황)·위험(빨강) 뱃지 제공.</span>
+      <span data-en>▲ Portfolio health indicators — Good (green) / Caution (orange) / Risk (red) badges for each metric.</span>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────────────────────────── S6 API ─── -->
+<section class="section" id="s6">
+  <div class="section-num" data-ko>API 설정</div>
+  <div class="section-num" data-en>API Settings</div>
+  <h2 class="section-title">
+    <span data-ko>⚙️ API 설정 — 실시간 가격 조회</span>
+    <span data-en>⚙️ API Settings — Live Price Fetching</span>
+  </h2>
+  <p class="section-desc">
+    <span data-ko>「⚙️ API」 버튼을 클릭하면 API 키 설정 화면이 열립니다. Yahoo Finance는 키 없이 자동으로 사용됩니다.</span>
+    <span data-en>Click "⚙️ API" to open the API key settings. Yahoo Finance works automatically without any key.</span>
+  </p>
+  <div class="ss-wrap">
+    <img src="docs/screenshots/13_api_modal.png" alt="API 설정">
+    <div class="ss-caption">
+      <span data-ko>▲ API 설정 모달 — 사용 가능한 API 제공자와 연결 상태를 확인할 수 있습니다.</span>
+      <span data-en>▲ API settings modal — shows available providers and their connection status.</span>
+    </div>
+  </div>
+  <table class="feat-table">
+    <tr><th><span data-ko>제공자</span><span data-en>Provider</span></th><th><span data-ko>무료 한도</span><span data-en>Free Limit</span></th><th><span data-ko>지원 종목</span><span data-en>Coverage</span></th><th><span data-ko>키 필요</span><span data-en>Key Required</span></th></tr>
+    <tr><td>Yahoo Finance</td><td><span data-ko>제한 없음 (15분 지연)</span><span data-en>Unlimited (15min delay)</span></td><td><span data-ko>미국 + 한국주식</span><span data-en>US + Korean stocks</span></td><td><span class="tag tag-free">불필요</span></td></tr>
+    <tr><td>Finnhub</td><td><span data-ko>분당 60회</span><span data-en>60 req/min</span></td><td><span data-ko>미국주식</span><span data-en>US stocks</span></td><td><span class="tag tag-paid">필요</span></td></tr>
+    <tr><td>Twelve Data</td><td><span data-ko>일 800회</span><span data-en>800 req/day</span></td><td><span data-ko>미국주식</span><span data-en>US stocks</span></td><td><span class="tag tag-paid">필요</span></td></tr>
+    <tr><td>Alpha Vantage</td><td><span data-ko>일 25회</span><span data-en>25 req/day</span></td><td><span data-ko>미국주식</span><span data-en>US stocks</span></td><td><span class="tag tag-paid">필요</span></td></tr>
+  </table>
+  <div class="tip">
+    <strong>💡 <span data-ko>한국 주식 가격 조회</span><span data-en>Korean Stock Prices</span></strong> — <span data-ko>한국 주식(.KS/.KQ)은 Yahoo Finance를 통해 자동 조회되며, 설정한 USD/KRW 환율로 자동 환산됩니다.</span><span data-en>Korean stocks (.KS/.KQ) are fetched automatically via Yahoo Finance and converted to USD using the configured exchange rate.</span>
+  </div>
+</section>
+
+<!-- ─────────────────────────────── S7 데이터 관리 ─── -->
+<section class="section" id="s7">
+  <div class="section-num" data-ko>데이터 관리</div>
+  <div class="section-num" data-en>Data Management</div>
+  <h2 class="section-title">
+    <span data-ko>📤 가져오기 · 내보내기</span>
+    <span data-en>📤 Import &amp; Export</span>
+  </h2>
+  <p class="section-desc">
+    <span data-ko>「⇅」 버튼으로 포지션 데이터를 CSV 또는 JSON으로 내보내거나 가져올 수 있습니다. 백업을 정기적으로 해두는 것을 권장합니다.</span>
+    <span data-en>Click "⇅" to export or import your position data as CSV or JSON. Regular backups are strongly recommended.</span>
+  </p>
+  <div class="ss-wrap">
+    <img src="docs/screenshots/14_io_modal.png" alt="IO 모달">
+    <div class="ss-caption">
+      <span data-ko>▲ 가져오기·내보내기 모달 — CSV는 엑셀 호환, JSON은 전체 백업(계좌·포지션·설정 포함).</span>
+      <span data-en>▲ Import/Export modal — CSV is Excel-compatible; JSON is a full backup including accounts, positions, and settings.</span>
+    </div>
+  </div>
+  <table class="feat-table">
+    <tr><th><span data-ko>기능</span><span data-en>Feature</span></th><th><span data-ko>형식</span><span data-en>Format</span></th><th><span data-ko>내용</span><span data-en>Content</span></th></tr>
+    <tr><td>CSV <span data-ko>내보내기</span><span data-en>Export</span></td><td>.csv</td><td><span data-ko>포지션 목록 (엑셀에서 열 수 있음)</span><span data-en>Position list (opens in Excel)</span></td></tr>
+    <tr><td><span data-ko>전체 백업</span><span data-en>Full Backup</span></td><td>.json</td><td><span data-ko>계좌, 포지션, API 설정, 스냅샷 전체</span><span data-en>All accounts, positions, API settings, snapshots</span></td></tr>
+    <tr><td>CSV <span data-ko>가져오기</span><span data-en>Import</span></td><td>.csv</td><td><span data-ko>CSV 파일에서 포지션 일괄 추가</span><span data-en>Bulk-add positions from a CSV file</span></td></tr>
+    <tr><td><span data-ko>백업 복원</span><span data-en>Restore Backup</span></td><td>.json</td><td><span data-ko>JSON 백업 파일로 전체 복원 (기존 데이터 덮어씌움)</span><span data-en>Restore everything from a JSON backup (overwrites existing data)</span></td></tr>
+  </table>
+</section>
+
+<!-- ─────────────────────────────── S8 알림 ─── -->
+<section class="section" id="s8">
+  <div class="section-num" data-ko>알림</div>
+  <div class="section-num" data-en>Alerts</div>
+  <h2 class="section-title">
+    <span data-ko>🔔 가격 알림 / 📊 매도 기록</span>
+    <span data-en>🔔 Price Alerts / 📊 Trade History</span>
+  </h2>
+  <div class="ss-row">
+    <div class="ss-wrap" style="margin:0">
+      <img src="docs/screenshots/15_alerts_modal.png" alt="가격 알림">
+      <div class="ss-caption"><span data-ko>▲ 가격 알림 — 티커, 기준가, 이상/이하 조건 설정</span><span data-en>▲ Price Alerts — set ticker, target price, above/below condition</span></div>
+    </div>
+    <div class="ss-wrap" style="margin:0">
+      <img src="docs/screenshots/16_trades_modal.png" alt="매도 기록">
+      <div class="ss-caption"><span data-ko>▲ 매도 기록 — 매도 내역과 실현 손익 누적 관리</span><span data-en>▲ Trade history — track realized gains &amp; losses from sells</span></div>
+    </div>
+  </div>
+  <div class="note">
+    <strong>📌 <span data-ko>알림 동작 방식</span><span data-en>How Alerts Work</span></strong> — <span data-ko>「↻ 새로고침」으로 가격을 업데이트할 때 조건을 충족하는 알림이 있으면 화면 하단에 토스트 메시지가 표시됩니다. 브라우저 푸시 알림은 지원하지 않습니다.</span><span data-en>When you click "↻ Refresh" to update prices, any triggered alerts show as a toast notification at the bottom. Browser push notifications are not supported.</span>
+  </div>
+</section>
+
+<!-- ─────────────────────────────── S9 모바일 ─── -->
+<section class="section" id="s9">
+  <div class="section-num" data-ko>모바일</div>
+  <div class="section-num" data-en>Mobile</div>
+  <h2 class="section-title">
+    <span data-ko>📱 모바일에서 사용하기</span>
+    <span data-en>📱 Using on Mobile</span>
+  </h2>
+  <p class="section-desc">
+    <span data-ko>iPhone SE(375px)부터 태블릿(1024px)까지 반응형으로 최적화되어 있습니다. 모바일에서는 사이드바가 기본 접힌 상태로 표시됩니다.</span>
+    <span data-en>Fully responsive from iPhone SE (375px) to tablet (1024px). On mobile, the sidebar starts collapsed.</span>
+  </p>
+  <div class="ss-row">
+    <div class="ss-wrap" style="margin:0">
+      <img src="docs/screenshots/19_mobile_overview.png" alt="모바일 Overview">
+      <div class="ss-caption"><span data-ko>▲ 모바일 — 사이드바 접힌 상태 (44px 너비)</span><span data-en>▲ Mobile — sidebar collapsed (44px wide)</span></div>
+    </div>
+    <div class="ss-wrap" style="margin:0">
+      <img src="docs/screenshots/19b_mobile_sidebar.png" alt="모바일 사이드바">
+      <div class="ss-caption"><span data-ko>▲ 모바일 사이드바 — 토글 버튼으로 확장, 배경 터치로 닫힘</span><span data-en>▲ Mobile sidebar expanded — tap backdrop to close</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────────────────────────── S10 보안 ─── -->
+<section class="section" id="s10">
+  <div class="section-num" data-ko>보안</div>
+  <div class="section-num" data-en>Security</div>
+  <h2 class="section-title">
+    <span data-ko>🔒 데이터 보안</span>
+    <span data-en>🔒 Data Security</span>
+  </h2>
+  <div class="ss-row">
+    <div class="ss-wrap" style="margin:0">
+      <img src="docs/screenshots/20_light_theme.png" alt="라이트 테마">
+      <div class="ss-caption"><span data-ko>▲ 라이트 테마 — 상단 ☀️ 버튼으로 전환 가능</span><span data-en>▲ Light theme — toggle via ☀️ button in the top bar</span></div>
+    </div>
+    <div>
+      <table class="feat-table" style="margin-top:0">
+        <tr><th><span data-ko>항목</span><span data-en>Item</span></th><th><span data-ko>내용</span><span data-en>Detail</span></th></tr>
+        <tr><td><span data-ko>비밀번호 저장</span><span data-en>Password Storage</span></td><td>PBKDF2-SHA256 <span data-ko>(10만 회 반복 + 랜덤 Salt)</span><span data-en>(100,000 iterations + random salt)</span></td></tr>
+        <tr><td><span data-ko>데이터 위치</span><span data-en>Data Location</span></td><td><span data-ko>이 기기의 브라우저 localStorage에만 저장</span><span data-en>Stored only in this device's browser localStorage</span></td></tr>
+        <tr><td><span data-ko>서버 전송</span><span data-en>Server Transmission</span></td><td><span data-ko>없음 — 가격 조회 API 외 외부 서버 없음</span><span data-en>None — no external server except price APIs</span></td></tr>
+        <tr><td><span data-ko>백업 권장</span><span data-en>Backup Recommended</span></td><td><span data-ko>브라우저 데이터 삭제 시 모든 데이터 소실 → 정기 JSON 백업 권장</span><span data-en>Clearing browser data deletes everything → regular JSON backup recommended</span></td></tr>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────────────────────────── S11 세금 ─── -->
+<section class="section" id="s11">
+  <div class="section-num" data-ko>세금 안내</div>
+  <div class="section-num" data-en>Tax Guide</div>
+  <h2 class="section-title">
+    <span data-ko>💡 한국 거주자 세금 안내</span>
+    <span data-en>💡 Tax Guide for Korean Residents</span>
+  </h2>
+  <p class="section-desc">
+    <span data-ko>리포트의 세후 수익 분석은 아래 세율을 기준으로 자동 계산됩니다. 실제 납세는 전문가 상담을 권장합니다.</span>
+    <span data-en>The after-tax analysis in the report uses the rates below. Consult a tax professional for actual tax filing.</span>
+  </p>
+  <table class="tax-table">
+    <tr>
+      <th><span data-ko>구분</span><span data-en>Category</span></th>
+      <th>🇺🇸 <span data-ko>미국 주식</span><span data-en>US Stocks</span></th>
+      <th>🇰🇷 <span data-ko>한국 주식</span><span data-en>KR Stocks</span></th>
+    </tr>
+    <tr>
+      <td><span data-ko>자본차익세 (양도세)</span><span data-en>Capital Gains Tax</span></td>
+      <td><strong style="color:var(--orange)">22%</strong><br><span style="font-size:11px;color:var(--text3)" data-ko>연 250만원 기본공제<br>해외주식 합산 순이익 기준</span><span style="font-size:11px;color:var(--text3)" data-en>₩2.5M annual deduction<br>Net overseas stock gains</span></td>
+      <td><strong style="color:var(--green)">0%</strong><br><span style="font-size:11px;color:var(--text3)" data-ko>상장사 소액주주 면제<br>(금투세 2024년 폐지)</span><span style="font-size:11px;color:var(--text3)" data-en>Exempt for small shareholders<br>(Financial Investment Tax abolished 2024)</span></td>
+    </tr>
+    <tr>
+      <td><span data-ko>배당소득세</span><span data-en>Dividend Withholding</span></td>
+      <td><strong style="color:var(--orange)">15%</strong><br><span style="font-size:11px;color:var(--text3)" data-ko>한·미 조세협약 원천징수<br>(미국에서 자동 차감)</span><span style="font-size:11px;color:var(--text3)" data-en>US-Korea tax treaty rate<br>(automatically withheld in the US)</span></td>
+      <td><strong style="color:var(--orange)">15.4%</strong><br><span style="font-size:11px;color:var(--text3)" data-ko>14% + 지방소득세 1.4%<br>(국내에서 원천징수)</span><span style="font-size:11px;color:var(--text3)" data-en>14% + 1.4% local tax<br>(withheld domestically)</span></td>
+    </tr>
+    <tr>
+      <td><span data-ko>종합과세</span><span data-en>Comprehensive Taxation</span></td>
+      <td colspan="2"><span data-ko>금융소득(이자+배당) 합계가 연 2,000만원 초과 시 금융소득 전액 종합과세 대상. 구간별 세율(6~45%) 적용.</span><span data-en>If total financial income (interest + dividends) exceeds ₩20M/year, comprehensive taxation applies at progressive rates (6–45%).</span></td>
+    </tr>
+  </table>
+  <div class="warn">
+    <strong>⚠️ <span data-ko>주의</span><span data-en>Disclaimer</span></strong> — <span data-ko>본 앱의 세금 계산은 참고용 추정치입니다. 실제 납세 금액은 개인 상황에 따라 다를 수 있으며, 정확한 세금 신고는 세무사 상담을 권장합니다.</span><span data-en>Tax calculations in this app are estimates for reference only. Actual tax liability varies by individual circumstances. Consult a tax professional for accurate filings.</span>
+  </div>
+</section>
+
+<!-- 하단 여백 -->
+<div style="height:60px"></div>
+
+</main>
+</div>
+
+<script>
+function setLang(lang){
+  document.body.className = lang + '-active';
+  document.getElementById('btn-ko').classList.toggle('active', lang==='ko');
+  document.getElementById('btn-en').classList.toggle('active', lang==='en');
+  localStorage.setItem('help_lang', lang);
+}
+function toggleTheme(){
+  document.documentElement.classList.toggle('light');
+  document.querySelector('.theme-btn').textContent = document.documentElement.classList.contains('light') ? '🌙' : '☀️';
+}
+function scrollTo(id){
+  const el = document.getElementById(id);
+  if(el) el.scrollIntoView({behavior:'smooth', block:'start'});
+}
+// 저장된 언어 복원
+const savedLang = localStorage.getItem('help_lang') || 'ko';
+setLang(savedLang);
+// 저장된 테마 복원
+if(localStorage.getItem('pfm_theme')==='light' || document.documentElement.classList.contains('light')){
+  document.documentElement.classList.add('light');
+  document.querySelector('.theme-btn').textContent = '🌙';
+}
+</script>
+</body>
+</html>
