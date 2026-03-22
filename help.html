@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Portfolio Manager 사용설명서</title>
+<title>Portfolio Manager User Guide</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -101,16 +101,17 @@ a:hover{text-decoration:underline}
 [data-ko],[data-en]{display:none}
 .ko-active [data-ko]{display:block}
 .en-active [data-en]{display:block}
-span[data-ko],span[data-en]{display:inline}
+.ko-active span[data-ko]{display:inline}
+.en-active span[data-en]{display:inline}
 </style>
 </head>
-<body class="ko-active">
+<body class="en-active">
 
 <header class="site-header">
   <div class="site-logo">PORTFOLIO</div>
   <div class="header-right">
-    <button class="lang-btn active" id="btn-ko" onclick="setLang('ko')">한국어</button>
-    <button class="lang-btn" id="btn-en" onclick="setLang('en')">English</button>
+    <button class="lang-btn" id="btn-ko" onclick="setLang('ko')">한국어</button>
+    <button class="lang-btn active" id="btn-en" onclick="setLang('en')">English</button>
     <button class="theme-btn" onclick="toggleTheme()" title="테마 변경">☀️</button>
     <button class="back-btn" onclick="history.back()">← <span data-ko>앱으로 돌아가기</span><span data-en>Back to App</span></button>
   </div>

@@ -3049,7 +3049,7 @@ function App(props){
         ),
         hasKR&&React.createElement('div',{style:{fontSize:9,color:'var(--text3)',fontFamily:'var(--mono)'}},'🇰🇷 '+l.krIncluded)
       ),
-      React.createElement('div',{className:'content'},
+      (mainTab==='overview'||mainTab==='positions')&&React.createElement('div',{className:'content'},
         React.createElement('div',{className:'hero'},
           React.createElement('div',{className:'hero-top'},
             React.createElement('div',null,
@@ -3334,11 +3334,10 @@ function App(props){
                   )
                 )
         )
-      )
+      ),
+      mainTab==='forecast'&&React.createElement(ForecastView,{port:port,lang:lang}),
+      mainTab==='report'&&React.createElement(ReportView,{positions:filtered,prices:prices,usdRate:usdRate,port:port,lang:lang})
     ),
-
-    mainTab==='forecast'&&React.createElement(ForecastView,{port:port,lang:lang}),
-    mainTab==='report'&&React.createElement(ReportView,{positions:filtered,prices:prices,usdRate:usdRate,port:port,lang:lang}),
 
     showSettings&&React.createElement(SettingsModal,{apiKeys:apiKeys,usdRate:usdRate,onSave:saveSettings,lang:lang,onClose:function(){setShowSettings(false)}}),
     (showModal||editPos)&&React.createElement(AddModal,{accounts:accounts,editPos:editPos,lang:lang,
