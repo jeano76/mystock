@@ -2593,7 +2593,7 @@ function App(props){
   var accounts=as[0];var setAccounts=as[1];
   var ps=useState(function(){return ld('positions',[])});
   var positions=ps[0];var setPositions=ps[1];
-  var BOARD_DEFAULTS={jsonbinKey:'',jsonbinBin:''};
+  var BOARD_DEFAULTS={jsonbinKey:'',jsonbinBin:'69bfd1eeb7ec241ddc8fdd43'};
   var ks=useState(function(){var saved=ld('apiKeys',{});return Object.assign({finnhub:'',twelve:'',alpha:''},BOARD_DEFAULTS,saved)});
   var apiKeys=ks[0];var setApiKeys=ks[1];
   var rs=useState(function(){return ld('usdRate',1370)});
@@ -3576,14 +3576,17 @@ function ResetScreen(props){
 
 // ── JSONBin helpers ──
 var JSONBIN_BASE='https://api.jsonbin.io/v3';
+var GUEST_WRITE_KEY='$2a$10$xAoxnsKKGqvwO3ZcsfIPJe79hoRyroVXLKSLo13M/P/muKk9dOKhu';
 async function binFetch(binId){
   var res=await fetch(JSONBIN_BASE+'/b/'+binId+'/latest',{headers:{'X-Bin-Meta':'false'}});
   if(!res.ok) throw new Error('fetch fail');
   var data=await res.json();
   return Array.isArray(data.posts)?data.posts:[];
 }
-async function binSave(binId,masterKey,posts){
-  var res=await fetch(JSONBIN_BASE+'/b/'+binId,{method:'PUT',headers:{'Content-Type':'application/json','X-Master-Key':masterKey},body:JSON.stringify({posts:posts})});
+async function binSave(binId,writeKey,posts,useAccessKey){
+  var headers={'Content-Type':'application/json'};
+  headers[useAccessKey?'X-Access-Key':'X-Master-Key']=writeKey;
+  var res=await fetch(JSONBIN_BASE+'/b/'+binId,{method:'PUT',headers:headers,body:JSON.stringify({posts:posts})});
   if(!res.ok) throw new Error('save fail');
 }
 async function binCreate(masterKey){
@@ -3612,6 +3615,8 @@ function BoardView(props){
   var l=T[lang];
   var masterKey=apiKeys.jsonbinKey||'';
   var binId=apiKeys.jsonbinBin||'';
+  var writeKey=masterKey||GUEST_WRITE_KEY;
+  var isAccessKey=!masterKey;
   var sid=getBoardSid();
 
   var ps=useState([]);var posts=ps[0];var setPosts=ps[1];
@@ -3645,7 +3650,7 @@ function BoardView(props){
   }
 
   async function submitPost(){
-    if(!text.trim()||!binId||!masterKey) return;
+    if(!text.trim()||!binId) return;
     setSubmitting(true);setErr('');
     try{
       var all=await binFetch(binId);
@@ -3653,14 +3658,14 @@ function BoardView(props){
         sid:sid,author:author.trim()||l.boardAnon,ticker:(selTicker==='all'?pt:selTicker)||'',
         text:text.trim().slice(0,280),date:new Date().toISOString(),likes:0,likedBy:[]};
       all.push(newPost);
-      await binSave(binId,masterKey,all);
+      await binSave(binId,writeKey,all,isAccessKey);
       setPosts(all.slice().reverse());setText('');
     }catch(e){setErr(l.boardPostErr);}
     setSubmitting(false);
   }
 
   async function toggleLike(postId){
-    if(!binId||!masterKey) return;
+    if(!binId) return;
     try{
       var all=await binFetch(binId);
       all=all.map(function(p){
@@ -3671,7 +3676,7 @@ function BoardView(props){
           likedBy:liked?(p.likedBy||[]).filter(function(x){return x!==sid}):(p.likedBy||[]).concat(sid)
         });
       });
-      await binSave(binId,masterKey,all);
+      await binSave(binId,writeKey,all,isAccessKey);
       setPosts(all.slice().reverse());
     }catch(e){}
   }
@@ -3681,7 +3686,7 @@ function BoardView(props){
     try{
       var all=await binFetch(binId);
       all=all.filter(function(p){return p.id!==postId});
-      await binSave(binId,masterKey,all);
+      await binSave(binId,masterKey,all,false);
       setPosts(all.slice().reverse());
     }catch(e){setErr(l.boardDelErr);}
   }
@@ -3716,7 +3721,7 @@ function BoardView(props){
       // 우측 본문
       React.createElement('div',{className:'board-main'},
         // 작성 폼
-        masterKey&&React.createElement('div',{className:'board-compose'},
+        binId&&React.createElement('div',{className:'board-compose'},
           React.createElement('div',{className:'board-compose-meta'},
             React.createElement('input',{className:'board-author-input',placeholder:l.boardAuthorPh,value:author,onChange:function(e){setAuthor(e.target.value)},maxLength:20}),
             selTicker==='all'&&React.createElement('select',{className:'board-ticker-sel',value:pt,onChange:function(e){setPt(e.target.value)}},
@@ -3744,7 +3749,7 @@ function BoardView(props){
               ),
               React.createElement('div',{className:'board-post-text'},post.text),
               React.createElement('div',{className:'board-post-foot'},
-                masterKey&&React.createElement('button',{className:'board-post-like'+(liked?' liked':''),onClick:function(){toggleLike(post.id)}},l.boardLike+' '+(post.likes||0)),
+                React.createElement('button',{className:'board-post-like'+(liked?' liked':''),onClick:function(){toggleLike(post.id)}},l.boardLike+' '+(post.likes||0)),
                 isOwn&&masterKey&&React.createElement('button',{className:'board-post-del',onClick:function(){deletePost(post.id)}},l.boardDelete)
               )
             );
