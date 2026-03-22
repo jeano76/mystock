@@ -233,6 +233,42 @@ td.r{text-align:right}
 .auth-warn{background:rgba(255,184,0,.08);border:1px solid rgba(255,184,0,.3);border-radius:6px;padding:10px 12px;font-size:11px;color:var(--yellow);line-height:1.6}
 .auth-link{font-size:10px;color:var(--text3);cursor:pointer;text-align:center;margin-top:4px}
 .auth-link:hover{color:var(--acc)}
+/* BOARD */
+.board-view{display:flex;flex-direction:column;gap:0;padding:0;height:100%}
+.board-layout{display:flex;flex:1;overflow:hidden;height:calc(100vh - 160px)}
+.board-ticker-list{width:160px;flex-shrink:0;border-right:1px solid var(--border);overflow-y:auto;padding:8px 0}
+.board-ticker-item{padding:7px 14px;font-size:11px;cursor:pointer;color:var(--text2);border-left:2px solid transparent;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.board-ticker-item:hover{background:var(--bg3);color:var(--text)}
+.board-ticker-item.active{background:var(--bg3);border-left-color:var(--acc);color:var(--text);font-weight:600}
+.board-ticker-cnt{float:right;font-size:9px;color:var(--text3);font-family:var(--mono)}
+.board-main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.board-compose{padding:14px 16px;border-bottom:1px solid var(--border);background:var(--bg2);flex-shrink:0}
+.board-compose-row{display:flex;gap:8px;align-items:flex-end}
+.board-textarea{flex:1;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:9px 12px;font-size:12px;color:var(--text);resize:none;font-family:var(--sans);line-height:1.5;outline:none}
+.board-textarea:focus{border-color:var(--acc)}
+.board-compose-meta{display:flex;gap:8px;align-items:center;margin-bottom:6px}
+.board-author-input{background:var(--bg3);border:1px solid var(--border2);border-radius:6px;padding:5px 9px;font-size:11px;color:var(--text);outline:none;width:130px}
+.board-author-input:focus{border-color:var(--acc)}
+.board-ticker-sel{background:var(--bg3);border:1px solid var(--border2);border-radius:6px;padding:5px 9px;font-size:11px;color:var(--text);outline:none;cursor:pointer}
+.board-char-cnt{font-size:10px;color:var(--text3);font-family:var(--mono);margin-left:auto}
+.board-posts{flex:1;overflow-y:auto;padding:12px 16px;display:flex;flex-direction:column;gap:10px}
+.board-post{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:12px 14px}
+.board-post-head{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.board-post-author{font-size:11px;font-weight:700;color:var(--text)}
+.board-post-ticker{font-size:10px;background:rgba(0,210,120,.12);color:var(--acc);border-radius:4px;padding:1px 6px;font-family:var(--mono);font-weight:600}
+.board-post-time{font-size:10px;color:var(--text3);margin-left:auto}
+.board-post-text{font-size:12px;color:var(--text2);line-height:1.65;word-break:break-word}
+.board-post-foot{display:flex;align-items:center;gap:8px;margin-top:8px}
+.board-post-like{font-size:11px;color:var(--text3);cursor:pointer;padding:2px 7px;border-radius:4px;border:1px solid var(--border);background:transparent;transition:all .12s}
+.board-post-like:hover,.board-post-like.liked{background:rgba(0,210,120,.1);border-color:var(--acc);color:var(--acc)}
+.board-post-del{font-size:10px;color:var(--text4);cursor:pointer;margin-left:auto;padding:2px 6px;border-radius:4px;border:1px solid transparent}
+.board-post-del:hover{border-color:var(--red);color:var(--red)}
+.board-empty{text-align:center;color:var(--text3);font-size:12px;padding:40px 20px;line-height:1.8}
+.board-nobinbox{background:rgba(240,165,0,.06);border:1px solid rgba(240,165,0,.3);border-radius:10px;padding:16px 18px;margin:16px;font-size:12px;color:var(--text2);line-height:1.7}
+.board-share-box{background:var(--bg3);border-radius:6px;padding:6px 10px;font-size:10px;font-family:var(--mono);color:var(--text3);margin-top:6px;word-break:break-all}
+.board-header{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-bottom:1px solid var(--border);flex-shrink:0}
+.board-header-title{font-size:13px;font-weight:700;color:var(--text)}
+.board-status{font-size:10px;color:var(--text3)}
 /* LANDING PAGE */
 .landing-overlay{position:fixed;inset:0;z-index:1000;display:grid;grid-template-columns:1fr 420px;background:var(--bg);overflow:hidden}
 .landing-left{display:flex;flex-direction:column;justify-content:center;padding:64px 72px;background:radial-gradient(ellipse at 30% 40%,rgba(0,210,120,.06) 0%,transparent 60%);overflow-y:auto}
@@ -813,6 +849,34 @@ const T={
     reportNumStocks:'보유 종목 수',reportNumSectors:'섹터 수',reportDivRatio:'배당주 비중',
     reportHealthGood:'양호',reportHealthWarn:'주의',reportHealthBad:'위험',
     reportPrint:'🖨️ 리포트 인쇄',reportDate:function(d){return d+' 기준'},
+    boardLbl:'📌 게시판',
+    boardAllTickers:'전체 종목',
+    boardPostPh:'종목에 대한 의견을 남겨보세요… (280자 이내)',
+    boardAuthorPh:'닉네임 (선택)',
+    boardAnon:'익명',
+    boardPost:'등록',
+    boardPosting:'등록 중…',
+    boardLike:'👍',
+    boardDelete:'삭제',
+    boardEmpty:'아직 게시글이 없습니다. 첫 번째 의견을 남겨보세요!',
+    boardNoBin:'JSONBin 설정이 필요합니다. ⚙️ API 설정에서 JSONBin Master Key를 입력하고 "Bin 생성" 버튼을 눌러주세요.',
+    boardCreating:'Bin 생성 중…',
+    boardCreateBin:'Bin 생성',
+    boardBinCreated:'게시판이 생성되었습니다!',
+    boardLoadErr:'게시글 로딩 실패',
+    boardPostErr:'등록 실패',
+    boardDelErr:'삭제 실패',
+    boardShare:'공유용 Bin ID:',
+    boardJsonbinKey:'JSONBin Master Key',
+    boardJsonbinBin:'Bin ID (자동 생성 또는 직접 입력)',
+    boardJsonbinDesc:'JSONBin.io 무료 계정 생성 후 Master Key를 입력하세요.',
+    boardRefresh:'↻ 새로고침',
+    boardLoading:'게시글 로딩 중…',
+    boardCharCount:function(n){return n+'/280'},
+    boardJustNow:'방금 전',
+    boardMinAgo:function(n){return n+'분 전'},
+    boardHrAgo:function(n){return n+'시간 전'},
+    boardDayAgo:function(n){return n+'일 전'},
   },
   en:{
     shortly:'Shortly',justNow:'Now',
@@ -958,6 +1022,34 @@ const T={
     reportNumStocks:'# of Holdings',reportNumSectors:'# of Sectors',reportDivRatio:'Dividend Stock %',
     reportHealthGood:'Good',reportHealthWarn:'Caution',reportHealthBad:'Risk',
     reportPrint:'🖨️ Print Report',reportDate:function(d){return 'As of '+d},
+    boardLbl:'📌 Board',
+    boardAllTickers:'All Stocks',
+    boardPostPh:'Share your thoughts on this stock… (280 chars)',
+    boardAuthorPh:'Nickname (optional)',
+    boardAnon:'Anonymous',
+    boardPost:'Post',
+    boardPosting:'Posting…',
+    boardLike:'👍',
+    boardDelete:'Delete',
+    boardEmpty:'No posts yet. Be the first to share your thoughts!',
+    boardNoBin:'JSONBin setup required. Go to ⚙️ API Settings, enter your JSONBin Master Key and click "Create Bin".',
+    boardCreating:'Creating bin…',
+    boardCreateBin:'Create Bin',
+    boardBinCreated:'Board created successfully!',
+    boardLoadErr:'Failed to load posts',
+    boardPostErr:'Failed to post',
+    boardDelErr:'Failed to delete',
+    boardShare:'Share this Bin ID:',
+    boardJsonbinKey:'JSONBin Master Key',
+    boardJsonbinBin:'Bin ID (auto-created or manual)',
+    boardJsonbinDesc:'Sign up at jsonbin.io (free) and enter your Master Key.',
+    boardRefresh:'↻ Refresh',
+    boardLoading:'Loading posts…',
+    boardCharCount:function(n){return n+'/280'},
+    boardJustNow:'just now',
+    boardMinAgo:function(n){return n+'m ago'},
+    boardHrAgo:function(n){return n+'h ago'},
+    boardDayAgo:function(n){return n+'d ago'},
   }
 };
 
@@ -1352,7 +1444,23 @@ function SettingsModal(props){
               style:{background:'var(--bg4)',border:'1px solid var(--border2)',color:'var(--text)',padding:'6px 9px',borderRadius:5,fontSize:11,fontFamily:'var(--mono)',outline:'none',width:'100%',marginTop:4}
             })
           );
-        })
+        }),
+        React.createElement('div',{style:{marginTop:16,paddingTop:14,borderTop:'1px solid var(--border)'}},
+          React.createElement('div',{style:{fontSize:10,fontWeight:700,color:'var(--text3)',letterSpacing:'.06em',textTransform:'uppercase',marginBottom:8}},l.boardLbl),
+          React.createElement('div',{style:{fontSize:11,color:'var(--text3)',marginBottom:10,lineHeight:1.6}},l.boardJsonbinDesc),
+          React.createElement('div',{className:'field',style:{marginBottom:8}},
+            React.createElement('label',null,l.boardJsonbinKey),
+            React.createElement('input',{type:'text',placeholder:'$2b$10$...',value:keys.jsonbinKey||'',
+              onChange:function(e){var nk=Object.assign({},keys);nk.jsonbinKey=e.target.value;setKeys(nk)},
+              style:{background:'var(--bg4)',border:'1px solid var(--border2)',color:'var(--text)',padding:'6px 9px',borderRadius:5,fontSize:11,fontFamily:'var(--mono)',outline:'none',width:'100%',marginTop:4}})
+          ),
+          React.createElement('div',{className:'field'},
+            React.createElement('label',null,l.boardJsonbinBin),
+            React.createElement('input',{type:'text',placeholder:'6507e3...',value:keys.jsonbinBin||'',
+              onChange:function(e){var nk=Object.assign({},keys);nk.jsonbinBin=e.target.value;setKeys(nk)},
+              style:{background:'var(--bg4)',border:'1px solid var(--border2)',color:'var(--text)',padding:'6px 9px',borderRadius:5,fontSize:11,fontFamily:'var(--mono)',outline:'none',width:'100%',marginTop:4}})
+          )
+        )
       ),
       React.createElement('div',{className:'modal-ft'},
         React.createElement('button',{className:'btn',onClick:onClose},l.cancel),
@@ -2520,7 +2628,8 @@ function App(props){
   var accounts=as[0];var setAccounts=as[1];
   var ps=useState(function(){return ld('positions',[])});
   var positions=ps[0];var setPositions=ps[1];
-  var ks=useState(function(){return ld('apiKeys',{finnhub:'',twelve:'',alpha:''})});
+  var BOARD_DEFAULTS={jsonbinKey:'$2a$10$zOKvBFXk6N8QdnHAqKVP.uRH8vnyaaIxhk2kW0y.DN.E8qxn7UuGS',jsonbinBin:'69bfd1eeb7ec241ddc8fdd43'};
+  var ks=useState(function(){var saved=ld('apiKeys',{});return Object.assign({finnhub:'',twelve:'',alpha:''},BOARD_DEFAULTS,saved)});
   var apiKeys=ks[0];var setApiKeys=ks[1];
   var rs=useState(function(){return ld('usdRate',1370)});
   var usdRate=rs[0];var setUsdRate=rs[1];
@@ -2779,6 +2888,7 @@ function App(props){
     setUndoData(null);
   }
   function saveSettings(keys,rate){setApiKeys(keys);setUsdRate(rate);addToast({type:'success',text:l.settingsSaved,sub:null})}
+  function saveApiKeys(newKeys){setApiKeys(newKeys);sv('apiKeys',newKeys);}
 
   function doSort(col){
     if(sortCol===col) setSortDir(function(d){return d==='asc'?'desc':'asc'});
@@ -2930,6 +3040,9 @@ function App(props){
         ),
         React.createElement('div',{className:'sb-item'+(mainTab==='report'?' active':''),onClick:function(){setMainTab('report')}},
           React.createElement('span',{className:'sb-name'},l.reportLbl)
+        ),
+        React.createElement('div',{className:'sb-item'+(mainTab==='board'?' active':''),onClick:function(){setMainTab('board')}},
+          React.createElement('span',{className:'sb-name'},l.boardLbl)
         )
       ),
       React.createElement('div',{className:'sb-sec'},
@@ -3096,7 +3209,8 @@ function App(props){
         React.createElement('div',{className:'tab'+(mainTab==='overview'?' active':''),onClick:function(){setMainTab('overview')}},l.tabOverview),
         React.createElement('div',{className:'tab'+(mainTab==='positions'?' active':''),onClick:function(){setMainTab('positions')}},l.tabPositions(filtered.length)),
         React.createElement('div',{className:'tab'+(mainTab==='forecast'?' active':''),onClick:function(){setMainTab('forecast')}},l.forecastLbl),
-        React.createElement('div',{className:'tab'+(mainTab==='report'?' active':''),onClick:function(){setMainTab('report')}},l.reportLbl)
+        React.createElement('div',{className:'tab'+(mainTab==='report'?' active':''),onClick:function(){setMainTab('report')}},l.reportLbl),
+        React.createElement('div',{className:'tab'+(mainTab==='board'?' active':''),onClick:function(){setMainTab('board')}},l.boardLbl)
       ),
 
       (mainTab==='overview'||mainTab==='positions')&&React.createElement('div',{className:'content'},
@@ -3347,7 +3461,8 @@ function App(props){
         )
       ),
       mainTab==='forecast'&&React.createElement(ForecastView,{port:port,lang:lang}),
-      mainTab==='report'&&React.createElement(ReportView,{positions:filtered,prices:prices,usdRate:usdRate,port:port,lang:lang})
+      mainTab==='report'&&React.createElement(ReportView,{positions:filtered,prices:prices,usdRate:usdRate,port:port,lang:lang}),
+      mainTab==='board'&&React.createElement(BoardView,{positions:filtered,apiKeys:apiKeys,lang:lang,onSaveApiKeys:saveApiKeys})
     ),
 
     showSettings&&React.createElement(SettingsModal,{apiKeys:apiKeys,usdRate:usdRate,onSave:saveSettings,lang:lang,onClose:function(){setShowSettings(false)}}),
@@ -3506,6 +3621,192 @@ function ResetScreen(props){
       React.createElement('div',{className:'auth-title'},l.resetTitle),
       formContent,
       React.createElement('div',{className:'auth-lang'},React.createElement('button',{className:'lang-btn',onClick:onLangToggle},l.langSwitch))
+    )
+  );
+}
+
+// ── JSONBin helpers ──
+var JSONBIN_BASE='https://api.jsonbin.io/v3';
+var JSONBIN_ACCESS='$2a$10$xAoxnsKKGqvwO3ZcsfIPJe79hoRyroVXLKSLo13M/P/muKk9dOKhu';
+async function binFetch(binId){
+  var res=await fetch(JSONBIN_BASE+'/b/'+binId+'/latest',{headers:{'X-Bin-Meta':'false','X-Access-Key':JSONBIN_ACCESS}});
+  if(!res.ok) throw new Error('fetch fail');
+  var data=await res.json();
+  return Array.isArray(data.posts)?data.posts:[];
+}
+async function binSave(binId,masterKey,posts){
+  var res=await fetch(JSONBIN_BASE+'/b/'+binId,{method:'PUT',headers:{'Content-Type':'application/json','X-Master-Key':masterKey},body:JSON.stringify({posts:posts})});
+  if(!res.ok) throw new Error('save fail');
+}
+async function binCreate(masterKey){
+  var res=await fetch(JSONBIN_BASE+'/b',{method:'POST',headers:{'Content-Type':'application/json','X-Master-Key':masterKey,'X-Bin-Name':'portfolio-board','X-Bin-Private':'false'},body:JSON.stringify({posts:[]})});
+  if(!res.ok) throw new Error('create fail');
+  var data=await res.json();
+  return data.metadata&&data.metadata.id;
+}
+function getBoardSid(){
+  var k='pfm3_board_sid';
+  var sid=localStorage.getItem(k);
+  if(!sid){sid='u_'+Math.random().toString(36).slice(2,10);localStorage.setItem(k,sid);}
+  return sid;
+}
+function fmtRelTime(iso,l){
+  var diff=Math.floor((Date.now()-new Date(iso))/1000);
+  if(diff<60) return l.boardJustNow;
+  if(diff<3600) return l.boardMinAgo(Math.floor(diff/60));
+  if(diff<86400) return l.boardHrAgo(Math.floor(diff/3600));
+  return l.boardDayAgo(Math.floor(diff/86400));
+}
+
+// ── 게시판 뷰 ──
+function BoardView(props){
+  var positions=props.positions||[];var apiKeys=props.apiKeys||{};var lang=props.lang||'ko';var onSaveApiKeys=props.onSaveApiKeys;
+  var l=T[lang];
+  var masterKey=apiKeys.jsonbinKey||'';
+  var binId=apiKeys.jsonbinBin||'';
+  var sid=getBoardSid();
+
+  var ps=useState([]);var posts=ps[0];var setPosts=ps[1];
+  var ls=useState(false);var loading=ls[0];var setLoading=ls[1];
+  var es=useState('');var err=es[0];var setErr=es[1];
+  var ts=useState('all');var selTicker=ts[0];var setSelTicker=ts[1];
+  var as=useState('');var author=as[0];var setAuthor=as[1];
+  var txs=useState('');var text=txs[0];var setText=txs[1];
+  var ss=useState(false);var submitting=ss[0];var setSubmitting=ss[1];
+  var cs=useState(false);var creating=cs[0];var setCreating=cs[1];
+  var postTicker=useState(selTicker==='all'?(positions[0]?positions[0].ticker:''):'');var pt=postTicker[0];var setPt=postTicker[1];
+
+  var tickers=['all'].concat(positions.map(function(p){return p.ticker}).filter(function(v,i,a){return a.indexOf(v)===i}));
+
+  function loadPosts(){
+    if(!binId) return;
+    setLoading(true);setErr('');
+    binFetch(binId).then(function(data){setPosts(data.slice().reverse());setLoading(false);}).catch(function(){setErr(l.boardLoadErr);setLoading(false);});
+  }
+  useEffect(function(){loadPosts();},[binId]);
+  useEffect(function(){if(positions.length&&!pt){setPt(positions[0].ticker)}},[positions]);
+
+  async function createBin(){
+    if(!masterKey) return;
+    setCreating(true);
+    try{
+      var id=await binCreate(masterKey);
+      if(id&&onSaveApiKeys){var nk=Object.assign({},apiKeys,{jsonbinBin:id});onSaveApiKeys(nk);}
+    }catch(e){setErr(l.boardLoadErr);}
+    setCreating(false);
+  }
+
+  async function submitPost(){
+    if(!text.trim()||!binId||!masterKey) return;
+    setSubmitting(true);setErr('');
+    try{
+      var all=await binFetch(binId);
+      var newPost={id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),
+        sid:sid,author:author.trim()||l.boardAnon,ticker:(selTicker==='all'?pt:selTicker)||'',
+        text:text.trim().slice(0,280),date:new Date().toISOString(),likes:0,likedBy:[]};
+      all.push(newPost);
+      await binSave(binId,masterKey,all);
+      setPosts(all.slice().reverse());setText('');
+    }catch(e){setErr(l.boardPostErr);}
+    setSubmitting(false);
+  }
+
+  async function toggleLike(postId){
+    if(!binId||!masterKey) return;
+    try{
+      var all=await binFetch(binId);
+      all=all.map(function(p){
+        if(p.id!==postId) return p;
+        var liked=(p.likedBy||[]).indexOf(sid)>=0;
+        return Object.assign({},p,{
+          likes:(p.likes||0)+(liked?-1:1),
+          likedBy:liked?(p.likedBy||[]).filter(function(x){return x!==sid}):(p.likedBy||[]).concat(sid)
+        });
+      });
+      await binSave(binId,masterKey,all);
+      setPosts(all.slice().reverse());
+    }catch(e){}
+  }
+
+  async function deletePost(postId){
+    if(!binId||!masterKey) return;
+    try{
+      var all=await binFetch(binId);
+      all=all.filter(function(p){return p.id!==postId});
+      await binSave(binId,masterKey,all);
+      setPosts(all.slice().reverse());
+    }catch(e){setErr(l.boardDelErr);}
+  }
+
+  var filtered=selTicker==='all'?posts:posts.filter(function(p){return p.ticker===selTicker});
+  var cntByTicker={};posts.forEach(function(p){cntByTicker[p.ticker]=(cntByTicker[p.ticker]||0)+1});
+
+  return React.createElement('div',{className:'board-view'},
+    React.createElement('div',{className:'board-header'},
+      React.createElement('span',{className:'board-header-title'},l.boardLbl),
+      React.createElement('div',{style:{display:'flex',gap:8,alignItems:'center'}},
+        err&&React.createElement('span',{style:{fontSize:10,color:'var(--red)'}},err),
+        React.createElement('button',{className:'btn btn-sm btn-ghost',onClick:loadPosts,disabled:loading},l.boardRefresh)
+      )
+    ),
+    !binId&&React.createElement('div',{className:'board-nobinbox'},
+      l.boardNoBin,
+      masterKey&&React.createElement('div',{style:{marginTop:10}},
+        React.createElement('button',{className:'btn btn-sm btn-primary',onClick:createBin,disabled:creating},creating?l.boardCreating:l.boardCreateBin)
+      )
+    ),
+    binId&&React.createElement('div',{className:'board-layout'},
+      // 좌측 티커 목록
+      React.createElement('div',{className:'board-ticker-list'},
+        tickers.map(function(t){
+          return React.createElement('div',{key:t,className:'board-ticker-item'+(selTicker===t?' active':''),onClick:function(){setSelTicker(t)}},
+            t==='all'?l.boardAllTickers:t,
+            React.createElement('span',{className:'board-ticker-cnt'},t==='all'?posts.length:(cntByTicker[t]||0))
+          );
+        })
+      ),
+      // 우측 본문
+      React.createElement('div',{className:'board-main'},
+        // 작성 폼
+        masterKey&&React.createElement('div',{className:'board-compose'},
+          React.createElement('div',{className:'board-compose-meta'},
+            React.createElement('input',{className:'board-author-input',placeholder:l.boardAuthorPh,value:author,onChange:function(e){setAuthor(e.target.value)},maxLength:20}),
+            selTicker==='all'&&React.createElement('select',{className:'board-ticker-sel',value:pt,onChange:function(e){setPt(e.target.value)}},
+              positions.map(function(p){return React.createElement('option',{key:p.ticker,value:p.ticker},p.ticker)})
+            ),
+            React.createElement('span',{className:'board-char-cnt'},l.boardCharCount(text.length))
+          ),
+          React.createElement('div',{className:'board-compose-row'},
+            React.createElement('textarea',{className:'board-textarea',rows:2,placeholder:l.boardPostPh,value:text,onChange:function(e){setText(e.target.value.slice(0,280))},onKeyDown:function(e){if(e.key==='Enter'&&e.ctrlKey)submitPost()}}),
+            React.createElement('button',{className:'btn btn-primary btn-sm',onClick:submitPost,disabled:submitting||!text.trim()},submitting?l.boardPosting:l.boardPost)
+          )
+        ),
+        // 게시글 목록
+        React.createElement('div',{className:'board-posts'},
+          loading&&React.createElement('div',{className:'board-empty'},l.boardLoading),
+          !loading&&filtered.length===0&&React.createElement('div',{className:'board-empty'},l.boardEmpty),
+          !loading&&filtered.map(function(post){
+            var isOwn=post.sid===sid;
+            var liked=(post.likedBy||[]).indexOf(sid)>=0;
+            return React.createElement('div',{key:post.id,className:'board-post'},
+              React.createElement('div',{className:'board-post-head'},
+                React.createElement('span',{className:'board-post-author'},post.author||l.boardAnon),
+                post.ticker&&React.createElement('span',{className:'board-post-ticker'},post.ticker),
+                React.createElement('span',{className:'board-post-time'},fmtRelTime(post.date,l))
+              ),
+              React.createElement('div',{className:'board-post-text'},post.text),
+              React.createElement('div',{className:'board-post-foot'},
+                masterKey&&React.createElement('button',{className:'board-post-like'+(liked?' liked':''),onClick:function(){toggleLike(post.id)}},l.boardLike+' '+(post.likes||0)),
+                isOwn&&masterKey&&React.createElement('button',{className:'board-post-del',onClick:function(){deletePost(post.id)}},l.boardDelete)
+              )
+            );
+          })
+        )
+      )
+    ),
+    binId&&React.createElement('div',{style:{padding:'6px 16px',borderTop:'1px solid var(--border)',fontSize:9,color:'var(--text4)',display:'flex',alignItems:'center',gap:6}},
+      React.createElement('span',null,l.boardShare),
+      React.createElement('span',{style:{fontFamily:'var(--mono)',color:'var(--text3)',cursor:'pointer'},onClick:function(){navigator.clipboard&&navigator.clipboard.writeText(binId)}},binId)
     )
   );
 }
