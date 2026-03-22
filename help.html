@@ -28,8 +28,8 @@ a:hover{text-decoration:underline}
 .lang-btn{padding:5px 14px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;font-size:12px;font-weight:600}
 .lang-btn.active{background:var(--green);color:#000;border-color:var(--green)}
 .theme-btn{padding:5px 12px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;font-size:14px}
-.back-btn{padding:6px 14px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;font-size:12px}
-.back-btn:hover{border-color:var(--green);color:var(--green)}
+.back-btn{padding:6px 14px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;font-size:12px;text-decoration:none;display:inline-flex;align-items:center;gap:4px}
+.back-btn:hover{border-color:var(--green);color:var(--green);text-decoration:none}
 
 /* ── 레이아웃 ── */
 .layout{display:flex;min-height:calc(100vh - 56px)}
@@ -113,7 +113,7 @@ a:hover{text-decoration:underline}
     <button class="lang-btn" id="btn-ko" onclick="setLang('ko')">한국어</button>
     <button class="lang-btn active" id="btn-en" onclick="setLang('en')">English</button>
     <button class="theme-btn" onclick="toggleTheme()" title="테마 변경">☀️</button>
-    <button class="back-btn" onclick="history.back()">← <span data-ko>앱으로 돌아가기</span><span data-en>Back to App</span></button>
+    <a class="back-btn" href="index.html">← <span data-ko>앱으로 돌아가기</span><span data-en>Back to App</span></a>
   </div>
 </header>
 
