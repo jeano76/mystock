@@ -3714,7 +3714,7 @@ function Main(){
   var hs=useState(function(){return !!getAuth()});var hasAccount=hs[0];var setHasAccount=hs[1];
   var cs=useState(function(){return localStorage.getItem('pfm_cookie')||null});var cookieConsent=cs[0];var setCookieConsent=cs[1];
   var lms=useState(null);var legalModal=lms[0];var setLegalModal=lms[1];
-  var lgs=useState(function(){return localStorage.getItem('pfm3_lang')||'ko'});var lang=lgs[0];var setLang=lgs[1];
+  var lgs=useState(function(){return localStorage.getItem('pfm3_lang')||((navigator.language||navigator.userLanguage||'ko').startsWith('ko')?'ko':'en')});var lang=lgs[0];var setLang=lgs[1];
 
   function handleLogin(){localStorage.setItem('pfm3_session','1');setIsLoggedIn(true)}
   function handleLogout(){localStorage.removeItem('pfm3_session');setIsLoggedIn(false)}
