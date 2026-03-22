@@ -337,6 +337,38 @@ tr.dragging{opacity:.35}
 .div-cal-legend{display:flex;gap:10px;flex-wrap:wrap;padding:0 2px}
 .div-cal-leg-item{display:flex;align-items:center;gap:4px;font-size:9px;color:var(--text3)}
 .div-cal-leg-dot{width:8px;height:8px;border-radius:2px;flex-shrink:0}
+/* FORECAST */
+.forecast-view{display:flex;flex-direction:column;gap:12px}
+.forecast-controls{display:flex;gap:12px;flex-wrap:wrap;padding:12px 14px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;align-items:flex-end}
+.forecast-ctrl{display:flex;flex-direction:column;gap:5px;flex:1;min-width:160px}
+.forecast-ctrl-toggle{flex:0;min-width:120px}
+.forecast-ctrl-lbl{font-size:9px;color:var(--text3);font-weight:700;text-transform:uppercase;letter-spacing:.6px}
+.forecast-ctrl-row{display:flex;align-items:center;gap:8px}
+.forecast-slider{flex:1;accent-color:var(--green);cursor:pointer}
+.forecast-val{font-family:var(--mono);font-size:13px;color:var(--text);font-weight:700;min-width:38px;text-align:right}
+.forecast-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.forecast-card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;display:flex;flex-direction:column;gap:6px}
+.forecast-card-y10{border-color:rgba(23,232,161,0.4)}
+.forecast-card-y20{border-color:rgba(91,155,213,0.5)}
+.forecast-card-y30{border-color:rgba(240,165,0,0.55);background:rgba(240,165,0,0.03)}
+.forecast-card-tag{font-size:9px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1px}
+.forecast-card-total{font-family:var(--mono);font-size:20px;font-weight:700;color:var(--text);margin:2px 0}
+.forecast-card-y30 .forecast-card-total{color:#f0a500}
+.forecast-card-rows{display:flex;flex-direction:column;gap:3px;border-top:1px solid var(--border);padding-top:6px}
+.forecast-card-row{display:flex;justify-content:space-between;align-items:center}
+.forecast-card-lbl{font-size:9px;color:var(--text3)}
+.forecast-card-num{font-family:var(--mono);font-size:10px;color:var(--text2);font-weight:500}
+.forecast-card-num.pos{color:var(--green)}
+.fc-canvas-wrap{position:relative}
+.forecast-table{width:100%;border-collapse:collapse;font-size:11px}
+.forecast-table th{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.4px;padding:5px 8px;border-bottom:1px solid var(--border);text-align:right;white-space:nowrap}
+.forecast-table th:first-child{text-align:left}
+.forecast-table td{padding:4px 8px;border-bottom:1px solid rgba(128,128,128,0.07);text-align:right;font-family:var(--mono);font-size:11px;color:var(--text2)}
+.forecast-table td:first-child{text-align:left;color:var(--text3);font-family:inherit;font-size:10px}
+.forecast-table tr.fc-milestone td{color:var(--text);font-weight:600;background:rgba(128,128,128,0.05)}
+.forecast-table tr.fc-milestone td:first-child{color:var(--green)}
+.forecast-table .pos{color:var(--green)}
+@media(max-width:680px){.forecast-cards{grid-template-columns:1fr}.forecast-controls{flex-direction:column}}
 /* ALERTS */
 .alert-row{display:flex;align-items:center;gap:7px;padding:5px 0;border-bottom:1px solid var(--border);font-size:11px}
 .alert-row:last-child{border-bottom:none}
@@ -648,6 +680,14 @@ const T={
     alertsLbl:'가격 알림',addAlertBtn:'+ 알림 추가',alertAboveLbl:'이상',alertBelowLbl:'이하',alertPriceLbl:'목표가',alertNone:'설정된 알림 없음',alertAdded:'알림이 추가되었습니다',alertFired:function(t,p){return t+' 목표가 도달: '+p},
     treemapLbl:'수익률 트리맵',treemapEmpty:'포지션을 추가해주세요',
     printBtn:'🖨️ 인쇄',colSettingsBtn:'⊞ 컬럼',thShares2:'수량',thBuy2:'매수가',thBEP:'BEP',thNote:'메모',
+    forecastLbl:'📈 미래 예측',
+    forecastDivGrowth:'배당인상률 (% / 년)',forecastPriceGrowth:'주가상승률 (% / 년)',
+    forecastReinvest:'배당 재투자 (DRIP)',forecastOn:'ON',forecastOff:'OFF',
+    forecastNoPos:'포지션을 추가하면 미래 자산 예측이 가능합니다.',
+    forecastChartTitle:'자산 성장 예측',forecastTableTitle:'연도별 상세',
+    forecastPortVal:'포트폴리오',forecastAnnDiv:'연배당',forecastCashDiv:'수령 배당',
+    forecastTotalWealth:'총 자산',forecastReturn:'총 수익률',
+    forecastYrCol:'년도',forecastCumDiv:'누적 배당',
   },
   en:{
     shortly:'Shortly',justNow:'Now',
@@ -760,6 +800,14 @@ const T={
     alertsLbl:'Price Alerts',addAlertBtn:'+ Add Alert',alertAboveLbl:'above',alertBelowLbl:'below',alertPriceLbl:'Target Price',alertNone:'No alerts set',alertAdded:'Alert added',alertFired:function(t,p){return t+' reached target: '+p},
     treemapLbl:'Return Treemap',treemapEmpty:'Add positions to view',
     printBtn:'🖨️ Print',colSettingsBtn:'⊞ Columns',thShares2:'Shares',thBuy2:'Buy',thBEP:'BEP',thNote:'Note',
+    forecastLbl:'📈 Forecast',
+    forecastDivGrowth:'Div Growth Rate (% / yr)',forecastPriceGrowth:'Price Growth Rate (% / yr)',
+    forecastReinvest:'Reinvest Dividends (DRIP)',forecastOn:'ON',forecastOff:'OFF',
+    forecastNoPos:'Add positions to enable the forecast.',
+    forecastChartTitle:'Wealth Growth Projection',forecastTableTitle:'Year-by-Year Detail',
+    forecastPortVal:'Portfolio',forecastAnnDiv:'Annual Div',forecastCashDiv:'Div Received',
+    forecastTotalWealth:'Total Wealth',forecastReturn:'Total Return',
+    forecastYrCol:'Year',forecastCumDiv:'Cumul. Div',
   }
 };
 
@@ -1629,6 +1677,201 @@ function TreemapChart(props){
   return React.createElement('canvas',{ref:ref,className:'treemap-wrap',width:600,height:200,style:{width:'100%',height:200}});
 }
 
+// ── 미래 자산 예측 뷰 ──
+function ForecastView(props){
+  var port=props.port,lang=props.lang||'ko';
+  var l=T[lang];
+  var ref=React.useRef();
+  var dgs=useState(5);var divGrowth=dgs[0];var setDivGrowth=dgs[1];
+  var pgs=useState(7);var priceGrowth=pgs[0];var setPriceGrowth=pgs[1];
+  var ris=useState(true);var reinvest=ris[0];var setReinvest=ris[1];
+  var initVal=port&&port.val?port.val:0;
+  var initDiv=port&&port.div?port.div:0;
+  function fmtB(v){
+    if(v>=1e9)return '$'+(v/1e9).toFixed(2)+'B';
+    if(v>=1e6)return '$'+(v/1e6).toFixed(2)+'M';
+    if(v>=1000)return '$'+(v/1000).toFixed(1)+'K';
+    return '$'+v.toFixed(0);
+  }
+  function simulate(){
+    var res=[];var V=initVal;var D=initDiv;var cashDiv=0;
+    for(var yr=1;yr<=30;yr++){
+      var divRcv=D;
+      V=V*(1+priceGrowth/100);
+      if(reinvest){V+=divRcv;}else{cashDiv+=divRcv;}
+      D=D*(1+divGrowth/100);
+      res.push({yr:yr,portVal:V,annDiv:divRcv,cashDiv:cashDiv,total:reinvest?V:V+cashDiv});
+    }
+    return res;
+  }
+  var data=React.useMemo(simulate,[initVal,initDiv,divGrowth,priceGrowth,reinvest]);
+  // Canvas 차트
+  React.useEffect(function(){
+    var canvas=ref.current;if(!canvas||!data.length)return;
+    var ctx=canvas.getContext('2d');
+    var W=canvas.offsetWidth||800;var H=230;
+    var dpr=window.devicePixelRatio||1;
+    canvas.width=W*dpr;canvas.height=H*dpr;ctx.scale(dpr,dpr);
+    ctx.clearRect(0,0,W,H);
+    var pad={t:20,r:16,b:32,l:62};
+    var cw=W-pad.l-pad.r;var ch=H-pad.t-pad.b;
+    var isDark=!document.documentElement.classList.contains('light');
+    var tc=isDark?'#888':'#999';var gc=isDark?'rgba(255,255,255,0.05)':'rgba(0,0,0,0.05)';
+    var maxV=Math.max.apply(null,data.map(function(d){return d.total}));
+    // 그리드 + Y축
+    [0,0.25,0.5,0.75,1].forEach(function(p){
+      var y=pad.t+ch*(1-p);
+      ctx.strokeStyle=gc;ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(W-pad.r,y);ctx.stroke();
+      if(p>0){ctx.fillStyle=tc;ctx.font='9px sans-serif';ctx.textAlign='right';ctx.fillText(fmtB(maxV*p),pad.l-4,y+3);}
+    });
+    // 종류별 바 (누적 배당 + 포트폴리오)
+    var bw=Math.max(4,cw/30-3);var gap=cw/30;
+    data.forEach(function(d,i){
+      var x=pad.l+i*gap+(gap-bw)/2;
+      var isMil=d.yr===10||d.yr===20||d.yr===30;
+      // 포트폴리오 바 (파랑)
+      var ph=ch*(d.portVal/maxV);
+      ctx.fillStyle=isDark?'rgba(91,155,213,0.75)':'rgba(59,130,246,0.75)';
+      if(isMil)ctx.fillStyle=isDark?'rgba(91,155,213,1)':'rgba(59,130,246,1)';
+      ctx.fillRect(x,pad.t+ch-ph,bw,ph);
+      // 배당 바 (초록) — DRIP 아니면 현금 배당 누적
+      if(!reinvest&&d.cashDiv>0){
+        var dh=ch*(d.cashDiv/maxV);
+        ctx.fillStyle=isDark?'rgba(23,232,161,0.75)':'rgba(16,185,129,0.75)';
+        if(isMil)ctx.fillStyle=isDark?'rgba(23,232,161,1)':'rgba(16,185,129,1)';
+        ctx.fillRect(x,pad.t+ch-ph-dh,bw,dh);
+      }
+      // 마일스톤 레이블
+      if(isMil){
+        ctx.fillStyle=isDark?'rgba(255,255,255,0.6)':'rgba(0,0,0,0.55)';
+        ctx.font='bold 9px sans-serif';ctx.textAlign='center';
+        ctx.fillText(d.yr+'Y',x+bw/2,pad.t+ch-ph-(reinvest?0:ch*(d.cashDiv/maxV))-5);
+        ctx.fillStyle=tc;ctx.font='8px sans-serif';
+        ctx.fillText(d.yr+'Y',x+bw/2,H-pad.b+12);
+      }
+    });
+    // X축 시작/중간 레이블
+    [1,5,15,25].forEach(function(yr){
+      var i=yr-1;var x=pad.l+i*gap+gap/2;
+      ctx.fillStyle=tc;ctx.font='8px sans-serif';ctx.textAlign='center';
+      ctx.fillText(yr+'Y',x,H-pad.b+12);
+    });
+    // 범례
+    var lx=pad.l;var ly=8;
+    [[isDark?'rgba(91,155,213,1)':'rgba(59,130,246,1)',l.forecastPortVal||'포트폴리오'],
+     !reinvest?[isDark?'rgba(23,232,161,1)':'rgba(16,185,129,1)',l.forecastCashDiv||'수령 배당']:null
+    ].filter(Boolean).forEach(function(item,i){
+      ctx.fillStyle=item[0];ctx.fillRect(lx+i*90,ly,10,7);
+      ctx.fillStyle=tc;ctx.font='9px sans-serif';ctx.textAlign='left';
+      ctx.fillText(item[1],lx+i*90+13,ly+7);
+    });
+  },[data,reinvest]);
+  if(initVal===0)
+    return React.createElement('div',{className:'empty',style:{padding:40}},
+      React.createElement('div',{className:'empty-icon'},'📈'),l.forecastNoPos);
+  var d10=data[9];var d20=data[19];var d30=data[29];
+  var cards=[
+    {d:d10,yr:10,cls:'forecast-card-y10'},
+    {d:d20,yr:20,cls:'forecast-card-y20'},
+    {d:d30,yr:30,cls:'forecast-card-y30'}
+  ];
+  return React.createElement('div',{className:'forecast-view'},
+    // 입력 컨트롤
+    React.createElement('div',{className:'forecast-controls'},
+      React.createElement('div',{className:'forecast-ctrl'},
+        React.createElement('label',{className:'forecast-ctrl-lbl'},l.forecastDivGrowth),
+        React.createElement('div',{className:'forecast-ctrl-row'},
+          React.createElement('input',{type:'range',min:0,max:20,step:0.5,value:divGrowth,className:'forecast-slider',onChange:function(e){setDivGrowth(parseFloat(e.target.value))}}),
+          React.createElement('span',{className:'forecast-val'},divGrowth.toFixed(1)+'%')
+        )
+      ),
+      React.createElement('div',{className:'forecast-ctrl'},
+        React.createElement('label',{className:'forecast-ctrl-lbl'},l.forecastPriceGrowth),
+        React.createElement('div',{className:'forecast-ctrl-row'},
+          React.createElement('input',{type:'range',min:0,max:20,step:0.5,value:priceGrowth,className:'forecast-slider',onChange:function(e){setPriceGrowth(parseFloat(e.target.value))}}),
+          React.createElement('span',{className:'forecast-val'},priceGrowth.toFixed(1)+'%')
+        )
+      ),
+      React.createElement('div',{className:'forecast-ctrl forecast-ctrl-toggle'},
+        React.createElement('label',{className:'forecast-ctrl-lbl'},l.forecastReinvest),
+        React.createElement('button',{className:'btn btn-sm '+(reinvest?'btn-primary':'btn-ghost'),style:{marginTop:4},onClick:function(){setReinvest(!reinvest)}},reinvest?l.forecastOn:l.forecastOff)
+      )
+    ),
+    // 3개 마일스톤 카드
+    React.createElement('div',{className:'forecast-cards'},
+      cards.map(function(c){
+        var growth=initVal>0?(c.d.total/initVal-1)*100:0;
+        return React.createElement('div',{key:c.yr,className:'forecast-card '+c.cls},
+          React.createElement('div',{className:'forecast-card-tag'},(lang==='ko'?c.yr+'년 후':c.yr+' Years')),
+          React.createElement('div',{className:'forecast-card-total'},fmtB(c.d.total)),
+          React.createElement('div',{className:'forecast-card-rows'},
+            React.createElement('div',{className:'forecast-card-row'},
+              React.createElement('span',{className:'forecast-card-lbl'},l.forecastPortVal),
+              React.createElement('span',{className:'forecast-card-num'},fmtB(c.d.portVal))
+            ),
+            !reinvest&&React.createElement('div',{className:'forecast-card-row'},
+              React.createElement('span',{className:'forecast-card-lbl'},l.forecastCashDiv),
+              React.createElement('span',{className:'forecast-card-num pos'},fmtB(c.d.cashDiv))
+            ),
+            React.createElement('div',{className:'forecast-card-row'},
+              React.createElement('span',{className:'forecast-card-lbl'},l.forecastAnnDiv+' ('+c.yr+(lang==='ko'?'년)':'Y)')),
+              React.createElement('span',{className:'forecast-card-num pos'},fmtB(c.d.annDiv))
+            ),
+            React.createElement('div',{className:'forecast-card-row'},
+              React.createElement('span',{className:'forecast-card-lbl'},l.forecastReturn),
+              React.createElement('span',{className:'forecast-card-num pos'},'+'+growth.toFixed(0)+'%')
+            )
+          )
+        );
+      })
+    ),
+    // 캔버스 차트
+    React.createElement('div',{className:'chart-card',style:{marginBottom:12}},
+      React.createElement('div',{className:'chart-title'},
+        l.forecastChartTitle,
+        React.createElement('span',{className:'chart-sub'},
+          (lang==='ko'?'현재 ':'Base ')+fmtB(initVal)+
+          ' · Div +'+divGrowth+'% · Price +'+priceGrowth+'%'+
+          (reinvest?' · DRIP':'')
+        )
+      ),
+      React.createElement('canvas',{ref:ref,height:230,style:{width:'100%',display:'block'}})
+    ),
+    // 연도별 상세 테이블
+    React.createElement('div',{className:'chart-card'},
+      React.createElement('div',{className:'chart-title'},l.forecastTableTitle),
+      React.createElement('div',{style:{overflowX:'auto',maxHeight:320,overflowY:'auto'}},
+        React.createElement('table',{className:'forecast-table'},
+          React.createElement('thead',null,
+            React.createElement('tr',null,
+              React.createElement('th',null,l.forecastYrCol),
+              React.createElement('th',null,l.forecastPortVal),
+              React.createElement('th',null,l.forecastAnnDiv),
+              !reinvest&&React.createElement('th',null,l.forecastCumDiv),
+              React.createElement('th',null,l.forecastTotalWealth),
+              React.createElement('th',null,l.forecastReturn)
+            )
+          ),
+          React.createElement('tbody',null,
+            data.map(function(d){
+              var isMil=d.yr===10||d.yr===20||d.yr===30;
+              var gr=initVal>0?(d.total/initVal-1)*100:0;
+              return React.createElement('tr',{key:d.yr,className:isMil?'fc-milestone':''},
+                React.createElement('td',null,(lang==='ko'?d.yr+'년':d.yr+'Y')),
+                React.createElement('td',null,fmtB(d.portVal)),
+                React.createElement('td',{className:'pos'},fmtB(d.annDiv)),
+                !reinvest&&React.createElement('td',{className:'pos'},fmtB(d.cashDiv)),
+                React.createElement('td',null,fmtB(d.total)),
+                React.createElement('td',{className:'pos'},'+'+gr.toFixed(0)+'%')
+              );
+            })
+          )
+        )
+      )
+    )
+  );
+}
+
 // ── 배당 캘린더 (24개월 종목별 스택 막대그래프) ──
 function DivCalendar(props){
   var positions=props.positions,prices=props.prices,usdRate=props.usdRate,lang=props.lang||'ko';
@@ -2195,6 +2438,9 @@ function App(props){
         React.createElement('div',{className:'sb-item'+(mainTab==='positions'?' active':''),onClick:function(){setMainTab('positions')}},
           React.createElement('span',{className:'sb-name'},'📋 Positions'),
           React.createElement('span',{className:'sb-cnt'},positions.length)
+        ),
+        React.createElement('div',{className:'sb-item'+(mainTab==='forecast'?' active':''),onClick:function(){setMainTab('forecast')}},
+          React.createElement('span',{className:'sb-name'},l.forecastLbl)
         )
       ),
       React.createElement('div',{className:'sb-sec'},
@@ -2330,7 +2576,8 @@ function App(props){
 
         React.createElement('div',{className:'tabs'},
           React.createElement('div',{className:'tab'+(mainTab==='overview'?' active':''),onClick:function(){setMainTab('overview')}},l.tabOverview),
-          React.createElement('div',{className:'tab'+(mainTab==='positions'?' active':''),onClick:function(){setMainTab('positions')}},l.tabPositions(filtered.length))
+          React.createElement('div',{className:'tab'+(mainTab==='positions'?' active':''),onClick:function(){setMainTab('positions')}},l.tabPositions(filtered.length)),
+          React.createElement('div',{className:'tab'+(mainTab==='forecast'?' active':''),onClick:function(){setMainTab('forecast')}},l.forecastLbl)
         ),
 
         mainTab==='overview'&&React.createElement('div',null,
@@ -2580,6 +2827,8 @@ function App(props){
         )
       )
     ),
+
+    mainTab==='forecast'&&React.createElement(ForecastView,{port:port,lang:lang}),
 
     showSettings&&React.createElement(SettingsModal,{apiKeys:apiKeys,usdRate:usdRate,onSave:saveSettings,lang:lang,onClose:function(){setShowSettings(false)}}),
     (showModal||editPos)&&React.createElement(AddModal,{accounts:accounts,editPos:editPos,lang:lang,
