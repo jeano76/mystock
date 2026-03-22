@@ -2593,6 +2593,17 @@ function App(props){
   useEffect(function(){
     if(ld('theme','dark')==='light') document.documentElement.classList.add('light');
   },[]);
+  // 앱 로딩 시 USD/KRW 환율 자동 조회 (Yahoo Finance KRW=X)
+  useEffect(function(){
+    if(!hasKR) return; // 한국 주식 없으면 불필요
+    fetch('https://query1.finance.yahoo.com/v7/finance/quote?symbols=KRW%3DX&fields=regularMarketPrice',{headers:{'Accept':'application/json'}})
+      .then(function(r){return r.json()})
+      .then(function(data){
+        var price=data&&data.quoteResponse&&data.quoteResponse.result&&data.quoteResponse.result[0]&&data.quoteResponse.result[0].regularMarketPrice;
+        if(price&&price>100&&price<3000){setUsdRate(Math.round(price));}
+      })
+      .catch(function(){/* 실패 시 기존 저장값 유지 */});
+  },[]);
 
   function addToast(t){
     var id=Date.now()+Math.random();
@@ -3047,7 +3058,7 @@ function App(props){
           ),
           selAcc!=='All'&&React.createElement('div',{className:'page-hdr-acc'},'● '+selAcc)
         ),
-        hasKR&&React.createElement('div',{style:{fontSize:9,color:'var(--text3)',fontFamily:'var(--mono)'}},'🇰🇷 '+l.krIncluded)
+        hasKR&&React.createElement('div',{style:{fontSize:9,color:'var(--text3)',fontFamily:'var(--mono)'}},l.krIncluded)
       ),
       (mainTab==='overview'||mainTab==='positions')&&React.createElement('div',{className:'hero'},
         React.createElement('div',{className:'hero-top'},
