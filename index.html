@@ -34,13 +34,14 @@
 html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13px;overflow-x:hidden;max-width:100%}
 ::-webkit-scrollbar{width:4px;height:4px}::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
 .app{display:flex;height:100vh;overflow:hidden}
-.sidebar{width:196px;min-width:196px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow-y:auto;transition:width .22s ease,min-width .22s ease}
-.sidebar.collapsed{width:44px;min-width:44px;overflow:hidden}
+.sidebar{width:196px;min-width:196px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;transition:width .22s ease,min-width .22s ease}
+.sb-scroll{flex:1;overflow-y:auto;overflow-x:hidden}
+.sidebar.collapsed{width:44px;min-width:44px}
 .sidebar.collapsed .sb-lbl,.sidebar.collapsed .sb-cnt,.sidebar.collapsed .sb-name span:not(.sb-dot),.sidebar.collapsed .sb-add-row,.sidebar.collapsed .sb-sec:not(:first-child){display:none}
 .sidebar.collapsed .sb-item{justify-content:center;padding:6px}
 .sidebar.collapsed .sb-name{font-size:14px}
-.sb-actions{margin-top:auto;border-top:1px solid var(--border);padding:8px 6px;display:flex;flex-wrap:wrap;gap:4px;justify-content:center}
-.sidebar.collapsed .sb-actions{flex-direction:column;align-items:center;padding:6px 4px}
+.sb-actions{border-top:1px solid var(--border);padding:8px 6px;display:flex;flex-wrap:wrap;gap:4px;justify-content:center;flex-shrink:0;background:var(--bg2)}
+.sidebar.collapsed .sb-actions{flex-direction:column;align-items:center;padding:6px 4px;overflow-y:auto;max-height:calc(100vh - 50px)}
 .sb-action-btn{display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 5px;border-radius:7px;cursor:pointer;border:none;background:transparent;color:var(--text3);font-size:16px;line-height:1;transition:background .12s,color .12s;min-width:36px}
 .sb-action-btn:hover{background:var(--bg3);color:var(--text)}
 .sb-action-lbl{font-size:8px;color:var(--text3);white-space:nowrap;font-family:var(--sans)}
@@ -540,8 +541,10 @@ tr.dragging{opacity:.35}
 /* MOBILE ≤640px */
 @media(max-width:640px){
   .sidebar{position:fixed;left:0;top:0;height:100vh;z-index:100;box-shadow:2px 0 16px rgba(0,0,0,.35)}
-  .sidebar:not(.collapsed){width:220px;min-width:220px;overflow-y:auto;overflow-x:hidden}
+  .sidebar:not(.collapsed){width:220px;min-width:220px}
+  .sb-scroll{overflow-y:auto;overflow-x:hidden}
   .main{margin-left:44px}
+  .sb-actions{max-height:40vh;overflow-y:auto}
   .sidebar-backdrop{display:block}
   .content{padding:10px 8px}
   .page-hdr{padding:10px 10px 6px}
@@ -3019,6 +3022,7 @@ function App(props){
 
   return React.createElement('div',{className:'app'},
     React.createElement('aside',{className:'sidebar'+(sidebarCollapsed?' collapsed':'')},
+      React.createElement('div',{className:'sb-scroll'},
       React.createElement('div',{className:'sb-sec',style:{padding:'10px 14px'}},
         React.createElement('div',{className:'sb-logo-row'},
           !sidebarCollapsed&&React.createElement('div',{className:'logo'},React.createElement('em',null,'▸'),'PORTFOLIO'),
@@ -3091,7 +3095,8 @@ function App(props){
           l.krIncluded,React.createElement('br'),
           React.createElement('span',{style:{fontFamily:'var(--mono)',color:'var(--yellow)'}},'1 USD = ₩'+(usdRate||1370).toLocaleString())
         )
-      ),
+      )
+      ), // end sb-scroll
       React.createElement('div',{className:'sb-actions'},
         React.createElement('button',{className:'sb-action-btn',title:l.alertsLbl,onClick:function(){if(window.Notification&&Notification.permission==='default')Notification.requestPermission();setShowAlerts(true)}},
           React.createElement('span',null,'🔔'+(alerts.length?' '+alerts.length:'')),
