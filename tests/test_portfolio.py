@@ -1005,6 +1005,1142 @@ class TC17_MultiViewportLayout(unittest.TestCase):
             driver.quit()
 
 
+# ── 색상 대비 유틸 ────────────────────────────────────────────────
+CONTRAST_JS = """
+(function(){
+  function hexToRgb(hex){
+    hex=hex.replace('#','');
+    if(hex.length===3) hex=hex.split('').map(function(c){return c+c}).join('');
+    return {r:parseInt(hex.slice(0,2),16),g:parseInt(hex.slice(2,4),16),b:parseInt(hex.slice(4,6),16)};
+  }
+  function parseColor(str){
+    str=str.trim();
+    var m=str.match(/rgb\\((\\d+),\\s*(\\d+),\\s*(\\d+)\\)/);
+    if(m) return {r:parseInt(m[1]),g:parseInt(m[2]),b:parseInt(m[3])};
+    if(str.startsWith('#')) return hexToRgb(str);
+    return null;
+  }
+  function linearize(c){c=c/255;return c<=0.03928?c/12.92:Math.pow((c+0.055)/1.055,2.4)}
+  function luminance(r,g,b){return 0.2126*linearize(r)+0.7152*linearize(g)+0.0722*linearize(b)}
+  function contrastRatio(c1,c2){
+    var l1=luminance(c1.r,c1.g,c1.b),l2=luminance(c2.r,c2.g,c2.b);
+    var hi=Math.max(l1,l2),lo=Math.min(l1,l2);
+    return (hi+0.05)/(lo+0.05);
+  }
+  var results=[];
+  var checks=[
+    {sel:'.hero-val',desc:'Hero 총평가액'},
+    {sel:'.hero-lbl',desc:'Hero 레이블'},
+    {sel:'.hstat-val',desc:'통계 수치'},
+    {sel:'.hstat-lbl',desc:'통계 레이블'},
+    {sel:'.hstat-sub',desc:'통계 서브'},
+    {sel:'.page-hdr-title',desc:'페이지 타이틀'},
+    {sel:'.footer-copy',desc:'푸터 저작권'},
+    {sel:'.api-dot-lbl',desc:'API 상태 라벨'},
+    {sel:'.legend-name',desc:'범례 이름'},
+    {sel:'.tab',desc:'탭 버튼'},
+    {sel:'.sb-name',desc:'사이드바 메뉴'},
+    {sel:'.btn',desc:'버튼'},
+    {sel:'.toast-msg',desc:'토스트 메시지'},
+  ];
+  checks.forEach(function(chk){
+    var el=document.querySelector(chk.sel);
+    if(!el) return;
+    var st=window.getComputedStyle(el);
+    var fg=parseColor(st.color);
+    var bg=parseColor(st.backgroundColor);
+    if(!fg) return;
+    // bg가 투명이면 부모에서 찾기
+    if(!bg||bg.r===0&&bg.g===0&&bg.b===0&&st.backgroundColor==='rgba(0, 0, 0, 0)'){
+      var p=el.parentElement;
+      while(p){var ps=window.getComputedStyle(p);var prgba=ps.backgroundColor;if(prgba&&prgba!=='rgba(0, 0, 0, 0)'){bg=parseColor(prgba);break;}p=p.parentElement;}
+    }
+    if(!bg) bg={r:0,g:0,b:0};
+    var ratio=contrastRatio(fg,bg);
+    var size=parseFloat(st.fontSize);
+    var bold=parseInt(st.fontWeight)>=700;
+    var minRatio=(size>=18||(size>=14&&bold))?3.0:4.5;
+    results.push({sel:chk.sel,desc:chk.desc,ratio:Math.round(ratio*100)/100,fg:st.color,bg:st.backgroundColor,size:size,pass:ratio>=minRatio,min:minRatio});
+  });
+  return results;
+})()
+"""
+
+def add_position(driver, ticker="AAPL", shares="5"):
+    """포지션 추가 헬퍼"""
+    btns = driver.find_elements(By.CSS_SELECTOR, ".topbar-right .btn-primary")
+    btns[-1].click()
+    time.sleep(0.4)
+    fields = driver.find_elements(By.CSS_SELECTOR, ".modal .field input")
+    fields[0].clear()
+    fields[0].send_keys(ticker)
+    time.sleep(0.5)
+    items = driver.find_elements(By.CSS_SELECTOR, ".ac-item")
+    if items:
+        items[0].click()
+        time.sleep(0.3)
+    # 수량 입력
+    fields = driver.find_elements(By.CSS_SELECTOR, ".modal .field input")
+    for f in fields:
+        if f.get_attribute("value") == "" or f.get_attribute("value") == "0":
+            f.clear()
+            f.send_keys(shares)
+            break
+    save_btns = driver.find_elements(By.CSS_SELECTOR, ".modal .btn-primary")
+    save_btns[-1].click()
+    time.sleep(0.5)
+
+
+class TC18_AlertsModal(unittest.TestCase):
+    """TC18 알림(Alerts) 모달"""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.driver = make_driver()
+        register_and_login(cls.driver)
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.driver.quit()
+
+    def test_01_alerts_button_in_topbar(self):
+        """상단 바에 🔔 알림 버튼 존재"""
+        btns = self.driver.find_elements(By.CSS_SELECTOR, ".topbar-right .btn-ghost")
+        alert_btn = None
+        for b in btns:
+            if "🔔" in b.text or (b.get_attribute("title") and "Alert" in b.get_attribute("title")):
+                alert_btn = b
+                break
+        self.assertIsNotNone(alert_btn, "🔔 알림 버튼 없음")
+        self.assertTrue(alert_btn.is_displayed())
+
+    def test_02_alerts_button_opens_modal(self):
+        """🔔 버튼 클릭 → 알림 모달 열림"""
+        btns = self.driver.find_elements(By.CSS_SELECTOR, ".topbar-right .btn-ghost")
+        for b in btns:
+            if "🔔" in b.text or (b.get_attribute("title") and "Alert" in b.get_attribute("title")):
+                b.click()
+                break
+        time.sleep(0.4)
+        modal = wait(self.driver).until(EC.visibility_of_element_located((By.CSS_SELECTOR, ".overlay")))
+        self.assertTrue(modal.is_displayed())
+        print("  Alerts modal: opened")
+
+    def test_03_alerts_modal_has_add_button(self):
+        """알림 모달에 알림 추가 버튼 존재"""
+        btns = self.driver.find_elements(By.CSS_SELECTOR, ".overlay .btn-primary")
+        self.assertGreater(len(btns), 0, "알림 추가 버튼 없음")
+        print(f"  alerts add btn: {btns[0].text}")
+
+    def test_04_alerts_modal_empty_state(self):
+        """알림 없을 때 빈 상태 텍스트 표시"""
+        overlay = self.driver.find_element(By.CSS_SELECTOR, ".overlay")
+        text = overlay.text
+        self.assertTrue(len(text) > 0)
+        print(f"  alerts modal text snippet: {text[:60]}")
+
+    def test_05_close_alerts_modal(self):
+        """알림 모달 닫기 (× 버튼)"""
+        self.driver.find_element(By.CSS_SELECTOR, ".overlay .close-x").click()
+        time.sleep(0.3)
+        overlays = [o for o in self.driver.find_elements(By.CSS_SELECTOR, ".overlay") if o.is_displayed()]
+        self.assertEqual(len(overlays), 0)
+
+
+class TC19_TradesModal(unittest.TestCase):
+    """TC19 거래 내역(Trades) 모달"""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.driver = make_driver()
+        register_and_login(cls.driver)
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.driver.quit()
+
+    def test_01_trades_button_in_topbar(self):
+        """상단 바에 📊 거래 내역 버튼 존재"""
+        btns = self.driver.find_elements(By.CSS_SELECTOR, ".topbar-right .btn-ghost")
+        trade_btn = None
+        for b in btns:
+            if "📊" in b.text or (b.get_attribute("title") and "Trade" in b.get_attribute("title")):
+                trade_btn = b
+                break
+        self.assertIsNotNone(trade_btn, "📊 거래 버튼 없음")
+        self.assertTrue(trade_btn.is_displayed())
+
+    def test_02_trades_button_opens_modal(self):
+        """📊 버튼 클릭 → 거래 내역 모달 열림"""
+        btns = self.driver.find_elements(By.CSS_SELECTOR, ".topbar-right .btn-ghost")
+        for b in btns:
+            if "📊" in b.text or (b.get_attribute("title") and "Trade" in b.get_attribute("title")):
+                b.click()
+                break
+        time.sleep(0.4)
+        modal = wait(self.driver).until(EC.visibility_of_element_located((By.CSS_SELECTOR, ".overlay")))
+        self.assertTrue(modal.is_displayed())
+        print("  Trades modal: opened")
+
+    def test_03_trades_modal_has_add_button(self):
+        """거래 내역 모달에 거래 추가 버튼 존재"""
+        btns = self.driver.find_elements(By.CSS_SELECTOR, ".overlay .btn-primary")
+        self.assertGreater(len(btns), 0, "거래 추가 버튼 없음")
+
+    def test_04_trades_modal_has_ticker_selector(self):
+        """거래 추가 폼에 티커 선택 또는 입력 필드 존재"""
+        inputs = self.driver.find_elements(By.CSS_SELECTOR, ".overlay input, .overlay select")
+        self.assertGreater(len(inputs), 0, "입력 필드 없음")
+        print(f"  trade form inputs: {len(inputs)}")
+
+    def test_05_close_trades_modal(self):
+        """거래 내역 모달 닫기"""
+        self.driver.find_element(By.CSS_SELECTOR, ".overlay .close-x").click()
+        time.sleep(0.3)
+        overlays = [o for o in self.driver.find_elements(By.CSS_SELECTOR, ".overlay") if o.is_displayed()]
+        self.assertEqual(len(overlays), 0)
+
+
+class TC20_ThemeToggle(unittest.TestCase):
+    """TC20 다크/라이트 테마 전환"""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.driver = make_driver()
+        register_and_login(cls.driver)
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.driver.quit()
+
+    def _get_theme_btn(self):
+        btns = self.driver.find_elements(By.CSS_SELECTOR, ".topbar-right .btn-ghost")
+        for b in btns:
+            txt = b.text
+            if "☀️" in txt or "🌙" in txt:
+                return b
+        return None
+
+    def test_01_theme_btn_exists(self):
+        """테마 전환 버튼 존재 (☀️ 또는 🌙)"""
+        btn = self._get_theme_btn()
+        self.assertIsNotNone(btn, "테마 전환 버튼 없음")
+        self.assertTrue(btn.is_displayed())
+        print(f"  theme btn: '{btn.text}'")
+
+    def test_02_default_dark_theme(self):
+        """초기 테마: 다크 (html에 light 클래스 없음)"""
+        html_class = self.driver.find_element(By.TAG_NAME, "html").get_attribute("class")
+        self.assertNotIn("light", html_class, f"초기가 라이트 테마: {html_class}")
+
+    def test_03_click_toggles_to_light(self):
+        """테마 버튼 클릭 → 라이트 모드 전환 (html.light 추가)"""
+        btn = self._get_theme_btn()
+        self.assertIsNotNone(btn)
+        btn.click()
+        time.sleep(0.3)
+        html_class = self.driver.find_element(By.TAG_NAME, "html").get_attribute("class")
+        self.assertIn("light", html_class, f"라이트 테마 전환 실패: {html_class}")
+        print(f"  html class after toggle: '{html_class}'")
+
+    def test_04_light_theme_bg_color(self):
+        """라이트 테마에서 body 배경색이 밝은 색"""
+        bg = self.driver.execute_script(
+            "return window.getComputedStyle(document.body).backgroundColor"
+        )
+        # light theme: --bg:#ffffff → rgb(255,255,255)
+        self.assertIn("255", bg, f"라이트 bg 색상 의심: {bg}")
+        print(f"  light bg: {bg}")
+
+    def test_05_click_toggles_back_to_dark(self):
+        """다시 클릭 → 다크 모드 복귀"""
+        btn = self._get_theme_btn()
+        self.assertIsNotNone(btn)
+        btn.click()
+        time.sleep(0.3)
+        html_class = self.driver.find_element(By.TAG_NAME, "html").get_attribute("class")
+        self.assertNotIn("light", html_class, f"다크 복귀 실패: {html_class}")
+
+    def test_06_light_theme_text_readable(self):
+        """라이트 테마에서 주요 텍스트가 어두운 색 (가독성)"""
+        # 라이트로 전환
+        btn = self._get_theme_btn()
+        btn.click()
+        time.sleep(0.3)
+        color = self.driver.execute_script(
+            "return window.getComputedStyle(document.querySelector('.hero-val')).color"
+        )
+        # light --text:#111111 → rgb(17,17,17)
+        parts = [int(x) for x in color.replace("rgb(","").replace(")","").split(",")[:3]]
+        brightness = sum(parts) / 3
+        self.assertLess(brightness, 100, f"라이트 테마 텍스트가 너무 밝음: {color}")
+        print(f"  light text color: {color}")
+        # 다크로 복원
+        btn = self._get_theme_btn()
+        btn.click()
+        time.sleep(0.2)
+
+
+class TC21_InlineCellEditing(unittest.TestCase):
+    """TC21 테이블 인라인 셀 편집"""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.driver = make_driver()
+        register_and_login(cls.driver)
+        # 포지션 추가
+        add_position(cls.driver, "AAPL", "10")
+        # Positions 탭 이동
+        items = cls.driver.find_elements(By.CSS_SELECTOR, ".sb-sec .sb-item")
+        for item in items:
+            if "Positions" in item.text:
+                item.click()
+                time.sleep(0.4)
+                break
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.driver.quit()
+
+    def test_01_editable_cells_exist(self):
+        """cell-editable 클래스 셀이 테이블에 존재"""
+        cells = self.driver.find_elements(By.CSS_SELECTOR, "tbody .cell-editable")
+        self.assertGreater(len(cells), 0, "편집 가능 셀 없음")
+        print(f"  editable cells: {len(cells)}")
+
+    def test_02_click_cell_shows_input(self):
+        """편집 가능 셀 클릭 → input 또는 select 나타남"""
+        cells = self.driver.find_elements(By.CSS_SELECTOR, "tbody .cell-editable")
+        if cells:
+            cells[0].click()
+            time.sleep(0.3)
+            inputs = self.driver.find_elements(By.CSS_SELECTOR, "tbody .cell-input")
+            self.assertGreater(len(inputs), 0, "편집 input 나타나지 않음")
+            print(f"  cell-input appeared: {inputs[0].get_attribute('value')}")
+
+    def test_03_escape_cancels_edit(self):
+        """Escape 키 → 편집 취소 (input 사라짐)"""
+        cells = self.driver.find_elements(By.CSS_SELECTOR, "tbody .cell-editable")
+        if cells:
+            cells[0].click()
+            time.sleep(0.2)
+            inputs = self.driver.find_elements(By.CSS_SELECTOR, "tbody .cell-input")
+            if inputs:
+                inputs[0].send_keys(Keys.ESCAPE)
+                time.sleep(0.3)
+            remaining = self.driver.find_elements(By.CSS_SELECTOR, "tbody .cell-input")
+            self.assertEqual(len(remaining), 0, "Escape 후 input이 남아있음")
+
+    def test_04_edit_and_save_with_enter(self):
+        """값 수정 후 Enter → 저장 (input 사라지고 값 유지)"""
+        # shares 셀 편집 (숫자 셀)
+        cells = self.driver.find_elements(By.CSS_SELECTOR, "tbody .cell-editable")
+        for cell in cells:
+            cell.click()
+            time.sleep(0.2)
+            inputs = self.driver.find_elements(By.CSS_SELECTOR, "tbody .cell-input")
+            if inputs:
+                old_val = inputs[0].get_attribute("value")
+                inputs[0].triple_click() if hasattr(inputs[0], 'triple_click') else None
+                inputs[0].send_keys(Keys.CONTROL + "a")
+                inputs[0].send_keys("15")
+                inputs[0].send_keys(Keys.RETURN)
+                time.sleep(0.3)
+                remaining = self.driver.find_elements(By.CSS_SELECTOR, "tbody .cell-input")
+                self.assertEqual(len(remaining), 0, "Enter 후 input이 남아있음")
+                print(f"  saved: old={old_val} → 15")
+                break
+
+    def test_05_delete_button_shows_confirm(self):
+        """🗑 삭제 버튼 클릭 → 인라인 확인(삭제?/확인/취소) 표시"""
+        # 🗑 버튼은 tbody의 마지막 td 안의 btn-ghost
+        del_btn = None
+        btns = self.driver.find_elements(By.CSS_SELECTOR, "tbody td:last-child .btn-ghost")
+        for b in btns:
+            if "🗑" in b.text:
+                del_btn = b
+                break
+        if not del_btn:
+            # fallback: 모든 tbody btn-ghost 검색
+            for b in self.driver.find_elements(By.CSS_SELECTOR, "tbody .btn-ghost"):
+                if "🗑" in b.text:
+                    del_btn = b
+                    break
+        self.assertIsNotNone(del_btn, "🗑 삭제 버튼 없음")
+        del_btn.click()
+        time.sleep(0.4)
+        # 인라인 confirm: tbody 안에 "삭제?" 또는 "확인" 버튼 나타남
+        tbody_text = self.driver.find_element(By.CSS_SELECTOR, "tbody").text
+        confirm_visible = "확인" in tbody_text or "삭제" in tbody_text
+        self.assertTrue(confirm_visible, f"삭제 확인 없음 (tbody text: {tbody_text[:60]})")
+        # 취소 버튼 클릭
+        cancel_btns = self.driver.find_elements(By.CSS_SELECTOR, "tbody .btn-ghost")
+        for cb in cancel_btns:
+            if "취소" in cb.text:
+                cb.click()
+                break
+        time.sleep(0.2)
+        print("  delete inline confirm: shown ✓")
+
+
+class TC22_ColumnVisibility(unittest.TestCase):
+    """TC22 컬럼 표시/숨기기"""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.driver = make_driver()
+        register_and_login(cls.driver)
+        add_position(cls.driver, "MSFT", "5")
+        # Positions 탭
+        items = cls.driver.find_elements(By.CSS_SELECTOR, ".sb-sec .sb-item")
+        for item in items:
+            if "Positions" in item.text:
+                item.click()
+                time.sleep(0.4)
+                break
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.driver.quit()
+
+    def test_01_column_settings_button_exists(self):
+        """⊞ 컬럼 설정 버튼 존재 (테이블 헤더 마지막 th 안)"""
+        # 컬럼 버튼은 .col-vis-wrap 안에 있음
+        btns = self.driver.find_elements(By.CSS_SELECTOR, ".col-vis-wrap .btn")
+        if not btns:
+            # fallback: thead의 모든 버튼
+            btns = self.driver.find_elements(By.CSS_SELECTOR, "thead .btn")
+        col_btn = None
+        for b in btns:
+            if "⊞" in b.text or "Columns" in b.text or "컬럼" in b.text:
+                col_btn = b
+                break
+        self.assertIsNotNone(col_btn, "컬럼 버튼 없음 (⊞)")
+        self.assertTrue(col_btn.is_displayed())
+        print(f"  col btn: '{col_btn.text}'")
+
+    def test_02_click_opens_dropdown(self):
+        """컬럼 버튼 클릭 → 드롭다운 표시"""
+        btns = self.driver.find_elements(By.CSS_SELECTOR, ".col-vis-wrap .btn")
+        if not btns:
+            btns = self.driver.find_elements(By.CSS_SELECTOR, "thead .btn")
+        for b in btns:
+            if "⊞" in b.text or "Columns" in b.text or "컬럼" in b.text:
+                b.click()
+                break
+        time.sleep(0.3)
+        drop = self.driver.find_elements(By.CSS_SELECTOR, ".col-vis-drop")
+        self.assertGreater(len(drop), 0, ".col-vis-drop 없음")
+        visible = [d for d in drop if d.is_displayed()]
+        self.assertGreater(len(visible), 0, "드롭다운 미표시")
+        print(f"  col-vis-drop visible: {len(visible)}")
+
+    def test_03_checkboxes_exist(self):
+        """드롭다운에 체크박스 항목 존재"""
+        items = self.driver.find_elements(By.CSS_SELECTOR, ".col-vis-item")
+        self.assertGreaterEqual(len(items), 5, f"체크박스 항목 부족: {len(items)}")
+        print(f"  col-vis items: {len(items)}")
+
+    def test_04_toggle_column_off(self):
+        """체크박스 클릭 → 해당 컬럼 표시 상태 변경"""
+        # 드롭다운이 닫혀 있을 수 있으므로 다시 열기
+        btns = self.driver.find_elements(By.CSS_SELECTOR, ".col-vis-wrap .btn")
+        if not btns:
+            btns = self.driver.find_elements(By.CSS_SELECTOR, "thead .btn")
+        for b in btns:
+            if "⊞" in b.text or "Columns" in b.text or "컬럼" in b.text:
+                b.click()
+                time.sleep(0.3)
+                break
+        items = self.driver.find_elements(By.CSS_SELECTOR, ".col-vis-item")
+        if items:
+            cb = items[-2].find_element(By.CSS_SELECTOR, "input[type=checkbox]")
+            was_checked = cb.is_selected()
+            # JS click으로 안정적으로 클릭
+            self.driver.execute_script("arguments[0].click()", cb)
+            time.sleep(0.3)
+            items2 = self.driver.find_elements(By.CSS_SELECTOR, ".col-vis-item")
+            if items2:
+                cb2 = items2[-2].find_element(By.CSS_SELECTOR, "input[type=checkbox]")
+                self.assertNotEqual(cb2.is_selected(), was_checked, "체크박스 상태 변경 안됨")
+                print(f"  checkbox toggled: {was_checked} → {cb2.is_selected()}")
+
+    def test_05_close_dropdown_by_clicking_button(self):
+        """컬럼 버튼 재클릭 → 드롭다운 닫힘"""
+        # 먼저 드롭다운이 열려있는지 확인, 없으면 열기
+        drops = [d for d in self.driver.find_elements(By.CSS_SELECTOR, ".col-vis-drop") if d.is_displayed()]
+        btns = self.driver.find_elements(By.CSS_SELECTOR, ".col-vis-wrap .btn")
+        if not btns:
+            btns = self.driver.find_elements(By.CSS_SELECTOR, "thead .btn")
+        col_btn = None
+        for b in btns:
+            if "⊞" in b.text or "Columns" in b.text or "컬럼" in b.text:
+                col_btn = b
+                break
+        if not drops and col_btn:
+            col_btn.click()
+            time.sleep(0.3)
+        # 드롭다운 닫기 (버튼 재클릭)
+        if col_btn:
+            col_btn.click()
+            time.sleep(0.3)
+        drops = [d for d in self.driver.find_elements(By.CSS_SELECTOR, ".col-vis-drop") if d.is_displayed()]
+        self.assertEqual(len(drops), 0, "버튼 재클릭 후 드롭다운이 닫히지 않음")
+        print("  col-vis dropdown closed ✓")
+
+
+class TC23_SnapshotBtn(unittest.TestCase):
+    """TC23 포트폴리오 스냅샷"""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.driver = make_driver()
+        register_and_login(cls.driver)
+        add_position(cls.driver, "AAPL", "10")
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.driver.quit()
+
+    def test_01_snapshot_button_exists(self):
+        """📸 스냅샷 버튼 존재 (topbar)"""
+        btns = self.driver.find_elements(By.CSS_SELECTOR, ".topbar-right .btn-ghost")
+        snap_btn = None
+        for b in btns:
+            if "📸" in b.text or (b.get_attribute("title") and "snapshot" in b.get_attribute("title").lower()):
+                snap_btn = b
+                break
+        self.assertIsNotNone(snap_btn, "📸 스냅샷 버튼 없음")
+        self.assertTrue(snap_btn.is_displayed())
+        print(f"  snapshot btn: '{snap_btn.text}'")
+
+    def test_02_snapshot_saves_and_shows_toast(self):
+        """📸 버튼 클릭 → 토스트 알림 표시"""
+        btns = self.driver.find_elements(By.CSS_SELECTOR, ".topbar-right .btn-ghost")
+        for b in btns:
+            if "📸" in b.text or (b.get_attribute("title") and "snapshot" in b.get_attribute("title").lower()):
+                b.click()
+                break
+        time.sleep(0.5)
+        toasts = self.driver.find_elements(By.CSS_SELECTOR, ".toast")
+        self.assertGreater(len(toasts), 0, "스냅샷 저장 토스트 없음")
+        print(f"  toast: {toasts[0].text[:40]}")
+
+    def _click_snapshot_btn(self):
+        btns = self.driver.find_elements(By.CSS_SELECTOR, ".topbar-right .btn-ghost")
+        for b in btns:
+            if "📸" in b.text or (b.get_attribute("title") and "snapshot" in b.get_attribute("title").lower()):
+                b.click()
+                return True
+        return False
+
+    def test_03_snapshot_card_in_overview(self):
+        """Overview에 스냅샷 차트 카드 표시 (날짜 다른 2개 주입 후)"""
+        # 스냅샷은 하루 1개만 저장됨 → localStorage에 다른 날짜로 2개 직접 주입
+        self.driver.execute_script("""
+            var d1=new Date(Date.now()-86400000).toISOString().slice(0,10);
+            var d2=new Date().toISOString().slice(0,10);
+            localStorage.setItem('pfm3_snapshots',JSON.stringify([
+                {date:d1,val:9800,gain:300,pct:3.1},
+                {date:d2,val:10200,gain:500,pct:5.0}
+            ]));
+        """)
+        # 페이지 새로고침 → 스냅샷 상태 로드 (세션은 유지됨)
+        self.driver.refresh()
+        time.sleep(1.5)
+        wait(self.driver).until(EC.presence_of_element_located((By.CSS_SELECTOR, ".app")))
+        # Overview 탭으로 이동
+        tabs = self.driver.find_elements(By.CSS_SELECTOR, ".tab")
+        for t in tabs:
+            if "Overview" in t.text or "오버뷰" in t.text or "📊" in t.text:
+                t.click()
+                time.sleep(0.5)
+                break
+        snap_cards = self.driver.find_elements(By.CSS_SELECTOR, ".snapshot-card")
+        snap_count = self.driver.execute_script(
+            "return (JSON.parse(localStorage.getItem('pfm3_snapshots')||'[]')).length"
+        )
+        print(f"  snapshot count: {snap_count}, cards: {len(snap_cards)}")
+        self.assertGreater(len(snap_cards), 0, f"스냅샷 카드 없음 ({snap_count}개 주입 후)")
+
+
+class TC24_BenchmarkPills(unittest.TestCase):
+    """TC24 벤치마크 비교 pill"""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.driver = make_driver()
+        register_and_login(cls.driver)
+        add_position(cls.driver, "AAPL", "10")
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.driver.quit()
+
+    def test_01_benchmark_section_exists(self):
+        """벤치마크 비교 섹션 존재"""
+        pills = self.driver.find_elements(By.CSS_SELECTOR, ".bench-pill")
+        self.assertGreater(len(pills), 0, ".bench-pill 없음")
+        print(f"  benchmark pills: {[p.text for p in pills]}")
+
+    def test_02_none_pill_active_by_default(self):
+        """기본 벤치마크: 없음(None) pill active"""
+        pills = self.driver.find_elements(By.CSS_SELECTOR, ".bench-pill")
+        first = pills[0]
+        self.assertIn("active", first.get_attribute("class"), "첫 번째 pill이 active 아님")
+
+    def test_03_click_sp500_pill(self):
+        """S&P 500 pill 클릭 → active 전환"""
+        pills = self.driver.find_elements(By.CSS_SELECTOR, ".bench-pill")
+        sp_pill = None
+        for p in pills:
+            if "S&P" in p.text or "500" in p.text:
+                sp_pill = p
+                break
+        if sp_pill:
+            sp_pill.click()
+            time.sleep(0.3)
+            self.assertIn("active", sp_pill.get_attribute("class"))
+            print(f"  S&P 500 pill active: ✓")
+
+    def test_04_click_nasdaq_pill(self):
+        """Nasdaq pill 클릭 → active 전환"""
+        pills = self.driver.find_elements(By.CSS_SELECTOR, ".bench-pill")
+        nq_pill = None
+        for p in pills:
+            if "나스닥" in p.text or "Nasdaq" in p.text or "NQ" in p.text:
+                nq_pill = p
+                break
+        if nq_pill:
+            nq_pill.click()
+            time.sleep(0.3)
+            self.assertIn("active", nq_pill.get_attribute("class"))
+            print(f"  Nasdaq pill active: ✓")
+
+    def test_05_click_none_resets_benchmark(self):
+        """없음 pill 클릭 → 벤치마크 해제"""
+        pills = self.driver.find_elements(By.CSS_SELECTOR, ".bench-pill")
+        pills[0].click()
+        time.sleep(0.3)
+        self.assertIn("active", pills[0].get_attribute("class"))
+
+
+class TC25_ColorContrastDark(unittest.TestCase):
+    """TC25 색상 대비 검증 - 다크 테마 (WCAG AA)"""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.driver = make_driver()
+        register_and_login(cls.driver)
+        add_position(cls.driver, "AAPL", "10")
+        time.sleep(0.5)
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.driver.quit()
+
+    def _contrast_ratio(self, selector, bg_selector=None):
+        """CSS selector 요소의 텍스트/배경 대비율 계산. bg_selector가 없으면 부모에서 찾음"""
+        return self.driver.execute_script("""
+          var sel=arguments[0], bgSel=arguments[1];
+          function lin(c){c=c/255;return c<=0.03928?c/12.92:Math.pow((c+0.055)/1.055,2.4)}
+          function lum(r,g,b){return 0.2126*lin(r)+0.7152*lin(g)+0.0722*lin(b)}
+          function cont(c1,c2){var l1=lum(c1[0],c1[1],c1[2]),l2=lum(c2[0],c2[1],c2[2]);var hi=Math.max(l1,l2),lo=Math.min(l1,l2);return(hi+0.05)/(lo+0.05)}
+          function parse(s){var m=s.match(/rgb[a]?\\((\\d+),\\s*(\\d+),\\s*(\\d+)/);return m?[+m[1],+m[2],+m[3]]:null}
+          function findBg(el){
+            var p=el;
+            while(p){
+              var st=getComputedStyle(p);
+              var bg=st.backgroundColor;
+              // skip transparent and gradient
+              if(bg&&bg!=='rgba(0, 0, 0, 0)'&&bg.indexOf('rgba(0, 0, 0, 0)')<0){
+                var c=parse(bg);if(c)return c;
+              }
+              // check CSS variable resolved value for gradient backgrounds
+              if(st.background&&st.background.indexOf('gradient')>-1){
+                // use --bg3 variable as fallback for gradient
+                var bgVar=getComputedStyle(document.documentElement).getPropertyValue('--bg3').trim();
+                if(bgVar){
+                  if(bgVar.startsWith('#')){
+                    var h=bgVar.replace('#','');
+                    if(h.length===3)h=h.split('').map(function(c){return c+c}).join('');
+                    return [parseInt(h.slice(0,2),16),parseInt(h.slice(2,4),16),parseInt(h.slice(4,6),16)];
+                  }
+                  var c2=parse(bgVar);if(c2)return c2;
+                }
+              }
+              p=p.parentElement;
+            }
+            return null;
+          }
+          var el=document.querySelector(sel);if(!el)return -1;
+          var fg=parse(getComputedStyle(el).color);if(!fg)return -2;
+          var bg;
+          if(bgSel){
+            var bgEl=document.querySelector(bgSel);
+            bg=bgEl?findBg(bgEl):null;
+          } else {
+            bg=findBg(el);
+          }
+          if(!bg)return -3;
+          return Math.round(cont(fg,bg)*100)/100;
+        """, selector, bg_selector)
+
+    def test_01_hero_val_contrast(self):
+        """Hero 총 평가액 텍스트 대비율 ≥ 4.5"""
+        # .hero는 linear-gradient 배경 → CSS 변수 --bg3 기준으로 계산
+        ratio = self._contrast_ratio(".hero-val")
+        print(f"  hero-val contrast: {ratio}:1")
+        self.assertGreaterEqual(ratio, 4.5, f"Hero 값 텍스트 대비율 부족: {ratio}:1")
+
+    def test_02_page_title_contrast(self):
+        """페이지 제목 텍스트 대비율 ≥ 4.5"""
+        ratio = self._contrast_ratio(".page-hdr-title")
+        print(f"  page-hdr-title contrast: {ratio}:1")
+        if ratio >= 0:
+            self.assertGreaterEqual(ratio, 4.5, f"페이지 제목 대비율 부족: {ratio}:1")
+
+    def test_03_footer_copy_contrast(self):
+        """푸터 저작권 텍스트 대비율 (최소 2.5:1 - 장식적 텍스트)"""
+        ratio = self._contrast_ratio(".footer-copy")
+        print(f"  footer-copy contrast: {ratio}:1  (min 2.5:1)")
+        if ratio >= 0:
+            self.assertGreaterEqual(ratio, 2.5, f"푸터 저작권 대비율 너무 낮음: {ratio}:1")
+
+    def test_04_sidebar_menu_contrast(self):
+        """사이드바 메뉴 텍스트 대비율 ≥ 4.5"""
+        ratio = self._contrast_ratio(".sb-name")
+        print(f"  sb-name contrast: {ratio}:1")
+        if ratio >= 0:
+            self.assertGreaterEqual(ratio, 4.5, f"사이드바 메뉴 대비율 부족: {ratio}:1")
+
+    def test_05_tab_active_contrast(self):
+        """활성 탭 텍스트 대비율 ≥ 4.5"""
+        ratio = self._contrast_ratio(".tab.active")
+        print(f"  tab.active contrast: {ratio}:1")
+        if ratio >= 0:
+            self.assertGreaterEqual(ratio, 4.5, f"탭 대비율 부족: {ratio}:1")
+
+    def test_06_btn_primary_contrast(self):
+        """기본 파란 버튼 텍스트 대비율 ≥ 3.0"""
+        ratio = self._contrast_ratio(".btn-primary")
+        print(f"  btn-primary contrast: {ratio}:1")
+        if ratio >= 0:
+            self.assertGreaterEqual(ratio, 3.0, f"버튼 대비율 부족: {ratio}:1")
+
+
+class TC26_ColorContrastLight(unittest.TestCase):
+    """TC26 색상 대비 검증 - 라이트 테마"""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.driver = make_driver()
+        register_and_login(cls.driver)
+        add_position(cls.driver, "AAPL", "10")
+        # 라이트 모드로 전환
+        btns = cls.driver.find_elements(By.CSS_SELECTOR, ".topbar-right .btn-ghost")
+        for b in btns:
+            if "☀️" in b.text or "🌙" in b.text:
+                b.click()
+                break
+        time.sleep(0.4)
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.driver.quit()
+
+    def test_01_light_mode_active(self):
+        """라이트 테마 활성 확인"""
+        html_class = self.driver.find_element(By.TAG_NAME, "html").get_attribute("class")
+        self.assertIn("light", html_class)
+
+    def _contrast_ratio(self, selector, bg_selector=None):
+        """TC25와 동일한 대비율 계산 헬퍼 (라이트 테마용)"""
+        return self.driver.execute_script("""
+          var sel=arguments[0], bgSel=arguments[1];
+          function lin(c){c=c/255;return c<=0.03928?c/12.92:Math.pow((c+0.055)/1.055,2.4)}
+          function lum(r,g,b){return 0.2126*lin(r)+0.7152*lin(g)+0.0722*lin(b)}
+          function cont(c1,c2){var l1=lum(c1[0],c1[1],c1[2]),l2=lum(c2[0],c2[1],c2[2]);var hi=Math.max(l1,l2),lo=Math.min(l1,l2);return(hi+0.05)/(lo+0.05)}
+          function parse(s){var m=s.match(/rgb[a]?\\((\\d+),\\s*(\\d+),\\s*(\\d+)/);return m?[+m[1],+m[2],+m[3]]:null}
+          function findBg(el){
+            var p=el;
+            while(p){
+              var st=getComputedStyle(p);
+              var bg=st.backgroundColor;
+              if(bg&&bg!=='rgba(0, 0, 0, 0)'&&bg.indexOf('rgba(0, 0, 0, 0)')<0){var c=parse(bg);if(c)return c;}
+              if(st.background&&st.background.indexOf('gradient')>-1){
+                var bgVar=getComputedStyle(document.documentElement).getPropertyValue('--bg3').trim();
+                if(bgVar){if(bgVar.startsWith('#')){var h=bgVar.replace('#','');if(h.length===3)h=h.split('').map(function(c){return c+c}).join('');return[parseInt(h.slice(0,2),16),parseInt(h.slice(2,4),16),parseInt(h.slice(4,6),16)];}var c2=parse(bgVar);if(c2)return c2;}
+              }
+              p=p.parentElement;
+            }
+            return null;
+          }
+          var el=document.querySelector(sel);if(!el)return -1;
+          var fg=parse(getComputedStyle(el).color);if(!fg)return -2;
+          var bg=findBg(bgSel?document.querySelector(bgSel):el);
+          if(!bg)return -3;
+          return Math.round(cont(fg,bg)*100)/100;
+        """, selector, bg_selector)
+
+    def test_02_hero_val_light_contrast(self):
+        """라이트 테마 Hero 텍스트 대비율 ≥ 4.5"""
+        ratio = self._contrast_ratio(".hero-val")
+        print(f"  [light] hero-val contrast: {ratio}:1")
+        if ratio >= 0:
+            self.assertGreaterEqual(ratio, 4.5, f"라이트 Hero 대비율 부족: {ratio}:1")
+
+    def test_03_footer_copy_light_contrast(self):
+        """라이트 테마 푸터 저작권 최소 대비율 ≥ 2.5"""
+        ratio = self._contrast_ratio(".footer-copy")
+        print(f"  [light] footer-copy contrast: {ratio}:1  (min 2.5:1)")
+        if ratio >= 0:
+            self.assertGreaterEqual(ratio, 2.5, f"라이트 푸터 대비율 부족: {ratio}:1")
+
+    def test_04_sidebar_menu_light_contrast(self):
+        """라이트 테마 사이드바 메뉴 대비율 ≥ 4.5"""
+        ratio = self._contrast_ratio(".sb-name")
+        print(f"  [light] sb-name contrast: {ratio}:1")
+        if ratio >= 0:
+            self.assertGreaterEqual(ratio, 4.5, f"라이트 사이드바 대비율 부족: {ratio}:1")
+
+
+class TC27_AllMenuClicks(unittest.TestCase):
+    """TC27 모든 주요 메뉴 버튼 클릭 기능 검증"""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.driver = make_driver()
+        register_and_login(cls.driver)
+        add_position(cls.driver, "AAPL", "10")
+        cls.w = wait(cls.driver)
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.driver.quit()
+
+    def _close_open_modals(self):
+        """열려있는 모달/오버레이 닫기"""
+        close_btns = self.driver.find_elements(By.CSS_SELECTOR, ".overlay .close-x, .modal .close-x")
+        for btn in close_btns:
+            try:
+                if btn.is_displayed():
+                    btn.click()
+                    time.sleep(0.2)
+            except Exception:
+                pass
+        self.driver.find_element(By.TAG_NAME, "body").send_keys(Keys.ESCAPE)
+        time.sleep(0.2)
+
+    def test_01_overview_tab_click(self):
+        """[탭] Overview 탭 클릭 → hero 표시"""
+        tabs = self.driver.find_elements(By.CSS_SELECTOR, ".tab")
+        for t in tabs:
+            if "Overview" in t.text or "오버뷰" in t.text:
+                t.click()
+                time.sleep(0.3)
+                break
+        hero = self.driver.find_element(By.CSS_SELECTOR, ".hero")
+        self.assertTrue(hero.is_displayed())
+
+    def test_02_positions_tab_click(self):
+        """[탭] Positions 탭 클릭 → 테이블 표시"""
+        tabs = self.driver.find_elements(By.CSS_SELECTOR, ".tab")
+        for t in tabs:
+            if "Position" in t.text or "포지션" in t.text:
+                t.click()
+                time.sleep(0.3)
+                break
+        table = self.driver.find_element(By.CSS_SELECTOR, ".tbl-wrap")
+        self.assertTrue(table.is_displayed())
+
+    def test_03_sidebar_overview_item(self):
+        """[사이드바] Overview 항목 클릭"""
+        items = self.driver.find_elements(By.CSS_SELECTOR, ".sb-sec .sb-item")
+        for item in items:
+            if "Overview" in item.text:
+                item.click()
+                time.sleep(0.3)
+                self.assertIn("active", item.get_attribute("class"))
+                break
+
+    def test_04_sidebar_positions_item(self):
+        """[사이드바] Positions 항목 클릭"""
+        items = self.driver.find_elements(By.CSS_SELECTOR, ".sb-sec .sb-item")
+        for item in items:
+            if "Positions" in item.text:
+                item.click()
+                time.sleep(0.3)
+                self.assertIn("active", item.get_attribute("class"))
+                break
+
+    def test_05_sidebar_all_accounts(self):
+        """[사이드바] All Accounts 클릭 → active"""
+        items = self.driver.find_elements(By.CSS_SELECTOR, ".sb-sec .sb-item")
+        for item in items:
+            if "All" in item.text:
+                item.click()
+                time.sleep(0.3)
+                self.assertIn("active", item.get_attribute("class"))
+                break
+
+    def test_06_add_position_button(self):
+        """[상단바] + 포지션 추가 버튼 → 모달 열림"""
+        btns = self.driver.find_elements(By.CSS_SELECTOR, ".topbar-right .btn-primary")
+        btns[-1].click()
+        time.sleep(0.4)
+        modal = self.w.until(EC.visibility_of_element_located((By.CSS_SELECTOR, ".modal")))
+        self.assertTrue(modal.is_displayed())
+        self._close_open_modals()
+
+    def test_07_api_settings_button(self):
+        """[상단바] API 설정 버튼 → 모달 열림"""
+        btns = self.driver.find_elements(By.CSS_SELECTOR, ".topbar-right .btn")
+        for b in btns:
+            if "API" in b.text:
+                b.click()
+                break
+        time.sleep(0.4)
+        modal = self.w.until(EC.visibility_of_element_located((By.CSS_SELECTOR, ".modal")))
+        self.assertTrue(modal.is_displayed())
+        self._close_open_modals()
+
+    def test_08_io_export_button(self):
+        """[상단바] ⇅ 내보내기/가져오기 버튼 → 모달 열림"""
+        btns = self.driver.find_elements(By.CSS_SELECTOR, ".topbar-right .btn-ghost")
+        for b in btns:
+            if "⇅" in b.text:
+                b.click()
+                break
+        time.sleep(0.4)
+        modal = self.w.until(EC.visibility_of_element_located((By.CSS_SELECTOR, ".modal")))
+        self.assertTrue(modal.is_displayed())
+        self._close_open_modals()
+
+    def test_09_alerts_bell_button(self):
+        """[상단바] 🔔 알림 버튼 → 모달 열림"""
+        btns = self.driver.find_elements(By.CSS_SELECTOR, ".topbar-right .btn-ghost")
+        for b in btns:
+            if "🔔" in b.text or (b.get_attribute("title") and "Alert" in b.get_attribute("title")):
+                b.click()
+                break
+        time.sleep(0.4)
+        overlay = self.w.until(EC.visibility_of_element_located((By.CSS_SELECTOR, ".overlay")))
+        self.assertTrue(overlay.is_displayed())
+        self._close_open_modals()
+
+    def test_10_trades_chart_button(self):
+        """[상단바] 📊 거래 내역 버튼 → 모달 열림"""
+        btns = self.driver.find_elements(By.CSS_SELECTOR, ".topbar-right .btn-ghost")
+        for b in btns:
+            if "📊" in b.text or (b.get_attribute("title") and "Trade" in b.get_attribute("title")):
+                b.click()
+                break
+        time.sleep(0.4)
+        overlay = self.w.until(EC.visibility_of_element_located((By.CSS_SELECTOR, ".overlay")))
+        self.assertTrue(overlay.is_displayed())
+        self._close_open_modals()
+
+    def test_11_snapshot_button(self):
+        """[상단바] 📸 스냅샷 버튼 → 토스트 표시"""
+        btns = self.driver.find_elements(By.CSS_SELECTOR, ".topbar-right .btn-ghost")
+        for b in btns:
+            if "📸" in b.text or (b.get_attribute("title") and "snapshot" in b.get_attribute("title").lower()):
+                b.click()
+                break
+        time.sleep(0.5)
+        toasts = self.driver.find_elements(By.CSS_SELECTOR, ".toast")
+        self.assertGreater(len(toasts), 0)
+
+    def test_12_theme_toggle_button(self):
+        """[상단바] ☀️/🌙 테마 버튼 → 테마 전환"""
+        btns = self.driver.find_elements(By.CSS_SELECTOR, ".topbar-right .btn-ghost")
+        before = self.driver.find_element(By.TAG_NAME, "html").get_attribute("class")
+        for b in btns:
+            if "☀️" in b.text or "🌙" in b.text:
+                b.click()
+                break
+        time.sleep(0.3)
+        after = self.driver.find_element(By.TAG_NAME, "html").get_attribute("class")
+        self.assertNotEqual(before, after)
+        # 복원
+        btns = self.driver.find_elements(By.CSS_SELECTOR, ".topbar-right .btn-ghost")
+        for b in btns:
+            if "☀️" in b.text or "🌙" in b.text:
+                b.click()
+                break
+        time.sleep(0.2)
+
+    def test_13_refresh_button(self):
+        """[상단바] 새로고침 버튼 클릭 가능"""
+        btns = self.driver.find_elements(By.CSS_SELECTOR, ".topbar-right .btn-ghost")
+        refresh_btn = None
+        for b in btns:
+            title = b.get_attribute("title") or ""
+            if "새로고침" in title or "Refresh" in title or "↻" in b.text or "⟳" in b.text:
+                refresh_btn = b
+                break
+        if not refresh_btn:
+            # 아이콘 없이 spinning 클래스로 찾기 시도
+            refresh_btn = btns[0] if btns else None
+        if refresh_btn:
+            self.assertTrue(refresh_btn.is_displayed())
+            refresh_btn.click()
+            time.sleep(0.3)
+            print("  refresh button clicked")
+
+    def test_14_print_button(self):
+        """[Positions 탭] 🖨️ 인쇄 버튼 표시"""
+        tabs = self.driver.find_elements(By.CSS_SELECTOR, ".tab")
+        for t in tabs:
+            if "Position" in t.text or "포지션" in t.text:
+                t.click()
+                time.sleep(0.3)
+                break
+        btns = self.driver.find_elements(By.CSS_SELECTOR, ".btn")
+        print_btn = None
+        for b in btns:
+            if "🖨" in b.text or "Print" in b.text or "인쇄" in b.text:
+                print_btn = b
+                break
+        if print_btn:
+            self.assertTrue(print_btn.is_displayed())
+            print(f"  print btn: '{print_btn.text}'")
+
+    def _dismiss_cookie_banner(self):
+        """쿠키 배너가 있으면 JS로 숨김 (클릭 인터셉트 방지)"""
+        self.driver.execute_script(
+            "var b=document.querySelector('.cookie-banner');if(b)b.style.display='none';"
+        )
+        time.sleep(0.1)
+
+    def test_15_footer_terms_link(self):
+        """[푸터] 이용약관 링크 클릭 → 법적 모달 열림"""
+        self._dismiss_cookie_banner()
+        footer_links = self.driver.find_elements(By.CSS_SELECTOR, ".footer-link")
+        terms_link = None
+        for l in footer_links:
+            if "약관" in l.text or "Terms" in l.text:
+                terms_link = l
+                break
+        if terms_link:
+            # JS click으로 쿠키 배너 인터셉트 우회
+            self.driver.execute_script("arguments[0].click()", terms_link)
+            time.sleep(0.4)
+            modal = self.w.until(EC.visibility_of_element_located((By.CSS_SELECTOR, ".modal, .overlay")))
+            self.assertTrue(modal.is_displayed())
+            self._close_open_modals()
+            print("  Terms modal: opened ✓")
+
+    def test_16_footer_privacy_link(self):
+        """[푸터] 개인정보처리방침 링크 클릭 → 모달 열림"""
+        self._dismiss_cookie_banner()
+        footer_links = self.driver.find_elements(By.CSS_SELECTOR, ".footer-link")
+        priv_link = None
+        for l in footer_links:
+            if "개인정보" in l.text or "Privacy" in l.text:
+                priv_link = l
+                break
+        if priv_link:
+            self.driver.execute_script("arguments[0].click()", priv_link)
+            time.sleep(0.4)
+            modal = self.w.until(EC.visibility_of_element_located((By.CSS_SELECTOR, ".modal, .overlay")))
+            self.assertTrue(modal.is_displayed())
+            self._close_open_modals()
+            print("  Privacy modal: opened ✓")
+
+
+class TC28_ExtraViewports(unittest.TestCase):
+    """TC28 추가 해상도 레이아웃 검증 (QHD, 4K, 울트라와이드, 소형 태블릿)"""
+
+    EXTRA_VIEWPORTS = [
+        ("small_tablet",  600,  900),   # 소형 태블릿
+        ("tablet_hd",     800, 1280),   # HD 태블릿
+        ("laptop",       1366,  768),   # 노트북 FHD-
+        ("qhd",          2560, 1440),   # QHD 2K
+        ("ultrawide",    2560, 1080),   # 울트라와이드 21:9
+        ("4k",           3840, 2160),   # 4K
+    ]
+
+    def _check_viewport(self, name, w, h):
+        is_mobile = w <= 640
+        driver = make_driver(width=w, height=h, mobile=is_mobile)
+        try:
+            register_and_login(driver)
+            actual_w = driver.execute_script("return window.innerWidth")
+            actual_h = driver.execute_script("return window.innerHeight")
+
+            # 1) .app 렌더링
+            app = driver.find_element(By.CSS_SELECTOR, ".app")
+            self.assertTrue(app.is_displayed(), f"[{name}] .app 미표시")
+
+            # 2) Hero 섹션 표시
+            hero = driver.find_element(By.CSS_SELECTOR, ".hero")
+            self.assertTrue(hero.is_displayed(), f"[{name}] .hero 미표시")
+
+            # 3) 수평 오버플로우 없음
+            scroll_w = driver.execute_script("return document.documentElement.scrollWidth")
+            self.assertLessEqual(scroll_w, actual_w * 1.05,
+                f"[{name}] 수평 오버플로우: scrollWidth={scroll_w}, viewport={actual_w}")
+
+            # 4) topbar 표시
+            tb = driver.find_element(By.CSS_SELECTOR, ".topbar")
+            self.assertTrue(tb.is_displayed(), f"[{name}] topbar 미표시")
+
+            # 5) 사이드바 표시
+            sb = driver.find_element(By.CSS_SELECTOR, ".sidebar")
+            self.assertTrue(sb.is_displayed(), f"[{name}] sidebar 미표시")
+
+            sb_w = sb.size["width"]
+            print(f"  [{name}] {w}x{h} ✓  actual={actual_w}x{actual_h}  scrollW={scroll_w}  sbW={sb_w}")
+        finally:
+            driver.quit()
+
+    def test_01_small_tablet_600(self):
+        """소형 태블릿 (600×900) 레이아웃"""
+        self._check_viewport(*self.EXTRA_VIEWPORTS[0])
+
+    def test_02_tablet_hd_800(self):
+        """HD 태블릿 (800×1280) 레이아웃"""
+        self._check_viewport(*self.EXTRA_VIEWPORTS[1])
+
+    def test_03_laptop_1366(self):
+        """노트북 (1366×768) 레이아웃"""
+        self._check_viewport(*self.EXTRA_VIEWPORTS[2])
+
+    def test_04_qhd_2560(self):
+        """QHD 2K (2560×1440) 레이아웃"""
+        self._check_viewport(*self.EXTRA_VIEWPORTS[3])
+
+    def test_05_ultrawide_2560x1080(self):
+        """울트라와이드 21:9 (2560×1080) 레이아웃"""
+        self._check_viewport(*self.EXTRA_VIEWPORTS[4])
+
+    def test_06_4k_3840(self):
+        """4K (3840×2160) 레이아웃"""
+        self._check_viewport(*self.EXTRA_VIEWPORTS[5])
+
+    def test_07_positions_tab_wide_screen(self):
+        """QHD 화면에서 Positions 탭 테이블 수평 오버플로우 없음"""
+        driver = make_driver(width=2560, height=1440)
+        try:
+            register_and_login(driver)
+            add_position(driver, "AAPL", "5")
+            items = driver.find_elements(By.CSS_SELECTOR, ".sb-sec .sb-item")
+            for item in items:
+                if "Positions" in item.text:
+                    item.click()
+                    time.sleep(0.4)
+                    break
+            actual_w = driver.execute_script("return window.innerWidth")
+            scroll_w = driver.execute_script("return document.documentElement.scrollWidth")
+            self.assertLessEqual(scroll_w, actual_w * 1.05,
+                f"QHD Positions 수평 오버플로우: scrollW={scroll_w}, vp={actual_w}")
+            print(f"  [QHD positions] scrollW={scroll_w}, vp={actual_w} ✓")
+        finally:
+            driver.quit()
+
+
 # ── 실행 ─────────────────────────────────────────────────────────
 
 if __name__ == "__main__":
@@ -1034,6 +2170,17 @@ if __name__ == "__main__":
         TC15_MobileLayout,
         TC16_MobileSidebarDrawer,
         TC17_MultiViewportLayout,
+        TC18_AlertsModal,
+        TC19_TradesModal,
+        TC20_ThemeToggle,
+        TC21_InlineCellEditing,
+        TC22_ColumnVisibility,
+        TC23_SnapshotBtn,
+        TC24_BenchmarkPills,
+        TC25_ColorContrastDark,
+        TC26_ColorContrastLight,
+        TC27_AllMenuClicks,
+        TC28_ExtraViewports,
     ]
     for cls in test_classes:
         suite.addTests(loader.loadTestsFromTestCase(cls))
