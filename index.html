@@ -2594,7 +2594,7 @@ function App(props){
   var ps=useState(function(){return ld('positions',[])});
   var positions=ps[0];var setPositions=ps[1];
   var BOARD_DEFAULTS={jsonbinKey:'',jsonbinBin:'69bfd1eeb7ec241ddc8fdd43'};
-  var ks=useState(function(){var saved=ld('apiKeys',{});return Object.assign({finnhub:'',twelve:'',alpha:''},BOARD_DEFAULTS,saved)});
+  var ks=useState(function(){var saved=ld('apiKeys',{});var merged=Object.assign({finnhub:'',twelve:'',alpha:''},BOARD_DEFAULTS,saved);if(!merged.jsonbinBin)merged.jsonbinBin=BOARD_DEFAULTS.jsonbinBin;return merged;});
   var apiKeys=ks[0];var setApiKeys=ks[1];
   var rs=useState(function(){return ld('usdRate',1370)});
   var usdRate=rs[0];var setUsdRate=rs[1];
