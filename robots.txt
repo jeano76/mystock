@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://usefulinfoapp.com/sitemap.xml
+Sitemap: https://stockinvestonline.com/sitemap.xml
