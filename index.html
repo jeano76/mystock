@@ -8,17 +8,62 @@
 <meta name="author" content="Portfolio Manager">
 <meta name="robots" content="index, follow">
 <meta property="og:type" content="website">
+<meta property="og:url" content="https://stockinvestonline.com">
 <meta property="og:title" content="Portfolio Manager - 주식 포트폴리오 관리 도구">
 <meta property="og:description" content="미국·한국 주식 및 ETF 포트폴리오를 무료로 관리하고 분석하세요. 실시간 가격 조회, 배당금 추적, 섹터 분석 제공.">
+<meta property="og:image" content="https://stockinvestonline.com/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Portfolio Manager - 주식 포트폴리오 관리 도구">
 <meta property="og:locale" content="ko_KR">
+<meta property="og:site_name" content="Portfolio Manager">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Portfolio Manager - 주식 포트폴리오 관리 도구">
+<meta name="twitter:description" content="미국·한국 주식 및 ETF 포트폴리오를 무료로 관리하고 분석하세요. 실시간 가격 조회, 배당금 추적, 섹터 분석 제공.">
+<meta name="twitter:image" content="https://stockinvestonline.com/og-image.png">
 <meta name="theme-color" content="#090c12">
 <meta name="google-adsense-account" content="ca-pub-9698578259562384">
 <title>Portfolio Manager - 주식 포트폴리오 관리 및 분석</title>
 <link rel="canonical" href="https://stockinvestonline.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <!-- Google AdSense -->
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9698578259562384" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "Portfolio Manager",
+  "alternateName": "Portfolio Manager Pro",
+  "url": "https://stockinvestonline.com",
+  "description": "미국·한국 주식 및 ETF 포트폴리오를 무료로 관리하고 분석하세요. 실시간 가격 조회, 배당금 추적, 섹터 분석 제공.",
+  "applicationCategory": "FinanceApplication",
+  "operatingSystem": "Web",
+  "browserRequirements": "Requires JavaScript",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
+  },
+  "featureList": [
+    "주식 포트폴리오 추적",
+    "배당금 분석",
+    "섹터 분석",
+    "세금 계산",
+    "자산 예측",
+    "미국/한국 주식 지원"
+  ],
+  "screenshot": "https://stockinvestonline.com/og-image.png",
+  "inLanguage": ["ko", "en"],
+  "isAccessibleForFree": true,
+  "publisher": {
+    "@type": "Organization",
+    "name": "StockInvestOnline",
+    "url": "https://stockinvestonline.com"
+  }
+}
+</script>
 <style>
 :root {
   --bg:#000000; --bg2:#0d0d0d; --bg3:#141414; --bg4:#1a1a1a; --bg5:#222222;
@@ -310,6 +355,27 @@ td.r{text-align:right}
 .landing-form-sec-note{font-size:9.5px;color:var(--text4);text-align:center;line-height:1.6;margin-top:12px;padding-top:12px;border-top:1px solid var(--border)}
 .landing-lang-row{display:flex;justify-content:flex-end;margin-bottom:24px;width:100%;max-width:340px}
 @media(max-width:860px){.landing-overlay{grid-template-columns:1fr}.landing-left{display:none}.landing-right{padding:32px 24px}}
+/* SHARE MODAL */
+.share-modal-overlay{position:fixed;inset:0;z-index:2000;background:rgba(0,0,0,.72);display:flex;align-items:center;justify-content:center;padding:16px}
+.share-modal{background:var(--bg2);border:1px solid var(--border2);border-radius:14px;padding:24px;width:100%;max-width:380px;display:flex;flex-direction:column;gap:16px}
+.share-modal-title{font-size:15px;font-weight:700;color:var(--text);display:flex;align-items:center;justify-content:space-between}
+.share-close{cursor:pointer;color:var(--text3);font-size:18px;line-height:1;padding:2px 6px;border-radius:4px;border:none;background:transparent}
+.share-close:hover{color:var(--text);background:var(--bg3)}
+.share-sns-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.share-sns-btn{display:flex;flex-direction:column;align-items:center;gap:6px;padding:12px 6px;border-radius:10px;cursor:pointer;border:1px solid var(--border);background:var(--bg3);color:var(--text2);font-size:10px;font-weight:600;transition:all .15s;letter-spacing:.02em}
+.share-sns-btn:hover{border-color:var(--acc);color:var(--text);background:var(--bg4)}
+.share-sns-icon{font-size:22px;line-height:1}
+.share-url-row{display:flex;gap:6px;align-items:center}
+.share-url-input{flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:7px;padding:7px 10px;color:var(--text2);font-size:11px;font-family:var(--mono);outline:none}
+.share-url-copy{flex-shrink:0}
+.share-cap-area{background:var(--bg3);border:1px dashed var(--border2);border-radius:8px;padding:10px;display:flex;flex-direction:column;gap:8px}
+.share-cap-label{font-size:10px;color:var(--text3);font-weight:600;letter-spacing:.04em;text-transform:uppercase}
+.share-cap-btn{display:flex;align-items:center;gap:8px;padding:9px 14px;border-radius:8px;cursor:pointer;border:1px solid var(--border2);background:var(--bg4);color:var(--text2);font-size:11px;font-weight:600;transition:all .15s;width:100%;justify-content:center}
+.share-cap-btn:hover{border-color:var(--acc);color:var(--acc)}
+.share-cap-btn:disabled{opacity:.5;cursor:not-allowed}
+.share-cap-preview{border-radius:6px;overflow:hidden;max-height:160px;display:flex;align-items:center;justify-content:center;background:var(--bg)}
+.share-cap-preview img{width:100%;height:auto;border-radius:6px;display:block}
+.share-divider{border:none;border-top:1px solid var(--border);margin:0}
 /* COOKIE CONSENT */
 .cookie-banner{position:fixed;bottom:0;left:0;right:0;background:var(--bg3);border-top:1px solid var(--border2);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px;z-index:900;flex-wrap:wrap}
 .cookie-text{font-size:11px;color:var(--text2);line-height:1.6;flex:1;min-width:200px}
@@ -868,6 +934,18 @@ const T={
     boardLoadErr:'게시글 로딩 실패',
     boardPostErr:'등록 실패',
     boardDelErr:'삭제 실패',
+    shareBtn:'공유',
+    shareTitle:'SNS 공유',
+    shareTwitter:'트위터',
+    shareFacebook:'페이스북',
+    shareKakao:'카카오톡',
+    shareCopyLink:'링크 복사',
+    shareCopied:'복사됨!',
+    shareCapture:'스크린샷 촬영',
+    shareCaptureHint:'포트폴리오 이미지 캡처',
+    shareDownload:'이미지 저장',
+    shareWebShare:'공유하기',
+    shareCapturing:'캡처 중…',
     boardShare:'공유용 Bin ID:',
     boardJsonbinKey:'JSONBin Master Key',
     boardJsonbinBin:'Bin ID (자동 생성 또는 직접 입력)',
@@ -1039,6 +1117,18 @@ const T={
     boardLoadErr:'Failed to load posts',
     boardPostErr:'Failed to post',
     boardDelErr:'Failed to delete',
+    shareBtn:'Share',
+    shareTitle:'Share to SNS',
+    shareTwitter:'Twitter',
+    shareFacebook:'Facebook',
+    shareKakao:'KakaoTalk',
+    shareCopyLink:'Copy Link',
+    shareCopied:'Copied!',
+    shareCapture:'Screenshot',
+    shareCaptureHint:'Capture portfolio image',
+    shareDownload:'Save Image',
+    shareWebShare:'Share',
+    shareCapturing:'Capturing…',
     boardShare:'Share this Bin ID:',
     boardJsonbinKey:'JSONBin Master Key',
     boardJsonbinBin:'Bin ID (auto-created or manual)',
@@ -2583,6 +2673,164 @@ function TradesModal(props){
   );
 }
 
+// ── Share Modal ──
+function ShareModal(props){
+  var onClose=props.onClose||function(){};
+  var lang=props.lang||'ko';
+  var l=T[lang];
+  var useState=React.useState;
+  var copied=useState(false);var setCopied=copied[1];copied=copied[0];
+  var capturing=useState(false);var setCapturing=capturing[1];capturing=capturing[0];
+  var preview=useState(null);var setPreview=preview[1];preview=preview[0];
+
+  var siteUrl='https://stockinvestonline.com';
+  var shareText=lang==='ko'
+    ?'무료 주식 포트폴리오 관리 도구 - 미국/한국 주식 ETF 수익률, 배당금, 섹터분석 한눈에!'
+    :'Free stock portfolio manager - Track US/Korean stocks, dividends & sector analysis!';
+
+  function copyLink(){
+    if(navigator.clipboard){
+      navigator.clipboard.writeText(siteUrl).then(function(){
+        setCopied(true);
+        setTimeout(function(){setCopied(false)},2000);
+      });
+    }
+  }
+
+  function openTwitter(){
+    var url='https://twitter.com/intent/tweet?text='+encodeURIComponent(shareText)+'&url='+encodeURIComponent(siteUrl);
+    window.open(url,'_blank','noopener,noreferrer');
+  }
+
+  function openFacebook(){
+    var url='https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent(siteUrl);
+    window.open(url,'_blank','noopener,noreferrer');
+  }
+
+  function openKakao(){
+    var url='https://story.kakao.com/share?url='+encodeURIComponent(siteUrl);
+    window.open(url,'_blank','noopener,noreferrer');
+  }
+
+  function captureAndShare(){
+    var target=document.querySelector('.hero')||document.querySelector('.main');
+    if(!target||typeof html2canvas==='undefined'){return;}
+    setCapturing(true);
+    html2canvas(target,{
+      backgroundColor:'#000000',
+      scale:2,
+      useCORS:true,
+      logging:false,
+      ignoreElements:function(el){return el.classList&&el.classList.contains('topbar');}
+    }).then(function(canvas){
+      // Draw branding overlay
+      var ctx=canvas.getContext('2d');
+      var w=canvas.width;var h=canvas.height;
+      // Dark gradient footer
+      var grad=ctx.createLinearGradient(0,h-80,0,h);
+      grad.addColorStop(0,'rgba(0,0,0,0)');
+      grad.addColorStop(1,'rgba(0,0,0,0.85)');
+      ctx.fillStyle=grad;
+      ctx.fillRect(0,h-80,w,80);
+      // Branding text
+      ctx.fillStyle='rgba(255,255,255,0.9)';
+      ctx.font='bold '+(w*0.016)+'px Sora,sans-serif';
+      ctx.textAlign='left';
+      ctx.fillText('▸ PORTFOLIO PRO',w*0.03,h-18);
+      ctx.font=(w*0.012)+'px Sora,sans-serif';
+      ctx.fillStyle='rgba(61,142,248,0.9)';
+      ctx.textAlign='right';
+      ctx.fillText('stockinvestonline.com',w*0.97,h-18);
+      var dataUrl=canvas.toDataURL('image/png');
+      setPreview(dataUrl);
+      setCapturing(false);
+    }).catch(function(){setCapturing(false);});
+  }
+
+  function downloadImage(){
+    if(!preview)return;
+    var a=document.createElement('a');
+    a.href=preview;
+    a.download='portfolio-'+(new Date().toISOString().slice(0,10))+'.png';
+    a.click();
+  }
+
+  function webShare(){
+    if(!preview)return;
+    fetch(preview).then(function(r){return r.blob();}).then(function(blob){
+      var file=new File([blob],'portfolio.png',{type:'image/png'});
+      if(navigator.share&&navigator.canShare&&navigator.canShare({files:[file]})){
+        navigator.share({
+          title:lang==='ko'?'내 포트폴리오':'My Portfolio',
+          text:shareText,
+          files:[file]
+        }).catch(function(){});
+      } else {
+        downloadImage();
+      }
+    });
+  }
+
+  var canWebShare=typeof navigator!=='undefined'&&navigator.share&&navigator.canShare;
+
+  return React.createElement('div',{className:'share-modal-overlay',onClick:function(e){if(e.target===e.currentTarget)onClose()}},
+    React.createElement('div',{className:'share-modal'},
+      React.createElement('div',{className:'share-modal-title'},
+        l.shareTitle,
+        React.createElement('button',{className:'share-close',onClick:onClose},'✕')
+      ),
+      // SNS buttons
+      React.createElement('div',{className:'share-sns-grid'},
+        React.createElement('button',{className:'share-sns-btn',onClick:openTwitter},
+          React.createElement('span',{className:'share-sns-icon'},'𝕏'),
+          l.shareTwitter
+        ),
+        React.createElement('button',{className:'share-sns-btn',onClick:openFacebook},
+          React.createElement('span',{className:'share-sns-icon'},'f'),
+          l.shareFacebook
+        ),
+        React.createElement('button',{className:'share-sns-btn',onClick:openKakao},
+          React.createElement('span',{className:'share-sns-icon'},'💬'),
+          l.shareKakao
+        ),
+        React.createElement('button',{className:'share-sns-btn',onClick:copyLink},
+          React.createElement('span',{className:'share-sns-icon'},copied?'✓':'🔗'),
+          copied?l.shareCopied:l.shareCopyLink
+        )
+      ),
+      // URL copy row
+      React.createElement('div',{className:'share-url-row'},
+        React.createElement('input',{className:'share-url-input',readOnly:true,value:siteUrl,onFocus:function(e){e.target.select()}}),
+        React.createElement('button',{className:'btn btn-sm share-url-copy',onClick:copyLink},copied?l.shareCopied:l.shareCopyLink)
+      ),
+      React.createElement('hr',{className:'share-divider'}),
+      // Screenshot capture section
+      React.createElement('div',{className:'share-cap-area'},
+        React.createElement('div',{className:'share-cap-label'},l.shareCaptureHint),
+        !preview&&React.createElement('button',{className:'share-cap-btn',onClick:captureAndShare,disabled:capturing},
+          React.createElement('span',null,'📸'),
+          capturing?l.shareCapturing:l.shareCapture
+        ),
+        preview&&React.createElement(React.Fragment,null,
+          React.createElement('div',{className:'share-cap-preview'},
+            React.createElement('img',{src:preview,alt:'portfolio capture'})
+          ),
+          React.createElement('div',{style:{display:'flex',gap:6}},
+            React.createElement('button',{className:'share-cap-btn',onClick:captureAndShare,disabled:capturing,style:{flex:1}},
+              React.createElement('span',null,'📸'),
+              l.shareCapture
+            ),
+            React.createElement('button',{className:'share-cap-btn',onClick:canWebShare?webShare:downloadImage,style:{flex:1,borderColor:'var(--acc)',color:'var(--acc)'}},
+              React.createElement('span',null,canWebShare?'📤':'💾'),
+              canWebShare?l.shareWebShare:l.shareDownload
+            )
+          )
+        )
+      )
+    )
+  );
+}
+
 // ── App ──
 function App(props){
   var onLogout=props.onLogout||function(){};
@@ -2640,6 +2888,7 @@ function App(props){
   var drg=useState(null);var dragRowId=drg[0];var setDragRowId=drg[1];
   var bch=useState('none');var benchSel=bch[0];var setBenchSel=bch[1];
   var bchd=useState({});var benchData=bchd[0];var setBenchData=bchd[1];
+  var ssh=useState(false);var showShare=ssh[0];var setShowShare=ssh[1];
   useEffect(function(){sv('sidebarCollapsed',sidebarCollapsed)},[sidebarCollapsed]);
   useEffect(function(){sv('targetAlloc',targetAlloc)},[targetAlloc]);
   useEffect(function(){sv('snapshots',snapshots)},[snapshots]);
@@ -3105,6 +3354,9 @@ function App(props){
           React.createElement('button',{className:'btn btn-sm',onClick:refresh,disabled:refreshing},
             React.createElement('span',{className:refreshing?'spinning':''},'↻'),' ',refreshing?l.refreshing:l.refresh
           ),
+          React.createElement('button',{className:'btn btn-sm',onClick:function(){setShowShare(true)},title:l.shareTitle,style:{gap:3}},
+            '📤 ',l.shareBtn
+          ),
           React.createElement('button',{className:'btn btn-primary btn-sm',onClick:function(){setEditPos(null);setShowModal(true)}},l.addPosBtn)
         )
       ),
@@ -3430,6 +3682,7 @@ function App(props){
       onImportCSV:importCSV,onImportJSON:importJSON}),
     showAlerts&&React.createElement(AlertsModal,{alerts:alerts,lang:lang,onSave:saveAlert,onDel:delAlert,onClose:function(){setShowAlerts(false)}}),
     showTrades&&React.createElement(TradesModal,{trades:trades,positions:positions,lang:lang,onSave:saveTrade,onDel:delTrade,onClose:function(){setShowTrades(false)}}),
+    showShare&&React.createElement(ShareModal,{lang:lang,onClose:function(){setShowShare(false)}}),
     showFailedPopup&&failedTickers.length>0&&React.createElement('div',{className:'overlay',onClick:function(){setShowFailedPopup(false)}},
       React.createElement('div',{className:'modal',style:{maxWidth:340}},
         React.createElement('div',{className:'modal-hd'},
