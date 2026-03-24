@@ -2679,7 +2679,9 @@ function ShareModal(props){
   var lang=props.lang||'ko';
   var l=T[lang];
   var port=props.port||{val:0,gain:0,gainPct:0,cost:0,div:0};
-  var posCount=props.posCount||0;
+  var positions=props.positions||[];
+  var prices=props.prices||{};
+  var usdRate=props.usdRate||1370;
   var useState=React.useState;
   var copied=useState(false);var setCopied=copied[1];copied=copied[0];
   var capturing=useState(false);var setCapturing=capturing[1];capturing=capturing[0];
@@ -2730,91 +2732,206 @@ function ShareModal(props){
   function captureAndShare(){
     setCapturing(true);
     try{
+      // ── 리포트 데이터 계산 ──
+      var rate0=usdRate||1370;
+      var pdata=positions.map(function(p){
+        var st=STOCKS.find(function(s){return s.t===p.ticker});
+        var isKorean=st?(st.cur==='KRW'):isKR(p.ticker);
+        var r=isKorean?rate0:1;
+        var curP=(prices[p.ticker]||p.buyPrice)/r;
+        var buyP=p.buyPrice/r;
+        var curVal=p.shares*curP;
+        var cost=p.shares*buyP;
+        var gain=curVal-cost;
+        var gainPct=cost>0?gain/cost*100:0;
+        var annDiv=p.shares*curP*((p.divYield||0)/100);
+        var divTax=isKorean?annDiv*0.154:annDiv*0.15;
+        var region=isKorean?'KR':'US';
+        var sector=st?st.s:'Other';
+        return {ticker:dispTicker(p.ticker),name:st?st.n:p.ticker,region:region,sector:sector,
+          curVal:curVal,cost:cost,gain:gain,gainPct:gainPct,annDiv:annDiv,divTax:divTax,
+          annDivAfter:annDiv-divTax,weight:port.val>0?curVal/port.val*100:0};
+      });
+      var usPdata=pdata.filter(function(p){return p.region==='US'});
+      var krPdata=pdata.filter(function(p){return p.region==='KR'});
+      var usDivTotal=usPdata.reduce(function(s,p){return s+p.annDiv},0);
+      var krDivTotal=krPdata.reduce(function(s,p){return s+p.annDiv},0);
+      var totalDivBefore=usDivTotal+krDivTotal;
+      var totalDivAfter=usPdata.reduce(function(s,p){return s+p.annDivAfter},0)+krPdata.reduce(function(s,p){return s+p.annDivAfter},0);
+      var usVal=usPdata.reduce(function(s,p){return s+p.curVal},0);
+      var krVal=krPdata.reduce(function(s,p){return s+p.curVal},0);
+      var usPct=port.val>0?usVal/port.val*100:0;
+      var krPct=port.val>0?krVal/port.val*100:0;
+      var effYield=port.val>0?totalDivAfter/port.val*100:0;
+      var sectors={};
+      pdata.forEach(function(p){sectors[p.sector]=(sectors[p.sector]||0)+p.curVal});
+      var sectorList=Object.entries(sectors).sort(function(a,b){return b[1]-a[1]}).slice(0,5);
+      var top5=pdata.slice().sort(function(a,b){return b.curVal-a.curVal}).slice(0,5);
+      var numSectors=Object.keys(sectors).length;
+      var top5Val=top5.reduce(function(s,p){return s+p.curVal},0);
+      var conc=port.val>0?top5Val/port.val*100:0;
+
+      // ── 숫자 포맷 ──
+      function fB(v){if(v>=1e6)return '$'+(v/1e6).toFixed(2)+'M';if(v>=1000)return '$'+(v/1000).toFixed(1)+'K';return '$'+Math.round(v).toLocaleString('en');}
+      function fM(v){return '$'+Math.round(v).toLocaleString('en',{minimumFractionDigits:0,maximumFractionDigits:0});}
+
+      // ── 캔버스 ──
       var W=1200;var H=630;
       var canvas=document.createElement('canvas');
       canvas.width=W;canvas.height=H;
       var ctx=canvas.getContext('2d');
 
-      // Background
+      // BG
       ctx.fillStyle='#000000';ctx.fillRect(0,0,W,H);
-
-      // Radial glow
-      var grd=ctx.createRadialGradient(W*0.28,H*0.38,0,W*0.28,H*0.38,W*0.52);
-      grd.addColorStop(0,'rgba(0,210,120,0.09)');grd.addColorStop(1,'rgba(0,0,0,0)');
+      var grd=ctx.createRadialGradient(W*0.25,H*0.35,0,W*0.25,H*0.35,W*0.55);
+      grd.addColorStop(0,'rgba(0,200,110,0.07)');grd.addColorStop(1,'rgba(0,0,0,0)');
       ctx.fillStyle=grd;ctx.fillRect(0,0,W,H);
 
-      // Grid lines
-      ctx.strokeStyle='#181818';ctx.lineWidth=1;
-      [H/3,H*2/3].forEach(function(y){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();});
-      [W/3,W*2/3].forEach(function(x){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();});
+      // 수직 구분선 (좌우 패널 사이) x=660
+      ctx.strokeStyle='#1e1e1e';ctx.lineWidth=1;
+      ctx.beginPath();ctx.moveTo(660,90);ctx.lineTo(660,580);ctx.stroke();
 
-      // Logo
-      ctx.fillStyle='#3d8ef8';ctx.font='bold 20px monospace';ctx.textAlign='left';
-      ctx.fillText('\u25b8 PORTFOLIO PRO',60,68);
+      // ── HEADER ──
+      ctx.fillStyle='#3d8ef8';ctx.font='bold 18px monospace';ctx.textAlign='left';
+      ctx.fillText('\u25b8 PORTFOLIO',60,55);
+      ctx.fillStyle='#17e8a1';ctx.font='bold 12px sans-serif';
+      ctx.fillText('  PRO',180,55);
+      var today=new Date().toLocaleDateString(lang==='ko'?'ko-KR':'en-US',{year:'numeric',month:'short',day:'numeric'});
+      ctx.fillStyle='#444444';ctx.font='13px sans-serif';ctx.textAlign='right';
+      ctx.fillText(lang==='ko'?'포트폴리오 종합 리포트':'Portfolio Comprehensive Report',W-60,40);
+      ctx.fillText(today,W-60,58);
+      ctx.textAlign='left';
+      // header gradient line
+      var hg=ctx.createLinearGradient(0,0,W,0);
+      hg.addColorStop(0,'rgba(61,142,248,0)');hg.addColorStop(0.3,'rgba(61,142,248,0.6)');
+      hg.addColorStop(0.7,'rgba(23,232,161,0.6)');hg.addColorStop(1,'rgba(23,232,161,0)');
+      ctx.strokeStyle=hg;ctx.lineWidth=1;
+      ctx.beginPath();ctx.moveTo(60,70);ctx.lineTo(W-60,70);ctx.stroke();
 
-      // Date
-      var today=new Date().toLocaleDateString(lang==='ko'?'ko-KR':'en-US',{year:'numeric',month:'long',day:'numeric'});
-      ctx.fillStyle='#444444';ctx.font='14px sans-serif';ctx.textAlign='right';
-      ctx.fillText(today,W-60,68);ctx.textAlign='left';
+      // ── 좌측: SUMMARY ──
+      ctx.fillStyle='#444444';ctx.font='bold 10px sans-serif';
+      ctx.fillText(lang==='ko'?'현황 요약':'SUMMARY',60,94);
 
-      // Top divider gradient
-      var lg=ctx.createLinearGradient(0,0,W,0);
-      lg.addColorStop(0,'rgba(61,142,248,0)');lg.addColorStop(0.35,'rgba(61,142,248,0.5)');
-      lg.addColorStop(0.65,'rgba(23,232,161,0.5)');lg.addColorStop(1,'rgba(23,232,161,0)');
-      ctx.strokeStyle=lg;ctx.lineWidth=1;
-      ctx.beginPath();ctx.moveTo(60,88);ctx.lineTo(W-60,88);ctx.stroke();
-
-      // Value label
-      ctx.fillStyle='#555555';ctx.font='12px sans-serif';ctx.letterSpacing='2px';
-      ctx.fillText(lang==='ko'?'총 포트폴리오 가치  (USD)':'TOTAL PORTFOLIO VALUE  (USD)',60,132);
-      ctx.letterSpacing='0px';
-
-      // Main value
-      var valStr='$'+(port.val||0).toLocaleString('en',{minimumFractionDigits:0,maximumFractionDigits:0});
-      ctx.fillStyle='#f0f0f0';ctx.font='bold 68px monospace';
-      ctx.fillText(valStr,60,220);
-
-      // Gain/loss
-      var gainPos=(port.gain||0)>=0;
-      var gainStr=(gainPos?'▲ +':'▼ ')+'$'+Math.abs(port.gain||0).toLocaleString('en',{minimumFractionDigits:0,maximumFractionDigits:0})+
-        '  ('+(gainPos?'+':'')+(port.gainPct||0).toFixed(2)+'%)';
-      ctx.fillStyle=gainPos?'#17e8a1':'#ff4d72';
-      ctx.font='bold 22px monospace';ctx.fillText(gainStr,64,268);
-
-      // Stat cards
-      var stats=[
-        {label:lang==='ko'?'매입 원가':'COST BASIS',val:'$'+(port.cost||0).toLocaleString('en',{minimumFractionDigits:0,maximumFractionDigits:0}),color:'#f0f0f0'},
-        {label:lang==='ko'?'연간 배당금':'ANNUAL DIVIDEND',val:'$'+Math.round(port.div||0).toLocaleString('en'),color:'#ffb800'},
-        {label:lang==='ko'?'보유 종목 수':'POSITIONS',val:String(posCount),color:'#4d9eff'},
+      // 6개 통계 카드 (3×2 grid)
+      var sumStats=[
+        {lbl:lang==='ko'?'총 평가액':'Total Value',val:fM(port.val||0),color:'#f0f0f0'},
+        {lbl:lang==='ko'?'총 손익':'Total P&L',val:(port.gain>=0?'+':'')+fB(port.gain||0),color:(port.gain||0)>=0?'#17e8a1':'#ff4d72'},
+        {lbl:lang==='ko'?'수익률':'Return',val:(port.gainPct>=0?'+':'')+((port.gainPct||0).toFixed(2))+'%',color:(port.gainPct||0)>=0?'#17e8a1':'#ff4d72'},
+        {lbl:lang==='ko'?'투자 원금':'Cost Basis',val:fM(port.cost||0),color:'#aaaaaa'},
+        {lbl:lang==='ko'?'연간 배당':'Annual Div',val:fB(totalDivBefore),color:'#ffb800'},
+        {lbl:lang==='ko'?'세후 배당':'After-tax Div',val:fB(totalDivAfter),color:'#4d9eff'},
       ];
-      var cW=300;var cH=110;var cY=320;var gap=22;
-      stats.forEach(function(s,i){
-        var cX=60+i*(cW+gap);
-        ctx.fillStyle='#111111';rr(ctx,cX,cY,cW,cH,10);ctx.fill();
-        ctx.strokeStyle='#222222';ctx.lineWidth=1;rr(ctx,cX,cY,cW,cH,10);ctx.stroke();
-        ctx.fillStyle='#444444';ctx.font='11px sans-serif';ctx.textAlign='left';
-        ctx.fillText(s.label,cX+18,cY+30);
-        ctx.fillStyle=s.color;ctx.font='bold 28px monospace';
-        ctx.fillText(s.val,cX+18,cY+78);
+      var sW=182;var sH=86;var sGap=8;var sX0=60;var sY0=104;
+      sumStats.forEach(function(s,i){
+        var col=i%3;var row=Math.floor(i/3);
+        var sx=sX0+col*(sW+sGap);var sy=sY0+row*(sH+sGap);
+        ctx.fillStyle='#0f0f0f';rr(ctx,sx,sy,sW,sH,8);ctx.fill();
+        ctx.strokeStyle='#222222';ctx.lineWidth=1;rr(ctx,sx,sy,sW,sH,8);ctx.stroke();
+        ctx.fillStyle='#555555';ctx.font='10px sans-serif';ctx.textAlign='left';
+        ctx.fillText(s.lbl,sx+12,sy+20);
+        ctx.fillStyle=s.color;ctx.font='bold 22px monospace';
+        ctx.fillText(s.val,sx+12,sy+62);
       });
 
-      // Decorative chart line (bottom area)
-      var pts=[0.82,0.76,0.79,0.71,0.73,0.65,0.60,0.54,0.50,0.45,0.40,0.35,0.30,0.24,0.20];
-      ctx.beginPath();
-      pts.forEach(function(v,i){
-        var px=60+i*(W-120)/(pts.length-1);var py=490+v*(H-520-490);
-        if(i===0)ctx.moveTo(px,py);else ctx.lineTo(px,py);
+      // 실효 배당률 + 종목 수 + 섹터 수
+      var metaY=sY0+2*(sH+sGap)+14;
+      var metaItems=[
+        {lbl:lang==='ko'?'세후 실효 배당률':'Eff. Div Yield',val:effYield.toFixed(2)+'%',color:'#4d9eff'},
+        {lbl:lang==='ko'?'보유 종목':'Positions',val:String(positions.length),color:'#f0f0f0'},
+        {lbl:lang==='ko'?'섹터 수':'Sectors',val:String(numSectors),color:'#a78bfa'},
+        {lbl:lang==='ko'?'상위5 집중도':'Top5 Conc.',val:conc.toFixed(1)+'%',color:conc>60?'#ff4d72':conc>40?'#ffb800':'#17e8a1'},
+      ];
+      metaItems.forEach(function(m,i){
+        var mx=sX0+i*146;
+        ctx.fillStyle='#555555';ctx.font='9px sans-serif';ctx.textAlign='left';
+        ctx.fillText(m.lbl,mx,metaY);
+        ctx.fillStyle=m.color;ctx.font='bold 15px monospace';
+        ctx.fillText(m.val,mx,metaY+18);
       });
-      var cl=ctx.createLinearGradient(0,0,W,0);
-      cl.addColorStop(0,'rgba(61,142,248,0.2)');cl.addColorStop(0.5,'rgba(23,232,161,0.5)');cl.addColorStop(1,'rgba(61,142,248,0.2)');
-      ctx.strokeStyle=cl;ctx.lineWidth=2.5;ctx.stroke();
 
-      // Bottom bar
-      ctx.fillStyle='#0d0d0d';ctx.fillRect(0,H-48,W,48);
-      ctx.strokeStyle='#1a1a1a';ctx.lineWidth=1;
-      ctx.beginPath();ctx.moveTo(0,H-48);ctx.lineTo(W,H-48);ctx.stroke();
-      ctx.fillStyle='#404040';ctx.font='13px sans-serif';ctx.textAlign='left';
-      ctx.fillText('\uD83D\uDCC8 Portfolio Manager Pro · '+(lang==='ko'?'무료 주식 포트폴리오 관리':'Free Stock Portfolio Tracker'),60,H-16);
+      // 지역 배분 바
+      var rY=metaY+40;
+      ctx.fillStyle='#444444';ctx.font='bold 10px sans-serif';
+      ctx.fillText(lang==='ko'?'지역 배분':'REGION',60,rY);
+      var barMaxW=520;var barH=18;
+      // US bar
+      ctx.fillStyle='#1a2a3a';ctx.fillRect(60,rY+8,barMaxW,barH);
+      ctx.fillStyle='#3d8ef8';ctx.fillRect(60,rY+8,barMaxW*usPct/100,barH);
+      ctx.fillStyle='#aaaaaa';ctx.font='11px sans-serif';ctx.textAlign='left';
+      ctx.fillText('US  '+usPct.toFixed(1)+'%',590,rY+21);
+      // KR bar
+      ctx.fillStyle='#1a1a2a';ctx.fillRect(60,rY+32,barMaxW,barH);
+      ctx.fillStyle='#a78bfa';ctx.fillRect(60,rY+32,barMaxW*krPct/100,barH);
+      ctx.fillText('KR  '+krPct.toFixed(1)+'%',590,rY+45);
+
+      // ── 우측: TOP HOLDINGS ──
+      var rx=680;
+      ctx.fillStyle='#444444';ctx.font='bold 10px sans-serif';ctx.textAlign='left';
+      ctx.fillText(lang==='ko'?'보유 상위 종목':'TOP HOLDINGS',rx,94);
+
+      var SECT_COLORS={'Technology':'#5b9bd5','Healthcare':'#17e8a1','Consumer':'#f0a500',
+        'Financials':'#ff6b6b','Energy':'#fb923c','Industrials':'#34d399','ETF':'#4d9eff',
+        'Real Estate':'#f472b6','Telecom':'#60a5fa','Entertainment':'#fbbf24','Other':'#666666'};
+      top5.forEach(function(p,i){
+        var ty=108+i*46;
+        // row bg
+        ctx.fillStyle=i%2===0?'#0c0c0c':'#0a0a0a';
+        ctx.fillRect(rx,ty,460,40);
+        // rank dot
+        ctx.fillStyle='#333333';ctx.font='bold 11px monospace';ctx.textAlign='left';
+        ctx.fillText(String(i+1),rx+6,ty+25);
+        // sector color dot
+        var sc=SECT_COLORS[p.sector]||'#666666';
+        ctx.fillStyle=sc;ctx.beginPath();ctx.arc(rx+24,ty+20,4,0,Math.PI*2);ctx.fill();
+        // ticker
+        ctx.fillStyle='#f0f0f0';ctx.font='bold 14px monospace';
+        ctx.fillText(p.ticker,rx+34,ty+26);
+        // weight
+        ctx.fillStyle='#555555';ctx.font='11px sans-serif';
+        ctx.fillText(p.weight.toFixed(1)+'%',rx+110,ty+26);
+        // value
+        ctx.fillStyle='#aaaaaa';ctx.font='12px monospace';
+        ctx.fillText(fB(p.curVal),rx+170,ty+26);
+        // gain
+        ctx.fillStyle=p.gain>=0?'#17e8a1':'#ff4d72';ctx.font='bold 12px monospace';ctx.textAlign='right';
+        ctx.fillText((p.gainPct>=0?'+':'')+p.gainPct.toFixed(1)+'%',rx+455,ty+26);
+        ctx.textAlign='left';
+      });
+
+      // 구분선
+      ctx.strokeStyle='#1e1e1e';ctx.lineWidth=1;
+      ctx.beginPath();ctx.moveTo(rx,345);ctx.lineTo(rx+460,345);ctx.stroke();
+
+      // 섹터 배분
+      ctx.fillStyle='#444444';ctx.font='bold 10px sans-serif';
+      ctx.fillText(lang==='ko'?'섹터 배분':'SECTOR ALLOCATION',rx,362);
+      var sBarMaxW=300;
+      sectorList.forEach(function(sv,i){
+        var sy2=375+i*38;
+        var pct=port.val>0?sv[1]/port.val*100:0;
+        var col2=SECT_COLORS[sv[0]]||'#555555';
+        // label
+        var lbl2=sv[0].length>12?sv[0].slice(0,12)+'…':sv[0];
+        ctx.fillStyle='#888888';ctx.font='11px sans-serif';ctx.textAlign='left';
+        ctx.fillText(lbl2,rx,sy2+12);
+        // bar bg
+        ctx.fillStyle='#181818';ctx.fillRect(rx+130,sy2,sBarMaxW,14);
+        // bar fill
+        ctx.fillStyle=col2;ctx.globalAlpha=0.75;
+        ctx.fillRect(rx+130,sy2,sBarMaxW*pct/100,14);
+        ctx.globalAlpha=1;
+        // pct text
+        ctx.fillStyle='#777777';ctx.font='10px monospace';ctx.textAlign='right';
+        ctx.fillText(pct.toFixed(1)+'%',rx+455,sy2+11);
+        ctx.textAlign='left';
+      });
+
+      // ── FOOTER ──
+      ctx.fillStyle='#0d0d0d';ctx.fillRect(0,H-44,W,44);
+      ctx.strokeStyle='#1f1f1f';ctx.lineWidth=1;
+      ctx.beginPath();ctx.moveTo(0,H-44);ctx.lineTo(W,H-44);ctx.stroke();
+      ctx.fillStyle='#404040';ctx.font='12px sans-serif';ctx.textAlign='left';
+      ctx.fillText('\uD83D\uDCC8 Portfolio Manager Pro  ·  '+(lang==='ko'?'종합 리포트  ·  무료 주식 포트폴리오 관리':'Comprehensive Report  ·  Free Stock Portfolio Tracker'),60,H-16);
       ctx.fillStyle='#3d8ef8';ctx.textAlign='right';
       ctx.fillText('stockinvestonline.com',W-60,H-16);
 
@@ -3759,7 +3876,7 @@ function App(props){
       onImportCSV:importCSV,onImportJSON:importJSON}),
     showAlerts&&React.createElement(AlertsModal,{alerts:alerts,lang:lang,onSave:saveAlert,onDel:delAlert,onClose:function(){setShowAlerts(false)}}),
     showTrades&&React.createElement(TradesModal,{trades:trades,positions:positions,lang:lang,onSave:saveTrade,onDel:delTrade,onClose:function(){setShowTrades(false)}}),
-    showShare&&React.createElement(ShareModal,{lang:lang,port:port,posCount:filtered.length,onClose:function(){setShowShare(false)}}),
+    showShare&&React.createElement(ShareModal,{lang:lang,port:port,positions:filtered,prices:prices,usdRate:usdRate,onClose:function(){setShowShare(false)}}),
     showFailedPopup&&failedTickers.length>0&&React.createElement('div',{className:'overlay',onClick:function(){setShowFailedPopup(false)}},
       React.createElement('div',{className:'modal',style:{maxWidth:340}},
         React.createElement('div',{className:'modal-hd'},
