@@ -503,6 +503,11 @@ tr.dragging{opacity:.35}
 .bep-tgt{font-family:var(--mono);font-size:9px;color:var(--acc);margin-top:1px}
 /* TREEMAP */
 .treemap-wrap{width:100%;height:200px;position:relative;border-radius:8px;overflow:hidden;cursor:default}
+.treemap-legend{display:flex;align-items:center;gap:8px;margin-top:8px;justify-content:center}
+.treemap-legend-bar{width:180px;height:8px;border-radius:4px;background:linear-gradient(90deg,rgba(255,80,112,.55) 0%,rgba(255,80,112,.15) 35%,rgba(128,128,128,.1) 50%,rgba(32,232,160,.15) 65%,rgba(32,232,160,.55) 100%)}
+.treemap-legend-lbl{font-size:9px;font-family:var(--mono);color:var(--text4);font-weight:600}
+.treemap-legend-lbl.neg{color:var(--red)}
+.treemap-legend-lbl.pos{color:var(--green)}
 /* DIVIDEND CALENDAR */
 .div-cal{display:flex;flex-direction:column;gap:6px;margin-top:8px}
 .div-cal-summary{font-size:9px;color:var(--text3);padding:0 2px}
@@ -2062,7 +2067,14 @@ function TreemapChart(props){
     });
   },[positions,prices,usdRate,portVal]);
   if(!positions.length) return React.createElement('div',{className:'empty',style:{padding:20}},React.createElement('div',{className:'empty-icon'},'🗺️'),l.treemapEmpty);
-  return React.createElement('canvas',{ref:ref,className:'treemap-wrap',width:600,height:200,style:{width:'100%',height:200}});
+  return React.createElement('div',null,
+    React.createElement('canvas',{ref:ref,className:'treemap-wrap',width:600,height:200,style:{width:'100%',height:200}}),
+    React.createElement('div',{className:'treemap-legend'},
+      React.createElement('span',{className:'treemap-legend-lbl neg'},'-30%'),
+      React.createElement('div',{className:'treemap-legend-bar'}),
+      React.createElement('span',{className:'treemap-legend-lbl pos'},'+30%')
+    )
+  );
 }
 
 // ── 포트폴리오 종합 리포트 ──
