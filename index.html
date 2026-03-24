@@ -376,6 +376,14 @@ td.r{text-align:right}
 .share-cap-preview{border-radius:6px;overflow:hidden;max-height:160px;display:flex;align-items:center;justify-content:center;background:var(--bg)}
 .share-cap-preview img{width:100%;height:auto;border-radius:6px;display:block}
 .share-divider{border:none;border-top:1px solid var(--border);margin:0}
+/* REGION FILTER */
+.region-filter{display:flex;border:1px solid var(--border);border-radius:8px;overflow:hidden;flex-shrink:0;background:var(--bg3)}
+.region-btn{padding:5px 13px;font-size:11px;font-weight:600;background:transparent;border:none;border-right:1px solid var(--border);color:var(--text3);cursor:pointer;transition:background .12s,color .12s;white-space:nowrap;font-family:var(--sans);line-height:1.4}
+.region-btn:last-child{border-right:none}
+.region-btn:hover:not(.active){color:var(--text2);background:var(--bg4)}
+.region-btn.active{background:var(--bg4);color:var(--text);font-weight:700}
+.region-btn.active.rf-us{color:var(--blue);background:rgba(77,158,255,.1)}
+.region-btn.active.rf-kr{color:#a78bfa;background:rgba(167,139,250,.1)}
 /* COOKIE CONSENT */
 .cookie-banner{position:fixed;bottom:0;left:0;right:0;background:var(--bg3);border-top:1px solid var(--border2);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px;z-index:900;flex-wrap:wrap}
 .cookie-text{font-size:11px;color:var(--text2);line-height:1.6;flex:1;min-width:200px}
@@ -934,6 +942,7 @@ const T={
     boardLoadErr:'게시글 로딩 실패',
     boardPostErr:'등록 실패',
     boardDelErr:'삭제 실패',
+    regionAll:'전체',regionUS:'🇺🇸 미국',regionKR:'🇰🇷 한국',
     shareBtn:'공유',
     shareTitle:'SNS 공유',
     shareTwitter:'트위터',
@@ -1117,6 +1126,7 @@ const T={
     boardLoadErr:'Failed to load posts',
     boardPostErr:'Failed to post',
     boardDelErr:'Failed to delete',
+    regionAll:'All',regionUS:'🇺🇸 US',regionKR:'🇰🇷 KR',
     shareBtn:'Share',
     shareTitle:'Share to SNS',
     shareTwitter:'Twitter',
@@ -3083,6 +3093,7 @@ function App(props){
   var bch=useState('none');var benchSel=bch[0];var setBenchSel=bch[1];
   var bchd=useState({});var benchData=bchd[0];var setBenchData=bchd[1];
   var ssh=useState(false);var showShare=ssh[0];var setShowShare=ssh[1];
+  var rfl=useState('all');var regionFilter=rfl[0];var setRegionFilter=rfl[1];
   useEffect(function(){sv('sidebarCollapsed',sidebarCollapsed)},[sidebarCollapsed]);
   useEffect(function(){sv('targetAlloc',targetAlloc)},[targetAlloc]);
   useEffect(function(){sv('snapshots',snapshots)},[snapshots]);
@@ -3169,8 +3180,11 @@ function App(props){
   var filtered=useMemo(function(){
     var p=selAcc==='All'?positions:positions.filter(function(x){return x.account===selAcc});
     var activeFilter=filters.find(function(f){return f.id===filterId});
-    return applyFilter(p,activeFilter);
-  },[positions,selAcc,filterId,filters]);
+    var byFilter=applyFilter(p,activeFilter);
+    if(regionFilter==='us') return byFilter.filter(function(pos){var st=STOCKS.find(function(s){return s.t===pos.ticker});return !st||st.cur!=='KRW'});
+    if(regionFilter==='kr') return byFilter.filter(function(pos){var st=STOCKS.find(function(s){return s.t===pos.ticker});return (st&&st.cur==='KRW')||isKR(pos.ticker)});
+    return byFilter;
+  },[positions,selAcc,filterId,filters,regionFilter]);
 
   var port=useMemo(function(){return calcPort(filtered,prices,usdRate)},[filtered,prices,usdRate]);
   var comp=useMemo(function(){return calcComp(filtered,prices,usdRate)},[filtered,prices,usdRate]);
@@ -3566,7 +3580,11 @@ function App(props){
           ),
           selAcc!=='All'&&React.createElement('div',{className:'page-hdr-acc'},'● '+selAcc)
         ),
-        hasKR&&React.createElement('div',{style:{fontSize:9,color:'var(--text3)',fontFamily:'var(--mono)'}},l.krIncluded)
+        React.createElement('div',{className:'region-filter'},
+          React.createElement('button',{className:'region-btn'+(regionFilter==='all'?' active':''),onClick:function(){setRegionFilter('all')}},l.regionAll),
+          React.createElement('button',{className:'region-btn rf-us'+(regionFilter==='us'?' active':''),onClick:function(){setRegionFilter('us')}},l.regionUS),
+          React.createElement('button',{className:'region-btn rf-kr'+(regionFilter==='kr'?' active':''),onClick:function(){setRegionFilter('kr')}},l.regionKR)
+        )
       ),
       (mainTab==='overview'||mainTab==='positions')&&React.createElement('div',{className:'hero'},
         React.createElement('div',{className:'hero-top'},
