@@ -948,7 +948,7 @@ const T={
     shareTitle:'SNS 공유',
     shareTwitter:'트위터',
     shareFacebook:'페이스북',
-    shareKakao:'카카오톡',
+    shareTelegram:'텔레그램',
     shareCopyLink:'링크 복사',
     shareCopied:'복사됨!',
     shareCapture:'스크린샷 촬영',
@@ -1132,7 +1132,7 @@ const T={
     shareTitle:'Share to SNS',
     shareTwitter:'Twitter',
     shareFacebook:'Facebook',
-    shareKakao:'KakaoTalk',
+    shareTelegram:'Telegram',
     shareCopyLink:'Copy Link',
     shareCopied:'Copied!',
     shareCapture:'Screenshot',
@@ -2722,8 +2722,8 @@ function ShareModal(props){
     window.open(url,'_blank','noopener,noreferrer');
   }
 
-  function openKakao(){
-    var url='https://story.kakao.com/share?url='+encodeURIComponent(siteUrl);
+  function openTelegram(){
+    var url='https://t.me/share/url?url='+encodeURIComponent(siteUrl)+'&text='+encodeURIComponent(shareText);
     window.open(url,'_blank','noopener,noreferrer');
   }
 
@@ -2994,9 +2994,9 @@ function ShareModal(props){
           React.createElement('span',{className:'share-sns-icon'},'f'),
           l.shareFacebook
         ),
-        React.createElement('button',{className:'share-sns-btn',onClick:openKakao},
-          React.createElement('span',{className:'share-sns-icon'},'💬'),
-          l.shareKakao
+        React.createElement('button',{className:'share-sns-btn',onClick:openTelegram},
+          React.createElement('span',{className:'share-sns-icon'},'✈'),
+          l.shareTelegram
         ),
         React.createElement('button',{className:'share-sns-btn',onClick:copyLink},
           React.createElement('span',{className:'share-sns-icon'},copied?'✓':'🔗'),
