@@ -2678,6 +2678,8 @@ function ShareModal(props){
   var onClose=props.onClose||function(){};
   var lang=props.lang||'ko';
   var l=T[lang];
+  var port=props.port||{val:0,gain:0,gainPct:0,cost:0,div:0};
+  var posCount=props.posCount||0;
   var useState=React.useState;
   var copied=useState(false);var setCopied=copied[1];copied=copied[0];
   var capturing=useState(false);var setCapturing=capturing[1];capturing=capturing[0];
@@ -2712,39 +2714,114 @@ function ShareModal(props){
     window.open(url,'_blank','noopener,noreferrer');
   }
 
+  function rr(ctx,x,y,w,h,r){
+    ctx.beginPath();
+    ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);
+    ctx.quadraticCurveTo(x+w,y,x+w,y+r);
+    ctx.lineTo(x+w,y+h-r);
+    ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+    ctx.lineTo(x+r,y+h);
+    ctx.quadraticCurveTo(x,y+h,x,y+h-r);
+    ctx.lineTo(x,y+r);
+    ctx.quadraticCurveTo(x,y,x+r,y);
+    ctx.closePath();
+  }
+
   function captureAndShare(){
-    var target=document.querySelector('.hero')||document.querySelector('.main');
-    if(!target||typeof html2canvas==='undefined'){return;}
     setCapturing(true);
-    html2canvas(target,{
-      backgroundColor:'#000000',
-      scale:2,
-      useCORS:true,
-      logging:false,
-      ignoreElements:function(el){return el.classList&&el.classList.contains('topbar');}
-    }).then(function(canvas){
-      // Draw branding overlay
+    try{
+      var W=1200;var H=630;
+      var canvas=document.createElement('canvas');
+      canvas.width=W;canvas.height=H;
       var ctx=canvas.getContext('2d');
-      var w=canvas.width;var h=canvas.height;
-      // Dark gradient footer
-      var grad=ctx.createLinearGradient(0,h-80,0,h);
-      grad.addColorStop(0,'rgba(0,0,0,0)');
-      grad.addColorStop(1,'rgba(0,0,0,0.85)');
-      ctx.fillStyle=grad;
-      ctx.fillRect(0,h-80,w,80);
-      // Branding text
-      ctx.fillStyle='rgba(255,255,255,0.9)';
-      ctx.font='bold '+(w*0.016)+'px Sora,sans-serif';
-      ctx.textAlign='left';
-      ctx.fillText('▸ PORTFOLIO PRO',w*0.03,h-18);
-      ctx.font=(w*0.012)+'px Sora,sans-serif';
-      ctx.fillStyle='rgba(61,142,248,0.9)';
-      ctx.textAlign='right';
-      ctx.fillText('stockinvestonline.com',w*0.97,h-18);
+
+      // Background
+      ctx.fillStyle='#000000';ctx.fillRect(0,0,W,H);
+
+      // Radial glow
+      var grd=ctx.createRadialGradient(W*0.28,H*0.38,0,W*0.28,H*0.38,W*0.52);
+      grd.addColorStop(0,'rgba(0,210,120,0.09)');grd.addColorStop(1,'rgba(0,0,0,0)');
+      ctx.fillStyle=grd;ctx.fillRect(0,0,W,H);
+
+      // Grid lines
+      ctx.strokeStyle='#181818';ctx.lineWidth=1;
+      [H/3,H*2/3].forEach(function(y){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();});
+      [W/3,W*2/3].forEach(function(x){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();});
+
+      // Logo
+      ctx.fillStyle='#3d8ef8';ctx.font='bold 20px monospace';ctx.textAlign='left';
+      ctx.fillText('\u25b8 PORTFOLIO PRO',60,68);
+
+      // Date
+      var today=new Date().toLocaleDateString(lang==='ko'?'ko-KR':'en-US',{year:'numeric',month:'long',day:'numeric'});
+      ctx.fillStyle='#444444';ctx.font='14px sans-serif';ctx.textAlign='right';
+      ctx.fillText(today,W-60,68);ctx.textAlign='left';
+
+      // Top divider gradient
+      var lg=ctx.createLinearGradient(0,0,W,0);
+      lg.addColorStop(0,'rgba(61,142,248,0)');lg.addColorStop(0.35,'rgba(61,142,248,0.5)');
+      lg.addColorStop(0.65,'rgba(23,232,161,0.5)');lg.addColorStop(1,'rgba(23,232,161,0)');
+      ctx.strokeStyle=lg;ctx.lineWidth=1;
+      ctx.beginPath();ctx.moveTo(60,88);ctx.lineTo(W-60,88);ctx.stroke();
+
+      // Value label
+      ctx.fillStyle='#555555';ctx.font='12px sans-serif';ctx.letterSpacing='2px';
+      ctx.fillText(lang==='ko'?'총 포트폴리오 가치  (USD)':'TOTAL PORTFOLIO VALUE  (USD)',60,132);
+      ctx.letterSpacing='0px';
+
+      // Main value
+      var valStr='$'+(port.val||0).toLocaleString('en',{minimumFractionDigits:0,maximumFractionDigits:0});
+      ctx.fillStyle='#f0f0f0';ctx.font='bold 68px monospace';
+      ctx.fillText(valStr,60,220);
+
+      // Gain/loss
+      var gainPos=(port.gain||0)>=0;
+      var gainStr=(gainPos?'▲ +':'▼ ')+'$'+Math.abs(port.gain||0).toLocaleString('en',{minimumFractionDigits:0,maximumFractionDigits:0})+
+        '  ('+(gainPos?'+':'')+(port.gainPct||0).toFixed(2)+'%)';
+      ctx.fillStyle=gainPos?'#17e8a1':'#ff4d72';
+      ctx.font='bold 22px monospace';ctx.fillText(gainStr,64,268);
+
+      // Stat cards
+      var stats=[
+        {label:lang==='ko'?'매입 원가':'COST BASIS',val:'$'+(port.cost||0).toLocaleString('en',{minimumFractionDigits:0,maximumFractionDigits:0}),color:'#f0f0f0'},
+        {label:lang==='ko'?'연간 배당금':'ANNUAL DIVIDEND',val:'$'+Math.round(port.div||0).toLocaleString('en'),color:'#ffb800'},
+        {label:lang==='ko'?'보유 종목 수':'POSITIONS',val:String(posCount),color:'#4d9eff'},
+      ];
+      var cW=300;var cH=110;var cY=320;var gap=22;
+      stats.forEach(function(s,i){
+        var cX=60+i*(cW+gap);
+        ctx.fillStyle='#111111';rr(ctx,cX,cY,cW,cH,10);ctx.fill();
+        ctx.strokeStyle='#222222';ctx.lineWidth=1;rr(ctx,cX,cY,cW,cH,10);ctx.stroke();
+        ctx.fillStyle='#444444';ctx.font='11px sans-serif';ctx.textAlign='left';
+        ctx.fillText(s.label,cX+18,cY+30);
+        ctx.fillStyle=s.color;ctx.font='bold 28px monospace';
+        ctx.fillText(s.val,cX+18,cY+78);
+      });
+
+      // Decorative chart line (bottom area)
+      var pts=[0.82,0.76,0.79,0.71,0.73,0.65,0.60,0.54,0.50,0.45,0.40,0.35,0.30,0.24,0.20];
+      ctx.beginPath();
+      pts.forEach(function(v,i){
+        var px=60+i*(W-120)/(pts.length-1);var py=490+v*(H-520-490);
+        if(i===0)ctx.moveTo(px,py);else ctx.lineTo(px,py);
+      });
+      var cl=ctx.createLinearGradient(0,0,W,0);
+      cl.addColorStop(0,'rgba(61,142,248,0.2)');cl.addColorStop(0.5,'rgba(23,232,161,0.5)');cl.addColorStop(1,'rgba(61,142,248,0.2)');
+      ctx.strokeStyle=cl;ctx.lineWidth=2.5;ctx.stroke();
+
+      // Bottom bar
+      ctx.fillStyle='#0d0d0d';ctx.fillRect(0,H-48,W,48);
+      ctx.strokeStyle='#1a1a1a';ctx.lineWidth=1;
+      ctx.beginPath();ctx.moveTo(0,H-48);ctx.lineTo(W,H-48);ctx.stroke();
+      ctx.fillStyle='#404040';ctx.font='13px sans-serif';ctx.textAlign='left';
+      ctx.fillText('\uD83D\uDCC8 Portfolio Manager Pro · '+(lang==='ko'?'무료 주식 포트폴리오 관리':'Free Stock Portfolio Tracker'),60,H-16);
+      ctx.fillStyle='#3d8ef8';ctx.textAlign='right';
+      ctx.fillText('stockinvestonline.com',W-60,H-16);
+
       var dataUrl=canvas.toDataURL('image/png');
       setPreview(dataUrl);
-      setCapturing(false);
-    }).catch(function(){setCapturing(false);});
+    }catch(e){console.error(e);}
+    setCapturing(false);
   }
 
   function downloadImage(){
@@ -3682,7 +3759,7 @@ function App(props){
       onImportCSV:importCSV,onImportJSON:importJSON}),
     showAlerts&&React.createElement(AlertsModal,{alerts:alerts,lang:lang,onSave:saveAlert,onDel:delAlert,onClose:function(){setShowAlerts(false)}}),
     showTrades&&React.createElement(TradesModal,{trades:trades,positions:positions,lang:lang,onSave:saveTrade,onDel:delTrade,onClose:function(){setShowTrades(false)}}),
-    showShare&&React.createElement(ShareModal,{lang:lang,onClose:function(){setShowShare(false)}}),
+    showShare&&React.createElement(ShareModal,{lang:lang,port:port,posCount:filtered.length,onClose:function(){setShowShare(false)}}),
     showFailedPopup&&failedTickers.length>0&&React.createElement('div',{className:'overlay',onClick:function(){setShowFailedPopup(false)}},
       React.createElement('div',{className:'modal',style:{maxWidth:340}},
         React.createElement('div',{className:'modal-hd'},
