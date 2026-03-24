@@ -882,7 +882,9 @@ const T={
     editPos:'포지션 수정',addPos:'포지션 추가',
     tickerLbl:'티커 / 종목명',sharesLbl:'수량 (주)',
     buyPriceLbl:function(c){return '평균 매수가 ('+c+')'},
-    divYieldLbl:'배당수익률 (%)',accountLbl:'계좌',
+    divYieldLbl:'배당수익률 (%)',divFreqLbl:'배당 주기',divFreqM:'매월',divFreqQ:'분기',divFreqS:'반기',divFreqA:'연간',
+    divMonthsLbl:'지급 월',divMonthsQ1:'1,4,7,10월',divMonthsQ2:'2,5,8,11월',divMonthsQ3:'3,6,9,12월',divMonthsSH1:'6,12월',divMonthsSH2:'3,9월',
+    accountLbl:'계좌',
     divChip:function(d){return '배당 '+d+'%'},add:'추가',
     expand:'펼치기',collapse:'접기',
     views:'Views',accounts:'Accounts',newAccount:'New Account',
@@ -1065,7 +1067,9 @@ const T={
     editPos:'Edit Position',addPos:'Add Position',
     tickerLbl:'Ticker / Name',sharesLbl:'Shares',
     buyPriceLbl:function(c){return 'Avg Buy Price ('+c+')'},
-    divYieldLbl:'Dividend Yield (%)',accountLbl:'Account',
+    divYieldLbl:'Dividend Yield (%)',divFreqLbl:'Div Frequency',divFreqM:'Monthly',divFreqQ:'Quarterly',divFreqS:'Semi-Annual',divFreqA:'Annual',
+    divMonthsLbl:'Payout Months',divMonthsQ1:'Jan,Apr,Jul,Oct',divMonthsQ2:'Feb,May,Aug,Nov',divMonthsQ3:'Mar,Jun,Sep,Dec',divMonthsSH1:'Jun,Dec',divMonthsSH2:'Mar,Sep',
+    accountLbl:'Account',
     divChip:function(d){return 'Div '+d+'%'},add:'Add',
     expand:'Expand',collapse:'Collapse',
     views:'Views',accounts:'Accounts',newAccount:'New Account',
@@ -1719,6 +1723,8 @@ function AddModal(props){
   var shs=useState(editPos?editPos.shares:'');var shares=shs[0];var setShares=shs[1];
   var bps=useState(editPos?editPos.buyPrice:'');var buyPrice=bps[0];var setBuyPrice=bps[1];
   var dys=useState(editPos&&editPos.divYield!==undefined?editPos.divYield:'');var divYield=dys[0];var setDivYield=dys[1];
+  var dfs=useState(editPos&&editPos.divFreq?editPos.divFreq:'quarterly');var divFreq=dfs[0];var setDivFreq=dfs[1];
+  var dms=useState(editPos&&editPos.divMonths?editPos.divMonths:'3,6,9,12');var divMonths=dms[0];var setDivMonths=dms[1];
   var acs=useState(editPos?editPos.account:(defaultAccount||accounts[0]||''));var account=acs[0];var setAccount=acs[1];
   var ais=useState([]);var acItems=ais[0];var setAcItems=ais[1];
   var axs=useState(-1);var acIdx=axs[0];var setAcIdx=axs[1];
@@ -1775,7 +1781,7 @@ function AddModal(props){
     if(!ticker||!shares||!buyPrice||!account) return;
     var st=selS||STOCKS.find(function(s){return s.t===ticker});
     onSave({ticker:ticker,name:st?st.n:ticker,shares:parseFloat(shares),buyPrice:parseFloat(buyPrice),
-      divYield:divYield!==''?parseFloat(divYield):(st?st.d:0),account:account,
+      divYield:divYield!==''?parseFloat(divYield):(st?st.d:0),divFreq:divFreq,divMonths:divMonths,account:account,
       note:note||undefined,targetReturn:targetReturn?parseFloat(targetReturn):undefined,lots:lots.length>0?lots:undefined});
   }
   var isKRWStock=selS&&selS.cur==='KRW';
@@ -1831,6 +1837,38 @@ function AddModal(props){
             React.createElement('select',{value:account,onChange:function(e){setAccount(e.target.value)}},
               accounts.map(function(a){return React.createElement('option',{key:a,value:a},a)})
             )
+          )
+        ),
+        React.createElement('div',{className:'row2'},
+          React.createElement('div',{className:'field'},
+            React.createElement('label',null,l.divFreqLbl),
+            React.createElement('select',{value:divFreq,onChange:function(e){
+              var f=e.target.value;setDivFreq(f);
+              if(f==='monthly')setDivMonths('1,2,3,4,5,6,7,8,9,10,11,12');
+              else if(f==='quarterly')setDivMonths('3,6,9,12');
+              else if(f==='semi')setDivMonths('6,12');
+              else if(f==='annual')setDivMonths('12');
+            }},
+              React.createElement('option',{value:'monthly'},l.divFreqM),
+              React.createElement('option',{value:'quarterly'},l.divFreqQ),
+              React.createElement('option',{value:'semi'},l.divFreqS),
+              React.createElement('option',{value:'annual'},l.divFreqA)
+            )
+          ),
+          React.createElement('div',{className:'field'},
+            React.createElement('label',null,l.divMonthsLbl),
+            divFreq==='quarterly'
+              ?React.createElement('select',{value:divMonths,onChange:function(e){setDivMonths(e.target.value)}},
+                React.createElement('option',{value:'1,4,7,10'},l.divMonthsQ1),
+                React.createElement('option',{value:'2,5,8,11'},l.divMonthsQ2),
+                React.createElement('option',{value:'3,6,9,12'},l.divMonthsQ3)
+              )
+              :divFreq==='semi'
+                ?React.createElement('select',{value:divMonths,onChange:function(e){setDivMonths(e.target.value)}},
+                  React.createElement('option',{value:'6,12'},l.divMonthsSH1),
+                  React.createElement('option',{value:'3,9'},l.divMonthsSH2)
+                )
+                :React.createElement('input',{value:divMonths,disabled:true,style:{color:'var(--text3)'}})
           )
         ),
         React.createElement('div',{className:'row2'},
@@ -2599,7 +2637,6 @@ function DivCalendar(props){
   var positions=props.positions,prices=props.prices,usdRate=props.usdRate,lang=props.lang||'ko';
   var l=T[lang];
   var MO=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  var QM=[2,5,8,11]; // 분기 배당월 (Mar,Jun,Sep,Dec)
   function fmtAmt(v){return v>=1000?'$'+(v/1000).toFixed(1)+'K':'$'+v.toFixed(0)}
   // 종목별 연배당 + 배당 스케줄 계산
   var stocks=positions.filter(function(p){return (p.divYield||0)>0}).map(function(p,idx){
@@ -2608,7 +2645,14 @@ function DivCalendar(props){
     var rate=st&&st.cur==='KRW'?(usdRate||1370):1;
     var cur=(prices[p.ticker]||p.buyPrice)/rate;
     var annDiv=p.shares*cur*((p.divYield||0)/100);
-    return {ticker:dispTicker(p.ticker),dy:p.divYield||0,annDiv:annDiv,isETF:isETF,color:DIV_PALETTE[idx%DIV_PALETTE.length]};
+    // 배당 지급월 파싱: 사용자 설정 우선, 없으면 기본값 (ETF=매월, 일반=분기)
+    var freq=p.divFreq||( isETF?'monthly':'quarterly');
+    var payMonthsStr=p.divMonths||(freq==='monthly'?'1,2,3,4,5,6,7,8,9,10,11,12':'3,6,9,12');
+    var payMonths=payMonthsStr.split(',').map(function(m){return parseInt(m)}).filter(function(m){return m>=1&&m<=12});
+    if(payMonths.length===0) payMonths=[3,6,9,12];
+    var perPay=annDiv/payMonths.length;
+    var freqLabel=freq==='monthly'?'Monthly':freq==='quarterly'?'Quarterly':freq==='semi'?'Semi-Annual':'Annual';
+    return {ticker:dispTicker(p.ticker),dy:p.divYield||0,annDiv:annDiv,payMonths:payMonths,perPay:perPay,freqLabel:freqLabel,color:DIV_PALETTE[idx%DIV_PALETTE.length]};
   }).filter(function(x){return x.annDiv>0}).sort(function(a,b){return b.annDiv-a.annDiv});
   if(stocks.length===0)
     return React.createElement('div',{className:'empty',style:{padding:12}},React.createElement('div',{className:'empty-icon'},'📅'),l.divCalEmpty);
@@ -2617,13 +2661,11 @@ function DivCalendar(props){
   var months=[];
   for(var i=0;i<24;i++){
     var d=new Date(now.getFullYear(),now.getMonth()+i,1);
-    var mo=d.getMonth();
-    var isQ=QM.indexOf(mo)>=0;
+    var mo=d.getMonth(); // 0-based (Jan=0)
+    var moNum=mo+1; // 1-based (Jan=1)
     // 각 종목이 이 달에 지급하는 배당
     var segs=stocks.map(function(s){
-      var amt=0;
-      if(s.isETF) amt=s.annDiv/12; // ETF: 매월 균등
-      else if(isQ) amt=s.annDiv/4;  // 일반주식: 분기(3,6,9,12월)
+      var amt=s.payMonths.indexOf(moNum)>=0?s.perPay:0;
       return {ticker:s.ticker,amt:amt,color:s.color,dy:s.dy};
     });
     var total=segs.reduce(function(sum,seg){return sum+seg.amt},0);
@@ -2660,7 +2702,7 @@ function DivCalendar(props){
         var pct=annTotal>0?(s.annDiv/annTotal*100).toFixed(1):'0';
         return React.createElement('div',{key:i,className:'div-cal-leg-item'},
           React.createElement('div',{className:'div-cal-leg-dot',style:{background:s.color}}),
-          s.ticker+' '+fmtAmt(s.annDiv/12)+'/mo'+(s.isETF?' · Monthly':' · Quarterly')+' ('+pct+'%)'
+          s.ticker+' '+fmtAmt(s.annDiv/12)+'/mo · '+s.freqLabel+' ('+pct+'%)'
         );
       })
     )
