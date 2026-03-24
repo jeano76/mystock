@@ -509,17 +509,19 @@ tr.dragging{opacity:.35}
 .treemap-legend-lbl.neg{color:var(--red)}
 .treemap-legend-lbl.pos{color:var(--green)}
 /* DIVIDEND CALENDAR */
-.div-cal{display:flex;flex-direction:column;gap:6px;margin-top:8px}
+.div-cal{display:flex;flex-direction:column;gap:8px;margin-top:8px}
 .div-cal-summary{font-size:9px;color:var(--text3);padding:0 2px}
-.div-cal-bars{display:flex;align-items:stretch;gap:3px;height:150px;padding:0 2px;overflow-x:auto}
-.div-cal-bar-wrap{display:flex;flex-direction:column;align-items:center;flex-shrink:0;width:calc((100% - 72px) / 24);min-width:18px;max-width:36px;gap:1px}
+.div-cal-bars{display:flex;align-items:flex-end;gap:3px;height:170px;padding:0 2px;overflow-x:auto}
+.div-cal-bar-wrap{display:flex;flex-direction:column;align-items:center;flex-shrink:0;width:calc((100% - 72px) / 24);min-width:20px;max-width:40px;gap:1px;height:100%}
+.div-cal-bar-amt{font-size:7px;font-family:var(--mono);color:var(--text4);text-align:center;white-space:nowrap;height:12px;display:flex;align-items:flex-end;justify-content:center;flex-shrink:0}
+.div-cal-bar-outer{flex:1;width:100%;display:flex;flex-direction:column;justify-content:flex-end;min-height:0}
 .div-cal-bar-wrap.cur-month .div-cal-bar-stack{outline:1.5px solid var(--text2);outline-offset:1px}
-.div-cal-bar-stack{width:100%;flex:1;display:flex;flex-direction:column;border-radius:3px 3px 0 0;overflow:hidden;cursor:default;min-height:0}
+.div-cal-bar-stack{width:100%;display:flex;flex-direction:column;border-radius:3px 3px 0 0;overflow:hidden;cursor:default;transition:height .3s var(--ease)}
 .div-cal-seg{width:100%;transition:opacity .15s;flex-shrink:0}
-.div-cal-seg:hover{opacity:.75}
+.div-cal-seg:hover{opacity:.7}
 .div-cal-bar-tick{font-size:7px;font-weight:500;color:var(--text3);text-align:center;line-height:1.2;flex-shrink:0}
 .div-cal-bar-year{font-size:6px;color:var(--text4);text-align:center;line-height:1;flex-shrink:0}
-.div-cal-legend{display:flex;gap:10px;flex-wrap:wrap;padding:0 2px}
+.div-cal-legend{display:flex;gap:10px;flex-wrap:wrap;padding:4px 2px 0}
 .div-cal-leg-item{display:flex;align-items:center;gap:4px;font-size:9px;color:var(--text3)}
 .div-cal-leg-dot{width:8px;height:8px;border-radius:2px;flex-shrink:0}
 /* REPORT */
@@ -2597,37 +2599,56 @@ function DivCalendar(props){
   var positions=props.positions,prices=props.prices,usdRate=props.usdRate,lang=props.lang||'ko';
   var l=T[lang];
   var MO=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  var QM=[2,5,8,11]; // 분기 배당월 (Mar,Jun,Sep,Dec)
   function fmtAmt(v){return v>=1000?'$'+(v/1000).toFixed(1)+'K':'$'+v.toFixed(0)}
-  // 종목별 월배당 + 고유색상
+  // 종목별 연배당 + 배당 스케줄 계산
   var stocks=positions.filter(function(p){return (p.divYield||0)>0}).map(function(p,idx){
     var st=STOCKS.find(function(s){return s.t===p.ticker});
+    var isETF=st&&st.s==='ETF';
     var rate=st&&st.cur==='KRW'?(usdRate||1370):1;
     var cur=(prices[p.ticker]||p.buyPrice)/rate;
-    var monthly=p.shares*cur*((p.divYield||0)/100)/12;
-    return {ticker:dispTicker(p.ticker),dy:p.divYield||0,monthly:monthly,color:DIV_PALETTE[idx%DIV_PALETTE.length]};
-  }).filter(function(x){return x.monthly>0}).sort(function(a,b){return b.monthly-a.monthly});
+    var annDiv=p.shares*cur*((p.divYield||0)/100);
+    return {ticker:dispTicker(p.ticker),dy:p.divYield||0,annDiv:annDiv,isETF:isETF,color:DIV_PALETTE[idx%DIV_PALETTE.length]};
+  }).filter(function(x){return x.annDiv>0}).sort(function(a,b){return b.annDiv-a.annDiv});
   if(stocks.length===0)
     return React.createElement('div',{className:'empty',style:{padding:12}},React.createElement('div',{className:'empty-icon'},'📅'),l.divCalEmpty);
-  // 24개월 생성 (현재월 기준)
+  // 24개월 생성 + 각 월별 종목별 배당 계산
   var now=new Date();
   var months=[];
   for(var i=0;i<24;i++){
     var d=new Date(now.getFullYear(),now.getMonth()+i,1);
-    months.push({lbl:MO[d.getMonth()],yr:d.getFullYear(),isCur:i===0,showYr:d.getMonth()===0||i===0});
+    var mo=d.getMonth();
+    var isQ=QM.indexOf(mo)>=0;
+    // 각 종목이 이 달에 지급하는 배당
+    var segs=stocks.map(function(s){
+      var amt=0;
+      if(s.isETF) amt=s.annDiv/12; // ETF: 매월 균등
+      else if(isQ) amt=s.annDiv/4;  // 일반주식: 분기(3,6,9,12월)
+      return {ticker:s.ticker,amt:amt,color:s.color,dy:s.dy};
+    });
+    var total=segs.reduce(function(sum,seg){return sum+seg.amt},0);
+    months.push({lbl:MO[mo],yr:d.getFullYear(),isCur:i===0,showYr:mo===0||i===0,segs:segs,total:total});
   }
-  var monthTotal=stocks.reduce(function(s,x){return s+x.monthly},0);
+  var maxMonth=Math.max.apply(null,months.map(function(m){return m.total}));
+  var annTotal=stocks.reduce(function(s,x){return s+x.annDiv},0);
   var summary=lang==='ko'
-    ?'월 예상 배당 '+fmtAmt(monthTotal)+' · 연 '+fmtAmt(monthTotal*12)+' · 2년 합계 '+fmtAmt(monthTotal*24)
-    :'Monthly '+fmtAmt(monthTotal)+' · Annual '+fmtAmt(monthTotal*12)+' · 2Y total '+fmtAmt(monthTotal*24);
+    ?'연간 배당 '+fmtAmt(annTotal)+' · 월평균 '+fmtAmt(annTotal/12)+' · 2년 합계 '+fmtAmt(annTotal*2)
+    :'Annual '+fmtAmt(annTotal)+' · Monthly avg '+fmtAmt(annTotal/12)+' · 2Y total '+fmtAmt(annTotal*2);
   return React.createElement('div',{className:'div-cal'},
     React.createElement('div',{className:'div-cal-summary'},summary),
     React.createElement('div',{className:'div-cal-bars'},
       months.map(function(m,mi){
+        var heightPct=maxMonth>0?m.total/maxMonth:0;
+        var activeSegs=m.segs.filter(function(seg){return seg.amt>0});
         return React.createElement('div',{key:mi,className:'div-cal-bar-wrap'+(m.isCur?' cur-month':'')},
-          React.createElement('div',{className:'div-cal-bar-stack'},
-            stocks.slice().reverse().map(function(s,si){
-              return React.createElement('div',{key:si,className:'div-cal-seg',style:{flex:s.monthly,background:s.color},title:s.ticker+': '+fmtAmt(s.monthly)+'/mo ('+s.dy.toFixed(1)+'%)'});
-            })
+          React.createElement('div',{className:'div-cal-bar-amt'},m.total>0?fmtAmt(m.total):''),
+          React.createElement('div',{className:'div-cal-bar-outer'},
+            React.createElement('div',{className:'div-cal-bar-stack',style:{height:(heightPct*100).toFixed(1)+'%'}},
+              activeSegs.slice().reverse().map(function(seg,si){
+                var segPct=m.total>0?(seg.amt/m.total*100).toFixed(1):'0';
+                return React.createElement('div',{key:si,className:'div-cal-seg',style:{flex:seg.amt,background:seg.color},title:seg.ticker+': '+fmtAmt(seg.amt)+' ('+segPct+'%)'});
+              })
+            )
           ),
           React.createElement('div',{className:'div-cal-bar-tick'},m.lbl),
           m.showYr&&React.createElement('div',{className:'div-cal-bar-year'},"'"+String(m.yr).slice(2))
@@ -2636,10 +2657,10 @@ function DivCalendar(props){
     ),
     React.createElement('div',{className:'div-cal-legend'},
       stocks.map(function(s,i){
-        var pct=monthTotal>0?(s.monthly/monthTotal*100).toFixed(1):'0';
+        var pct=annTotal>0?(s.annDiv/annTotal*100).toFixed(1):'0';
         return React.createElement('div',{key:i,className:'div-cal-leg-item'},
           React.createElement('div',{className:'div-cal-leg-dot',style:{background:s.color}}),
-          s.ticker+' '+fmtAmt(s.monthly)+'/mo ('+pct+'%)'
+          s.ticker+' '+fmtAmt(s.annDiv/12)+'/mo'+(s.isETF?' · Monthly':' · Quarterly')+' ('+pct+'%)'
         );
       })
     )
